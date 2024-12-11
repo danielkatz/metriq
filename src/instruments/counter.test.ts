@@ -55,7 +55,7 @@ describe("Counter", () => {
         expect(counter.getValue(labels2)).toBe(3);
     });
 
-    it("should return null if no value is set", () => {
+    it("should return undefined if no value is set", () => {
         // Arrange
         const counter = new Counter("counter", "description", ["key"], new Registry());
         const labels = { key: "value" };
@@ -65,5 +65,20 @@ describe("Counter", () => {
 
         // Assert
         expect(value).toBe(undefined);
+    });
+
+    it("should return undefined if no value is set for different labels", () => {
+        // Arrange
+        const counter = new Counter("counter", "description", ["key"], new Registry());
+        const labels1 = { key: "value1" };
+        const labels2 = { key: "value2" };
+
+        // Act
+        const value1 = counter.getValue(labels1);
+        const value2 = counter.getValue(labels2);
+
+        // Assert
+        expect(value1).toBe(undefined);
+        expect(value2).toBe(undefined);
     });
 });
