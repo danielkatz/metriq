@@ -31,18 +31,9 @@ export class Metrics {
         return this.registries.values();
     }
 
-    public *getMetrics(): Generator<MetricEntry> {
+    public *getInstruments(): Generator<Instrument> {
         for (const registry of this.getRegistries()) {
-            for (const [key, instrumentValue] of registry.iterateValues()) {
-                const [_, labels] = instrumentValue.instrument.parseKey(key);
-                const value = instrumentValue.value;
-
-                yield {
-                    instrument: instrumentValue.instrument,
-                    labels,
-                    value,
-                };
-            }
+            yield* registry.getInstruments();
         }
     }
 }

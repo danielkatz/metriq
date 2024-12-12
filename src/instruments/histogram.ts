@@ -12,20 +12,22 @@ export class Histogram extends Instrument<number[]> {
     }
 
     observe(labels: Labels, value: number): void {
-        const values = this.getOrInitValue(labels, () => new Array(this.length).fill(0));
-
-        for (let i = 0; i < this.buckets.length; i++) {
-            if (value <= this.buckets[i]) {
-                values[i]++;
-                break;
+        this.updateValue(labels, (values) => {
+            if (typeof values === "undefined") {
+                values = new Array(this.length).fill(0);
             }
-        }
 
-        values[this.buckets.length]++; // +Inf bucket
-        values[this.buckets.length + 1] += value; // sum
-    }
+            for (let i = 0; i < this.buckets.length; i++) {
+                if (value <= this.buckets[i]) {
+                    values[i]++;
+                    break;
+                }
+            }
 
-    getValues(labels: Labels): number[] | undefined {
-        return this.getValue(labels);
+            values[this.buckets.length]++; // +Inf bucket
+            values[this.buckets.length + 1] += value; // sum
+
+            return values;
+        });
     }
 }
