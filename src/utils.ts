@@ -23,3 +23,15 @@ export function readStreamToString(stream: Readable): Promise<string> {
         });
     });
 }
+
+export function parseKey(key: string): Labels {
+    const labels = JSON.parse(key) as Labels;
+    return labels;
+}
+
+export function generateKey(labels: Labels): string {
+    const sortedKeys = Object.keys(labels).sort();
+    const finalLabels = Object.fromEntries(sortedKeys.map((key) => [key, labels[key]]));
+
+    return JSON.stringify(finalLabels);
+}

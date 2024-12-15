@@ -1,57 +1,82 @@
 import { Registry } from "../registry";
-
-type Key = Labels & { __name__: string };
+import { generateKey, parseKey } from "../utils";
 
 export type ValueUpdater<TValue> = (value: TValue | undefined) => TValue;
 
+export type InstrumentOptions = {
+    ttl?: number;
+};
+
 export abstract class Instrument<TValue = unknown> {
-    private values: Map<string, TValue> = new Map();
+    private readonly values: Map<string, TValue> = new Map();
+    private readonly ttls: Map<string, number> = new Map();
 
     constructor(
-        public name: string,
-        public description: string,
-        public requiredLabels: string[],
-        public registry: Registry,
+        public readonly name: string,
+        public readonly description: string,
+        public readonly requiredLabels: string[],
+        public readonly registry: Registry,
+        public readonly options: InstrumentOptions = {},
     ) {
         this.registry.register(this);
     }
 
     public updateValue(labels: Labels, updater: ValueUpdater<TValue>): void {
-        const key = this.generateKey(labels);
-        const value = this.values.get(key);
+        this.validateLabels(labels);
+
+        const key = generateKey(labels);
+
+        const value = this.getValueWithTTL(key);
         const newValue = updater(value);
         this.values.set(key, newValue);
+
+        if (this.options.ttl) {
+            this.ttls.set(key, Date.now() + this.options.ttl);
+        }
     }
 
     public getValue(labels: Labels): TValue | undefined {
-        const key = this.generateKey(labels);
+        const key = generateKey(labels);
+        return this.getValueWithTTL(key);
+    }
+
+    private getValueWithTTL(key: string): TValue | undefined {
+        if (this.options.ttl) {
+            const ttl = this.ttls.get(key);
+            if (ttl && ttl < Date.now()) {
+                this.values.delete(key);
+                this.ttls.delete(key);
+                return undefined;
+            }
+        }
+
         return this.values.get(key);
     }
 
-    private generateKey(labels: Labels): string {
-        this.validateLabels(labels);
-
-        const sortedKeys = Object.keys(labels).sort();
-        const finalLabels = Object.fromEntries(sortedKeys.map((key) => [key, labels[key]]));
-
-        return JSON.stringify(finalLabels);
+    public *getValues(): Generator<[Labels, TValue]> {
+        for (const [key, value] of this.values) {
+            const labels = parseKey(key);
+            yield [labels, value];
+        }
     }
 
-    public parseKey(key: string): Labels {
-        const labels = JSON.parse(key) as Key;
-        return labels;
+    public clearExpiredValues(): void {
+        if (!this.options.ttl) {
+            return;
+        }
+
+        const now = Date.now();
+        for (const [key, ttl] of this.ttls) {
+            if (ttl < now) {
+                this.values.delete(key);
+                this.ttls.delete(key);
+            }
+        }
     }
 
     private validateLabels(labels: Labels): void {
         if ("__name__" in labels) {
             throw new Error("Label __name__ is reserved");
-        }
-    }
-
-    public *getValues(): Generator<[Labels, TValue]> {
-        for (const [key, value] of this.values) {
-            const labels = this.parseKey(key);
-            yield [labels, value];
         }
     }
 }
