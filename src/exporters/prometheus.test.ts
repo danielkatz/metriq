@@ -7,14 +7,14 @@ import { Counter } from "../instruments/counter";
 import { readStreamToString } from "../utils";
 
 describe("PrometheusExporter", () => {
-    describe("simgle registry", () => {
+    describe("single registry", () => {
         let registry: Registry;
         let metrics: Metrics;
         let exporter: PrometheusExporter;
 
         beforeEach(() => {
             registry = new Registry();
-            metrics = new Metrics(registry);
+            metrics = new Metrics({ defaultRegistry: registry });
             exporter = new PrometheusExporter(metrics);
         });
 
