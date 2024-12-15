@@ -1,30 +1,27 @@
 import { Instrument } from "./instruments/instrument";
 import { Registry } from "./registry";
 
-export type MetricEntry = {
-    instrument: Instrument;
-    labels: Labels;
-    value: unknown;
+export type MetricsOptions = {
+    defaultRegistry?: Registry;
+    defaultTtl?: number;
 };
 
 export class Metrics {
-    private registries: Registry[];
+    private readonly registries = new Set<Registry>();
 
-    constructor(registry?: Registry) {
-        registry = registry || new Registry();
-        this.registries = [registry];
+    public readonly options: MetricsOptions;
+    public readonly defaultRegistry: Registry;
+
+    constructor(options?: MetricsOptions) {
+        this.options = options ?? {};
+        this.defaultRegistry = this.options.defaultRegistry ?? new Registry();
+
+        this.addRegistry(this.defaultRegistry);
     }
 
     public addRegistry(registry: Registry): void {
-        this.registries.push(registry);
-    }
-
-    public removeRegistry(registry: Registry): void {
-        const index = this.registries.indexOf(registry);
-        if (index === -1) {
-            throw new Error("Registry not found");
-        }
-        this.registries.splice(index, 1);
+        registry.setOwner(this);
+        this.registries.add(registry);
     }
 
     public getRegistries(): IterableIterator<Registry> {

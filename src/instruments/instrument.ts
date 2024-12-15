@@ -18,7 +18,11 @@ export abstract class Instrument<TValue = unknown> {
         public readonly registry: Registry,
         public readonly options: InstrumentOptions = {},
     ) {
-        this.registry.register(this);
+        this.registry.registerInstrument(this);
+
+        this.options = {
+            ttl: options.ttl ?? registry.getOptions().defaultTtl,
+        };
     }
 
     public updateValue(labels: Labels, updater: ValueUpdater<TValue>): void {
