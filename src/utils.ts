@@ -25,12 +25,22 @@ export function readStreamToString(stream: Readable): Promise<string> {
 }
 
 export function parseKey(key: string): Labels {
+    if (key === "") {
+        return {};
+    }
+
     const labels = JSON.parse(key) as Labels;
     return labels;
 }
 
 export function generateKey(labels: Labels): string {
-    const sortedKeys = Object.keys(labels).sort();
+    const keys = Object.keys(labels);
+
+    if (keys.length === 0) {
+        return "";
+    }
+
+    const sortedKeys = keys.sort();
     const finalLabels = Object.fromEntries(sortedKeys.map((key) => [key, labels[key]]));
 
     return JSON.stringify(finalLabels);
