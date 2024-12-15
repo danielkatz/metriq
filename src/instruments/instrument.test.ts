@@ -1,7 +1,6 @@
-import { it, expect, beforeEach, afterEach, vi } from "vitest";
+import { it, expect, describe, beforeEach, afterEach, vi } from "vitest";
 import { Instrument } from "./instrument";
 import { Registry } from "../registry";
-import { describe } from "node:test";
 import { Metrics } from "../metrics";
 
 class TestInstrument extends Instrument<number> {}
