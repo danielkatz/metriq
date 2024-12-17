@@ -23,6 +23,7 @@
     "test:coverage": "vitest run --coverage",
     "test:types": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
+    "bench": "vitest bench",
     "format": "prettier --write \"src/**/*.ts\"",
     "prepare": "npm run build",
     "release": "changeset publish"

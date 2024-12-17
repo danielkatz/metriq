@@ -1,48 +1,45 @@
-import { Instrument } from "./instruments/instrument";
+import { Counter } from "./instruments/counter";
+import { Instrument, InstrumentOptions } from "./instruments/instrument";
+import { InstrumentFactory } from "./instruments/factory";
 import { Metrics } from "./metrics";
+import { Histogram } from "./instruments/histogram";
 
 export type RegistryOptions = {
     defaultTtl?: number;
 };
 
-export class Registry {
+export class Registry implements InstrumentFactory {
+    public readonly owner: Metrics;
+    public readonly options: RegistryOptions;
     private readonly instruments: Map<string, Instrument> = new Map();
-    private readonly localOptions: RegistryOptions;
 
-    private owner: Metrics | undefined;
-    private effectiveOptions: RegistryOptions | undefined;
-
-    constructor(options?: RegistryOptions) {
-        this.localOptions = options ?? {};
+    constructor(owner: Metrics, options?: RegistryOptions) {
+        this.owner = owner;
+        this.options = { defaultTtl: owner.options.defaultTtl, ...options };
     }
 
-    public setOwner(metrics: Metrics): void {
-        if (this.owner) {
-            throw new Error("Registry already owned by another Metrics instance");
-        }
-        this.owner = metrics;
-
-        this.effectiveOptions = {
-            defaultTtl: this.localOptions.defaultTtl ?? metrics.options.defaultTtl,
-        };
+    public createCounter(name: string, description: string, options?: InstrumentOptions): Counter {
+        const counter = new Counter(name, description, this, options);
+        this.registerInstrument(counter);
+        return counter;
     }
 
-    public registerInstrument(instrument: Instrument): void {
-        if (!this.effectiveOptions) {
-            throw new Error("Registry is not owned by any Metrics instance");
-        }
+    public createHistogram(
+        name: string,
+        description: string,
+        buckets: number[],
+        options?: InstrumentOptions,
+    ): Histogram {
+        const histogram = new Histogram(name, description, buckets, this, options);
+        this.registerInstrument(histogram);
+        return histogram;
+    }
 
+    private registerInstrument(instrument: Instrument): void {
         this.instruments.set(instrument.name, instrument);
     }
 
     public getInstruments(): IterableIterator<Instrument> {
         return this.instruments.values();
-    }
-
-    public getOptions(): RegistryOptions {
-        if (!this.effectiveOptions) {
-            throw new Error("Registry is not owned by any Metrics instance");
-        }
-        return this.effectiveOptions;
     }
 }

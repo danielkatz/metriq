@@ -1,20 +1,16 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { Registry } from "../registry";
-import { Counter } from "./counter";
 import { Metrics } from "../metrics";
 
 describe("Counter", () => {
-    let registry: Registry;
     let metrics: Metrics;
 
     beforeEach(() => {
         metrics = new Metrics();
-        registry = metrics.defaultRegistry;
     });
 
     it("should increment value by one", () => {
         // Arrange
-        const counter = new Counter("counter", "description", ["key"], registry);
+        const counter = metrics.createCounter("counter", "description");
         const labels = { key: "value" };
 
         // Act
@@ -26,7 +22,7 @@ describe("Counter", () => {
 
     it("should increment value by delta", () => {
         // Arrange
-        const counter = new Counter("counter", "description", ["key"], registry);
+        const counter = metrics.createCounter("counter", "description");
         const labels = { key: "value" };
 
         // Act
@@ -38,7 +34,7 @@ describe("Counter", () => {
 
     it("should increment value by delta multiple times", () => {
         // Arrange
-        const counter = new Counter("counter", "description", ["key"], registry);
+        const counter = metrics.createCounter("counter", "description");
         const labels = { key: "value" };
 
         // Act
@@ -51,7 +47,7 @@ describe("Counter", () => {
 
     it("should increment value by delta for different labels", () => {
         // Arrange
-        const counter = new Counter("counter", "description", ["key"], registry);
+        const counter = metrics.createCounter("counter", "description");
         const labels1 = { key: "value1" };
         const labels2 = { key: "value2" };
 
@@ -66,7 +62,7 @@ describe("Counter", () => {
 
     it("should return undefined if no value is set", () => {
         // Arrange
-        const counter = new Counter("counter", "description", ["key"], registry);
+        const counter = metrics.createCounter("counter", "description");
         const labels = { key: "value" };
 
         // Act
@@ -78,7 +74,7 @@ describe("Counter", () => {
 
     it("should return undefined if no value is set for different labels", () => {
         // Arrange
-        const counter = new Counter("counter", "description", ["key"], registry);
+        const counter = metrics.createCounter("counter", "description");
         const labels1 = { key: "value1" };
         const labels2 = { key: "value2" };
 

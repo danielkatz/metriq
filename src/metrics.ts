@@ -1,12 +1,13 @@
-import { Instrument } from "./instruments/instrument";
-import { Registry } from "./registry";
+import { Instrument, InstrumentOptions } from "./instruments/instrument";
+import { InstrumentFactory } from "./instruments/factory";
+import { Registry, RegistryOptions } from "./registry";
+import { Histogram } from "./instruments/histogram";
 
 export type MetricsOptions = {
-    defaultRegistry?: Registry;
     defaultTtl?: number;
 };
 
-export class Metrics {
+export class Metrics implements InstrumentFactory {
     private readonly registries = new Set<Registry>();
 
     public readonly options: MetricsOptions;
@@ -14,22 +15,30 @@ export class Metrics {
 
     constructor(options?: MetricsOptions) {
         this.options = options ?? {};
-        this.defaultRegistry = this.options.defaultRegistry ?? new Registry();
-
-        this.addRegistry(this.defaultRegistry);
+        this.defaultRegistry = this.createRegistry();
     }
 
-    public addRegistry(registry: Registry): void {
-        registry.setOwner(this);
+    public createRegistry(options?: RegistryOptions): Registry {
+        const registry = new Registry(this, options);
         this.registries.add(registry);
+        return registry;
     }
 
-    public getRegistries(): IterableIterator<Registry> {
-        return this.registries.values();
+    public createHistogram(
+        name: string,
+        description: string,
+        buckets: number[],
+        options?: InstrumentOptions,
+    ): Histogram {
+        return this.defaultRegistry.createHistogram(name, description, buckets, options);
+    }
+
+    public createCounter(name: string, description: string, options?: InstrumentOptions) {
+        return this.defaultRegistry.createCounter(name, description, options);
     }
 
     public *getInstruments(): Generator<Instrument> {
-        for (const registry of this.getRegistries()) {
+        for (const registry of this.registries.values()) {
             yield* registry.getInstruments();
         }
     }
