@@ -1,20 +1,16 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import dedent from "dedent";
 import { Metrics } from "../metrics";
-import { Registry } from "../registry";
 import { PrometheusExporter } from "./prometheus";
-import { Counter } from "../instruments/counter";
 import { readStreamToString } from "../utils";
 
 describe("PrometheusExporter", () => {
     describe("single registry", () => {
-        let registry: Registry;
         let metrics: Metrics;
         let exporter: PrometheusExporter;
 
         beforeEach(() => {
-            registry = new Registry();
-            metrics = new Metrics({ defaultRegistry: registry });
+            metrics = new Metrics();
             exporter = new PrometheusExporter(metrics);
         });
 
@@ -31,7 +27,7 @@ describe("PrometheusExporter", () => {
         describe("counter", () => {
             it("single counter with no labels", async () => {
                 // Arrange
-                const counter = new Counter("counter", "description", [], registry);
+                const counter = metrics.createCounter("counter", "description");
 
                 counter.increment(5);
 
@@ -49,7 +45,7 @@ describe("PrometheusExporter", () => {
 
             it("single counter with a label", async () => {
                 // Arrange
-                const counter = new Counter("counter", "description", ["key"], registry);
+                const counter = metrics.createCounter("counter", "description");
 
                 counter.increment({ key: "value" }, 5);
 
@@ -67,7 +63,7 @@ describe("PrometheusExporter", () => {
 
             it("single counter with multiple labels", async () => {
                 // Arrange
-                const counter = new Counter("counter", "description", ["key1", "key2"], registry);
+                const counter = metrics.createCounter("counter", "description");
 
                 counter.increment({ key1: "value1", key2: "value2" }, 5);
 
@@ -85,7 +81,7 @@ describe("PrometheusExporter", () => {
 
             it("single counter with multiple label values", async () => {
                 // Arrange
-                const counter = new Counter("counter", "description", ["key"], registry);
+                const counter = metrics.createCounter("counter", "description");
 
                 counter.increment({ key: "value1" }, 5);
                 counter.increment({ key: "value2" }, 7);
@@ -105,7 +101,7 @@ describe("PrometheusExporter", () => {
 
             it("single counter with multiple label keys", async () => {
                 // Arrange
-                const counter = new Counter("counter", "description", ["key1", "key2"], registry);
+                const counter = metrics.createCounter("counter", "description");
 
                 counter.increment({ key1: "value1", key2: "value2" }, 5);
                 counter.increment({ key1: "value3", key2: "value4" }, 7);
@@ -125,8 +121,8 @@ describe("PrometheusExporter", () => {
 
             it("multiple counters with no labels", async () => {
                 // Arrange
-                const counter1 = new Counter("counter1", "description1", [], registry);
-                const counter2 = new Counter("counter2", "description2", [], registry);
+                const counter1 = metrics.createCounter("counter1", "description1");
+                const counter2 = metrics.createCounter("counter2", "description2");
 
                 counter1.increment(5);
                 counter2.increment(7);
@@ -149,8 +145,8 @@ describe("PrometheusExporter", () => {
 
             it("multiple counters with same labels and same label value", async () => {
                 // Arrange
-                const counter1 = new Counter("counter1", "description1", ["key"], registry);
-                const counter2 = new Counter("counter2", "description2", ["key"], registry);
+                const counter1 = metrics.createCounter("counter1", "description1");
+                const counter2 = metrics.createCounter("counter2", "description2");
 
                 counter1.increment({ key: "value" }, 5);
                 counter2.increment({ key: "value" }, 7);
@@ -173,8 +169,8 @@ describe("PrometheusExporter", () => {
 
             it("multiple counters with same labels and different label values", async () => {
                 // Arrange
-                const counter1 = new Counter("counter1", "description1", ["key"], registry);
-                const counter2 = new Counter("counter2", "description2", ["key"], registry);
+                const counter1 = metrics.createCounter("counter1", "description1");
+                const counter2 = metrics.createCounter("counter2", "description2");
 
                 counter1.increment({ key: "value1" }, 5);
                 counter2.increment({ key: "value2" }, 7);

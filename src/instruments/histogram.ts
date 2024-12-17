@@ -1,12 +1,12 @@
-import { Instrument } from "./instrument";
+import { Instrument, InstrumentOptions } from "./instrument";
 import { Registry } from "../registry";
 
 export class Histogram extends Instrument<number[]> {
     public readonly buckets: number[];
     private length: number;
 
-    constructor(name: string, description: string, buckets: number[], requiredLabels: string[], registry: Registry) {
-        super(name, description, requiredLabels, registry);
+    constructor(name: string, description: string, buckets: number[], registry: Registry, options?: InstrumentOptions) {
+        super(name, description, registry, options);
         this.buckets = buckets;
         this.length = buckets.length + 2;
     }

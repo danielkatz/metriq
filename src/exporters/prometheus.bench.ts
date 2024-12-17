@@ -2,13 +2,12 @@ import { bench, describe } from "vitest";
 import { pipeline } from "node:stream/promises";
 import { PassThrough } from "node:stream";
 import { Metrics } from "../metrics";
-import { Counter } from "../instruments/counter";
 import { PrometheusExporter } from "./prometheus";
 import pc from "prom-client";
 
 describe.each([10, 100, 1000, 10_000, 100_000, 1_000_000])("PrometheusExporter (cardinality=%d)", (cardinality) => {
     const metrics = new Metrics({});
-    const counter = new Counter("counter1", "description", ["key1"], metrics.defaultRegistry);
+    const counter = metrics.createCounter("counter1", "description");
     const exporter = new PrometheusExporter(metrics);
 
     const pcRegistry = new pc.Registry();

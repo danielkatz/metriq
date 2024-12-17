@@ -1,11 +1,10 @@
 import { bench, describe } from "vitest";
 import { Metrics } from "../metrics";
-import { Counter } from "../instruments/counter";
 import pc from "prom-client";
 
 describe("increment counter without labels", () => {
     const metrics = new Metrics({});
-    const counter = new Counter("counter1", "description", [], metrics.defaultRegistry);
+    const counter = metrics.createCounter("counter1", "description");
 
     const pcRegistry = new pc.Registry();
     const pcCounter = new pc.Counter({
@@ -26,7 +25,7 @@ describe("increment counter without labels", () => {
 
 describe("increment counter with labels", () => {
     const metrics = new Metrics({});
-    const counter = new Counter("counter1", "description", ["key1", "key2"], metrics.defaultRegistry);
+    const counter = metrics.createCounter("counter1", "description");
 
     const pcRegistry = new pc.Registry();
     const pcCounter = new pc.Counter({

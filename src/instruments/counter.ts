@@ -1,9 +1,9 @@
-import { Instrument } from "./instrument";
+import { Instrument, InstrumentOptions } from "./instrument";
 import { Registry } from "../registry";
 
 export class Counter extends Instrument<number> {
-    constructor(name: string, description: string, requiredLabels: string[], registry: Registry) {
-        super(name, description, requiredLabels, registry);
+    constructor(name: string, description: string, registry: Registry, options?: InstrumentOptions) {
+        super(name, description, registry, options);
     }
 
     public increment(): void;

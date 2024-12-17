@@ -14,14 +14,11 @@ export abstract class Instrument<TValue = unknown> {
     constructor(
         public readonly name: string,
         public readonly description: string,
-        public readonly requiredLabels: string[],
         public readonly registry: Registry,
         public readonly options: InstrumentOptions = {},
     ) {
-        this.registry.registerInstrument(this);
-
         this.options = {
-            ttl: options.ttl ?? registry.getOptions().defaultTtl,
+            ttl: options.ttl ?? registry.options.defaultTtl,
         };
     }
 

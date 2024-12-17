@@ -1,9 +1,15 @@
 import { it, expect, describe, beforeEach, afterEach, vi } from "vitest";
-import { Instrument } from "./instrument";
+import { Instrument, InstrumentOptions } from "./instrument";
 import { Registry } from "../registry";
 import { Metrics } from "../metrics";
 
-class TestInstrument extends Instrument<number> {}
+class TestInstrument extends Instrument<number> {
+    constructor(name: string, description: string, registry: Registry, options?: InstrumentOptions) {
+        super(name, description, registry, options);
+
+        registry["registerInstrument"](this);
+    }
+}
 
 describe("Instrument", () => {
     describe("Options", () => {
@@ -15,26 +21,24 @@ describe("Instrument", () => {
 
         it("should have undefined TTL when not specified", () => {
             // Arrange
-            const registry = new Registry({});
-            metrics.addRegistry(registry);
+            const registry = metrics.createRegistry({});
 
             // Act
-            const instrument = new TestInstrument("name", "description", [], registry);
+            const counter = registry.createCounter("name", "description");
 
             // Assert
-            expect(instrument.options.ttl).toBeUndefined();
+            expect(counter.options.ttl).toBeUndefined();
         });
 
         it("should use the default TTL from the registry", () => {
             // Arrange
-            const registry = new Registry({ defaultTtl: 60000 });
-            metrics.addRegistry(registry);
+            const registry = metrics.createRegistry({ defaultTtl: 60000 });
 
             // Act
-            const instrument = new TestInstrument("name", "description", [], registry);
+            const counter = registry.createCounter("name", "description");
 
             // Assert
-            expect(instrument.options.ttl).toBe(60000);
+            expect(counter.options.ttl).toBe(60000);
         });
     });
 
@@ -55,7 +59,7 @@ describe("Instrument", () => {
 
         it("should set the value and retrieve it correctly", () => {
             // Arrange
-            const instrument = new TestInstrument("name", "description", [], registry, { ttl: 1000 });
+            const instrument = new TestInstrument("name", "description", registry, { ttl: 1000 });
 
             // Act
             instrument.updateValue({}, () => 3);
@@ -66,7 +70,7 @@ describe("Instrument", () => {
 
         it("should not expire the value if ttl is not set", () => {
             // Arrange
-            const instrument = new TestInstrument("name", "description", [], registry);
+            const instrument = new TestInstrument("name", "description", registry);
 
             // Act
             instrument.updateValue({}, () => 3);
@@ -78,7 +82,7 @@ describe("Instrument", () => {
 
         it("should update the value and retrieve it correctly", () => {
             // Arrange
-            const instrument = new TestInstrument("name", "description", [], registry, { ttl: 1000 });
+            const instrument = new TestInstrument("name", "description", registry, { ttl: 1000 });
 
             // Act
             instrument.updateValue({}, () => 3);
@@ -91,7 +95,7 @@ describe("Instrument", () => {
 
         it("should return undefined if the value is expired", () => {
             // Arrange
-            const instrument = new TestInstrument("name", "description", [], registry, { ttl: 1000 });
+            const instrument = new TestInstrument("name", "description", registry, { ttl: 1000 });
 
             // Act
             instrument.updateValue({}, () => 3);
@@ -103,7 +107,7 @@ describe("Instrument", () => {
 
         it("should use undefined as base value when expired", () => {
             // Arrange
-            const instrument = new TestInstrument("name", "description", [], registry, { ttl: 1000 });
+            const instrument = new TestInstrument("name", "description", registry, { ttl: 1000 });
 
             // Act
             instrument.updateValue({}, () => 3);
@@ -116,7 +120,7 @@ describe("Instrument", () => {
 
         it("should reset TTL when updating the value", () => {
             // Arrange
-            const instrument = new TestInstrument("name", "description", [], registry, { ttl: 1000 });
+            const instrument = new TestInstrument("name", "description", registry, { ttl: 1000 });
 
             // Act
             instrument.updateValue({}, () => 3);
