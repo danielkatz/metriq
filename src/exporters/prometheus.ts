@@ -2,6 +2,7 @@ import { Readable } from "node:stream";
 import { Counter } from "../instruments/counter";
 import { Histogram } from "../instruments/histogram";
 import { Metrics } from "../metrics";
+import { Instrument } from "../instruments/instrument";
 
 export class PrometheusExporter {
     private metrics: Metrics;

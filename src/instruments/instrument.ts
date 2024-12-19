@@ -8,17 +8,22 @@ export type InstrumentOptions = {
 };
 
 export abstract class Instrument<TValue = unknown> {
+    public readonly options: InstrumentOptions;
+
     private readonly values: Map<string, TValue> = new Map();
     private readonly ttls: Map<string, number> = new Map();
+
+    protected readonly defaultOptions: InstrumentOptions = {};
 
     constructor(
         public readonly name: string,
         public readonly description: string,
         public readonly registry: Registry,
-        public readonly options: InstrumentOptions = {},
+        options: InstrumentOptions = {},
     ) {
         this.options = {
-            ttl: options.ttl ?? registry.options.defaultTtl,
+            ...this.defaultOptions,
+            ...options,
         };
     }
 

@@ -6,7 +6,7 @@ Metrics library targeting nodejs and prometheus (to start with)
     - [x] Streaming writer
 - [x] TTL for metrics
 - [x] Dynamic labels
-- [ ] Default common prefix
+- [x] Default common prefix
 - [ ] Default labels
 - [ ] Internal metrics
     - [ ] Exposure bytes and duration
