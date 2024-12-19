@@ -1,5 +1,5 @@
 import { bench, describe } from "vitest";
-import { Metrics } from "../metrics";
+import { Metrics } from "../src/metrics";
 import pc from "prom-client";
 
 describe("increment counter without labels", () => {

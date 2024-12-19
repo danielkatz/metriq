@@ -5,6 +5,7 @@ import { Histogram } from "./instruments/histogram";
 
 export type MetricsOptions = {
     defaultTtl?: number;
+    commonPrefix?: string;
 };
 
 export class Metrics implements InstrumentFactory {
@@ -19,9 +20,18 @@ export class Metrics implements InstrumentFactory {
     }
 
     public createRegistry(options?: RegistryOptions): Registry {
-        const registry = new Registry(this, options);
+        const merged: RegistryOptions = {
+            defaultTtl: this.options.defaultTtl,
+            commonPrefix: this.options.commonPrefix,
+            ...options,
+        };
+        const registry = new Registry(this, merged);
         this.registries.add(registry);
         return registry;
+    }
+
+    public createCounter(name: string, description: string, options?: InstrumentOptions) {
+        return this.defaultRegistry.createCounter(name, description, options);
     }
 
     public createHistogram(
@@ -33,8 +43,14 @@ export class Metrics implements InstrumentFactory {
         return this.defaultRegistry.createHistogram(name, description, buckets, options);
     }
 
-    public createCounter(name: string, description: string, options?: InstrumentOptions) {
-        return this.defaultRegistry.createCounter(name, description, options);
+    public hasInstrumentName(name: string): boolean {
+        for (const registry of this.registries.values()) {
+            if (registry.hasInstrumentName(name)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public *getInstruments(): Generator<Instrument> {

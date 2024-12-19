@@ -13,3 +13,19 @@ it("references the correct instruments", async () => {
 
     console.log(await client.register.metrics());
 });
+
+it("hitogram", async () => {
+    const histogram = new client.Histogram({
+        name: "histogram",
+        help: "description",
+        buckets: [1, 2, 3],
+    });
+
+    histogram.observe(0);
+    histogram.observe(1);
+    histogram.observe(2);
+    histogram.observe(3);
+    histogram.observe(4);
+
+    console.log(await client.register.metrics());
+});

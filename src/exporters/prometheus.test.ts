@@ -190,6 +190,25 @@ describe("PrometheusExporter", () => {
                     counter2{key="value2"} 7\n
                 `);
             });
+
+            it("counter with prefix", async () => {
+                // Arrange
+                const registry = metrics.createRegistry({ commonPrefix: "prefix_" });
+                const instrument = registry.createCounter("counter", "description");
+
+                instrument.increment(5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE counter
+                    prefix_counter{} 5\n
+                `);
+            });
         });
     });
 });

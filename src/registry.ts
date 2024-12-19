@@ -6,20 +6,33 @@ import { Histogram } from "./instruments/histogram";
 
 export type RegistryOptions = {
     defaultTtl?: number;
+    commonPrefix?: string;
 };
+
+const defaultOptions: RegistryOptions = {};
 
 export class Registry implements InstrumentFactory {
     public readonly owner: Metrics;
-    public readonly options: RegistryOptions;
+    private readonly options: RegistryOptions;
     private readonly instruments: Map<string, Instrument> = new Map();
 
-    constructor(owner: Metrics, options?: RegistryOptions) {
+    constructor(owner: Metrics, options: RegistryOptions) {
         this.owner = owner;
-        this.options = { defaultTtl: owner.options.defaultTtl, ...options };
+        this.options = { ...defaultOptions, ...options };
     }
 
     public createCounter(name: string, description: string, options?: InstrumentOptions): Counter {
-        const counter = new Counter(name, description, this, options);
+        const merged: InstrumentOptions = {
+            ttl: this.options.defaultTtl,
+            ...options,
+        };
+        const fullName = (this.options.commonPrefix ?? "") + name;
+
+        if (this.owner.hasInstrumentName(fullName)) {
+            throw new Error(`Instrument with name "${fullName}" already exists`);
+        }
+
+        const counter = new Counter(fullName, description, this, merged);
         this.registerInstrument(counter);
         return counter;
     }
@@ -30,13 +43,27 @@ export class Registry implements InstrumentFactory {
         buckets: number[],
         options?: InstrumentOptions,
     ): Histogram {
-        const histogram = new Histogram(name, description, buckets, this, options);
+        const merged: InstrumentOptions = {
+            ttl: this.options.defaultTtl,
+            ...options,
+        };
+        const fullName = (this.options.commonPrefix ?? "") + name;
+
+        if (this.owner.hasInstrumentName(fullName)) {
+            throw new Error(`Instrument with name "${fullName}" already exists`);
+        }
+
+        const histogram = new Histogram(fullName, description, buckets, this, merged);
         this.registerInstrument(histogram);
         return histogram;
     }
 
     private registerInstrument(instrument: Instrument): void {
         this.instruments.set(instrument.name, instrument);
+    }
+
+    public hasInstrumentName(name: string): boolean {
+        return this.instruments.has(name);
     }
 
     public getInstruments(): IterableIterator<Instrument> {
