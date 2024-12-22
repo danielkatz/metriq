@@ -39,7 +39,7 @@ export class PrometheusExporter {
         yield `# HELP ${counter.description}\n`;
         yield `# TYPE counter\n`;
 
-        for (const [labels, value] of counter.getValues()) {
+        for (const { labels, value } of counter.getValues()) {
             yield `${counter.name}${this.writeLabels(labels)} ${value}\n`;
         }
     }
@@ -48,10 +48,10 @@ export class PrometheusExporter {
         yield `# HELP ${histogram.description}\n`;
         yield `# TYPE histogram\n`;
 
-        for (const [labels, values] of histogram.getValues()) {
-            const sum = values[values.length - 1];
-            const count = values[values.length - 2];
-            const buckets = values.slice(0, values.length - 2);
+        for (const { labels, value } of histogram.getValues()) {
+            const sum = value[value.length - 1];
+            const count = value[value.length - 2];
+            const buckets = value.slice(0, value.length - 2);
 
             yield `${histogram.name}_sum${this.writeLabels(labels)} ${sum}\n`;
             yield `${histogram.name}_count${this.writeLabels(labels)} ${count}\n`;

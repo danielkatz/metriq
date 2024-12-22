@@ -24,15 +24,6 @@ export function readStreamToString(stream: Readable): Promise<string> {
     });
 }
 
-export function parseKey(key: string): Labels {
-    if (key === "") {
-        return {};
-    }
-
-    const labels = JSON.parse(key) as Labels;
-    return labels;
-}
-
 export function generateKey(labels: Labels): string {
     const keys = Object.keys(labels);
 
