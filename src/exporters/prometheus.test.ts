@@ -209,6 +209,48 @@ describe("PrometheusExporter", () => {
                     prefix_counter{} 5\n
                 `);
             });
+
+            it("counter with common labels", async () => {
+                // Arrange
+                const metrics = new Metrics({ commonLabels: { key: "value" } });
+                const exporter = new PrometheusExporter(metrics);
+
+                const counter = metrics.createCounter("counter", "description");
+
+                counter.increment(5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE counter
+                    counter{key="value"} 5\n
+                `);
+            });
+
+            it("counter with common labels and instrument labels", async () => {
+                // Arrange
+                const metrics = new Metrics({ commonLabels: { key1: "value1" } });
+                const exporter = new PrometheusExporter(metrics);
+
+                const counter = metrics.createCounter("counter", "description");
+
+                counter.increment({ key2: "value2" }, 5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE counter
+                    counter{key1="value1",key2="value2"} 5\n
+                `);
+            });
         });
     });
 });

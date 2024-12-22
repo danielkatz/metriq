@@ -39,7 +39,7 @@ export class PrometheusExporter {
         yield `# HELP ${counter.description}\n`;
         yield `# TYPE counter\n`;
 
-        for (const { labels, value } of counter.getValues()) {
+        for (const { labels, value } of counter.getInstrumentValues()) {
             yield `${counter.name}${this.writeLabels(labels)} ${value}\n`;
         }
     }
@@ -48,7 +48,7 @@ export class PrometheusExporter {
         yield `# HELP ${histogram.description}\n`;
         yield `# TYPE histogram\n`;
 
-        for (const { labels, value } of histogram.getValues()) {
+        for (const { labels, value } of histogram.getInstrumentValues()) {
             const sum = value[value.length - 1];
             const count = value[value.length - 2];
             const buckets = value.slice(0, value.length - 2);
@@ -65,8 +65,20 @@ export class PrometheusExporter {
     }
 
     private writeLabels(labels: Labels): string {
-        return `{${Object.entries(labels)
-            .map(([key, value]) => `${key}="${value}"`)
-            .join(",")}}`;
+        const keys = Object.keys(labels);
+        const len = keys.length;
+        if (len === 0) {
+            return "{}";
+        }
+
+        const segments = new Array<string>(len);
+
+        for (let i = 0; i < len; i++) {
+            const key = keys[i];
+            const value = labels[key];
+            segments[i] = `${key}="${value}"`;
+        }
+
+        return `{${segments.join(",")}}`;
     }
 }

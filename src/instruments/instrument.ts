@@ -5,6 +5,7 @@ export type ValueUpdater<TValue> = (value: TValue | undefined) => TValue;
 
 export type InstrumentOptions = {
     ttl?: number;
+    commonLabels?: Record<string, string>;
 };
 
 export type InstrumentValue<TValue> = {
@@ -13,7 +14,7 @@ export type InstrumentValue<TValue> = {
 };
 
 export abstract class Instrument<TValue = unknown> {
-    public readonly options: InstrumentOptions;
+    public readonly options: Readonly<InstrumentOptions>;
 
     private readonly values: Map<string, InstrumentValue<TValue>> = new Map();
     private readonly ttls: Map<string, number> = new Map();
@@ -26,10 +27,10 @@ export abstract class Instrument<TValue = unknown> {
         public readonly registry: Registry,
         options: InstrumentOptions = {},
     ) {
-        this.options = {
+        this.options = Object.freeze({
             ...this.defaultOptions,
             ...options,
-        };
+        });
     }
 
     public updateValue(labels: Labels, updater: ValueUpdater<TValue>): void {
@@ -41,8 +42,9 @@ export abstract class Instrument<TValue = unknown> {
         const newValue = updater(value?.value);
 
         if (value === undefined) {
+            const mergedLabels = { ...this.options.commonLabels, ...labels };
             value = {
-                labels: Object.freeze(labels),
+                labels: Object.freeze(mergedLabels),
                 value: newValue,
             };
         } else {
@@ -74,7 +76,7 @@ export abstract class Instrument<TValue = unknown> {
         return this.values.get(key);
     }
 
-    public *getValues(): Generator<InstrumentValue<TValue>> {
+    public *getInstrumentValues(): Generator<InstrumentValue<TValue>> {
         for (const value of this.values.values()) {
             yield value;
         }
