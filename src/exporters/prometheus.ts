@@ -1,8 +1,8 @@
 import { Readable } from "node:stream";
 import { Counter } from "../instruments/counter";
+import { Gauge } from "../instruments/gauge";
 import { Histogram } from "../instruments/histogram";
 import { Metrics } from "../metrics";
-import { Instrument } from "../instruments/instrument";
 
 export class PrometheusExporter {
     private metrics: Metrics;
@@ -27,6 +27,8 @@ export class PrometheusExporter {
 
             if (instrument instanceof Counter) {
                 yield* this.writeCounter(instrument);
+            } else if (instrument instanceof Gauge) {
+                yield* this.writeGauge(instrument);
             } else if (instrument instanceof Histogram) {
                 yield* this.writeHistogram(instrument);
             } else {
@@ -41,6 +43,15 @@ export class PrometheusExporter {
 
         for (const { labels, value } of counter.getInstrumentValues()) {
             yield `${counter.name}${this.writeLabels(labels)} ${value}\n`;
+        }
+    }
+
+    private *writeGauge(instrument: Gauge): Generator<string> {
+        yield `# HELP ${instrument.description}\n`;
+        yield `# TYPE gauge\n`;
+
+        for (const { labels, value } of instrument.getInstrumentValues()) {
+            yield `${instrument.name}${this.writeLabels(labels)} ${value}\n`;
         }
     }
 

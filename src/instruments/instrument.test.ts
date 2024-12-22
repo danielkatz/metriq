@@ -21,6 +21,7 @@ type TestInstrumentFactory = (
 
 const instruments: [string, TestInstrumentFactory][] = [
     ["counter", (factory, name, description, options) => factory.createCounter(name, description, options)],
+    ["gauge", (factory, name, description, options) => factory.createGauge(name, description, options)],
     [
         "histogram",
         (factory, name, description, options) => factory.createHistogram(name, description, [1, 2, 3], options),

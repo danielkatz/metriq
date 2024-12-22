@@ -1,6 +1,8 @@
 import { Instrument, InstrumentOptions } from "./instruments/instrument";
 import { InstrumentFactory } from "./instruments/factory";
 import { Registry, RegistryOptions } from "./registry";
+import { Counter } from "./instruments/counter";
+import { Gauge } from "./instruments/gauge";
 import { Histogram } from "./instruments/histogram";
 
 export type MetricsOptions = {
@@ -9,7 +11,7 @@ export type MetricsOptions = {
     commonLabels?: Record<string, string>;
 };
 
-const DEFAULT_OPTIONS: RegistryOptions = {};
+const DEFAULT_OPTIONS: MetricsOptions = {};
 
 export class Metrics implements InstrumentFactory {
     private readonly registries = new Set<Registry>();
@@ -17,8 +19,8 @@ export class Metrics implements InstrumentFactory {
     public readonly options: Readonly<MetricsOptions>;
     public readonly defaultRegistry: Registry;
 
-    constructor(options?: MetricsOptions) {
-        this.options = Object.freeze(options ?? DEFAULT_OPTIONS);
+    constructor(options?: Partial<MetricsOptions>) {
+        this.options = Object.freeze({ ...DEFAULT_OPTIONS, ...options });
         this.defaultRegistry = this.createRegistry();
     }
 
@@ -34,8 +36,12 @@ export class Metrics implements InstrumentFactory {
         return registry;
     }
 
-    public createCounter(name: string, description: string, options?: InstrumentOptions) {
+    public createCounter(name: string, description: string, options?: InstrumentOptions): Counter {
         return this.defaultRegistry.createCounter(name, description, options);
+    }
+
+    public createGauge(name: string, description: string, options?: InstrumentOptions): Gauge {
+        return this.defaultRegistry.createGauge(name, description, options);
     }
 
     public createHistogram(
