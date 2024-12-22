@@ -7,23 +7,25 @@ import { Histogram } from "./instruments/histogram";
 export type RegistryOptions = {
     defaultTtl?: number;
     commonPrefix?: string;
+    commonLabels?: Record<string, string>;
 };
 
-const defaultOptions: RegistryOptions = {};
+const DEFAULT_OPTIONS: RegistryOptions = {};
 
 export class Registry implements InstrumentFactory {
     public readonly owner: Metrics;
-    private readonly options: RegistryOptions;
+    private readonly options: Readonly<RegistryOptions>;
     private readonly instruments: Map<string, Instrument> = new Map();
 
     constructor(owner: Metrics, options: RegistryOptions) {
         this.owner = owner;
-        this.options = { ...defaultOptions, ...options };
+        this.options = Object.freeze({ ...DEFAULT_OPTIONS, ...options });
     }
 
     public createCounter(name: string, description: string, options?: InstrumentOptions): Counter {
         const merged: InstrumentOptions = {
             ttl: this.options.defaultTtl,
+            commonLabels: this.options.commonLabels,
             ...options,
         };
         const fullName = (this.options.commonPrefix ?? "") + name;
@@ -45,6 +47,7 @@ export class Registry implements InstrumentFactory {
     ): Histogram {
         const merged: InstrumentOptions = {
             ttl: this.options.defaultTtl,
+            commonLabels: this.options.commonLabels,
             ...options,
         };
         const fullName = (this.options.commonPrefix ?? "") + name;

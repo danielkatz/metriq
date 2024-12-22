@@ -6,16 +6,19 @@ import { Histogram } from "./instruments/histogram";
 export type MetricsOptions = {
     defaultTtl?: number;
     commonPrefix?: string;
+    commonLabels?: Record<string, string>;
 };
+
+const DEFAULT_OPTIONS: RegistryOptions = {};
 
 export class Metrics implements InstrumentFactory {
     private readonly registries = new Set<Registry>();
 
-    public readonly options: MetricsOptions;
+    public readonly options: Readonly<MetricsOptions>;
     public readonly defaultRegistry: Registry;
 
     constructor(options?: MetricsOptions) {
-        this.options = options ?? {};
+        this.options = Object.freeze(options ?? DEFAULT_OPTIONS);
         this.defaultRegistry = this.createRegistry();
     }
 
@@ -23,6 +26,7 @@ export class Metrics implements InstrumentFactory {
         const merged: RegistryOptions = {
             defaultTtl: this.options.defaultTtl,
             commonPrefix: this.options.commonPrefix,
+            commonLabels: this.options.commonLabels,
             ...options,
         };
         const registry = new Registry(this, merged);

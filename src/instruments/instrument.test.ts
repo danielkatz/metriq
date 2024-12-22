@@ -162,6 +162,30 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
             // Assert
             expect(counter.name).toBe("prefix_name");
         });
+
+        it("should use common labels from root", () => {
+            // Arrange
+            const metrics = new Metrics({ commonLabels: { key: "value" } });
+            const registry = metrics.createRegistry();
+
+            // Act
+            const counter = createInstrument(registry, "name", "description");
+
+            // Assert
+            expect(counter.options.commonLabels).toEqual({ key: "value" });
+        });
+
+        it("should use common labels from registry", () => {
+            // Arrange
+            const metrics = new Metrics();
+            const registry = metrics.createRegistry({ commonLabels: { key: "value" } });
+
+            // Act
+            const counter = createInstrument(registry, "name", "description");
+
+            // Assert
+            expect(counter.options.commonLabels).toEqual({ key: "value" });
+        });
     });
 });
 
