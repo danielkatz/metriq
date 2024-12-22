@@ -1,5 +1,5 @@
 import { Registry } from "../registry";
-import { generateKey, parseKey } from "../utils";
+import { generateKey } from "../utils";
 
 export type ValueUpdater<TValue> = (value: TValue | undefined) => TValue;
 
@@ -7,10 +7,15 @@ export type InstrumentOptions = {
     ttl?: number;
 };
 
+export type InstrumentValue<TValue> = {
+    labels: Readonly<Labels>;
+    value: TValue;
+};
+
 export abstract class Instrument<TValue = unknown> {
     public readonly options: InstrumentOptions;
 
-    private readonly values: Map<string, TValue> = new Map();
+    private readonly values: Map<string, InstrumentValue<TValue>> = new Map();
     private readonly ttls: Map<string, number> = new Map();
 
     protected readonly defaultOptions: InstrumentOptions = {};
@@ -32,9 +37,19 @@ export abstract class Instrument<TValue = unknown> {
 
         const key = generateKey(labels);
 
-        const value = this.getValueWithTTL(key);
-        const newValue = updater(value);
-        this.values.set(key, newValue);
+        let value = this.getValueWithTTL(key);
+        const newValue = updater(value?.value);
+
+        if (value === undefined) {
+            value = {
+                labels: Object.freeze(labels),
+                value: newValue,
+            };
+        } else {
+            value.value = newValue;
+        }
+
+        this.values.set(key, value);
 
         if (this.options.ttl) {
             this.ttls.set(key, Date.now() + this.options.ttl);
@@ -43,10 +58,10 @@ export abstract class Instrument<TValue = unknown> {
 
     public getValue(labels: Labels): TValue | undefined {
         const key = generateKey(labels);
-        return this.getValueWithTTL(key);
+        return this.getValueWithTTL(key)?.value;
     }
 
-    private getValueWithTTL(key: string): TValue | undefined {
+    private getValueWithTTL(key: string): InstrumentValue<TValue> | undefined {
         if (this.options.ttl) {
             const ttl = this.ttls.get(key);
             if (ttl && ttl < Date.now()) {
@@ -59,10 +74,9 @@ export abstract class Instrument<TValue = unknown> {
         return this.values.get(key);
     }
 
-    public *getValues(): Generator<[Labels, TValue]> {
-        for (const [key, value] of this.values) {
-            const labels = parseKey(key);
-            yield [labels, value];
+    public *getValues(): Generator<InstrumentValue<TValue>> {
+        for (const value of this.values.values()) {
+            yield value;
         }
     }
 

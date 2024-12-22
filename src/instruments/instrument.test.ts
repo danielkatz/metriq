@@ -76,6 +76,18 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
             // Assert
             expect(() => createInstrument(registry2, "name", "description")).toThrowError();
         });
+
+        it("should throw error when creating counter with duplicate prefixed name", () => {
+            // Arrange
+            const metrics = new Metrics();
+            const registry = metrics.createRegistry({ commonPrefix: "prefix_" });
+
+            createInstrument(registry, "name", "description");
+
+            // Act
+            // Assert
+            expect(() => createInstrument(metrics, "prefix_name", "description")).toThrowError();
+        });
     });
 
     describe("Options", () => {
