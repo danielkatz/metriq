@@ -29,3 +29,20 @@ it("hitogram", async () => {
 
     console.log(await client.register.metrics());
 });
+
+it("gauge", async () => {
+    const gauge = new client.Gauge({
+        name: "gauge",
+        help: "description",
+        labelNames: ["key"],
+    });
+
+    gauge.labels("value1").inc(5);
+    gauge.labels("value2").inc(7);
+
+    gauge.labels("value1").dec(2);
+
+    gauge.labels("value2").set(42);
+
+    console.log(await client.register.metrics());
+});

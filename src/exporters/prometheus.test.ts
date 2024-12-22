@@ -252,5 +252,234 @@ describe("PrometheusExporter", () => {
                 `);
             });
         });
+
+        describe("gauge", () => {
+            it("single gauge with no labels", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+
+                gauge.increment(5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge
+                    gauge{} 5\n
+                `);
+            });
+
+            it("single gauge with a label", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+
+                gauge.increment({ key: "value" }, 5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge
+                    gauge{key="value"} 5\n
+                `);
+            });
+
+            it("single gauge with multiple labels", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+
+                gauge.increment({ key1: "value1", key2: "value2" }, 5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge
+                    gauge{key1="value1",key2="value2"} 5\n
+                `);
+            });
+
+            it("single gauge with multiple label values", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+
+                gauge.increment({ key: "value1" }, 5);
+                gauge.increment({ key: "value2" }, 7);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge
+                    gauge{key="value1"} 5
+                    gauge{key="value2"} 7\n
+                `);
+            });
+
+            it("single gauge with multiple label keys", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+
+                gauge.increment({ key1: "value1", key2: "value2" }, 5);
+                gauge.increment({ key1: "value3", key2: "value4" }, 7);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge
+                    gauge{key1="value1",key2="value2"} 5
+                    gauge{key1="value3",key2="value4"} 7\n
+                `);
+            });
+
+            it("multiple gauges with no labels", async () => {
+                // Arrange
+                const gauge1 = metrics.createGauge("gauge1", "description1");
+                const gauge2 = metrics.createGauge("gauge2", "description2");
+
+                gauge1.increment(5);
+                gauge2.increment(7);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description1
+                    # TYPE gauge
+                    gauge1{} 5
+
+                    # HELP description2
+                    # TYPE gauge
+                    gauge2{} 7\n
+                `);
+            });
+
+            it("multiple gauges with same labels and same label value", async () => {
+                // Arrange
+                const gauge1 = metrics.createGauge("gauge1", "description1");
+                const gauge2 = metrics.createGauge("gauge2", "description2");
+
+                gauge1.increment({ key: "value" }, 5);
+                gauge2.increment({ key: "value" }, 7);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description1
+                    # TYPE gauge
+                    gauge1{key="value"} 5
+
+                    # HELP description2
+                    # TYPE gauge
+                    gauge2{key="value"} 7\n
+                `);
+            });
+
+            it("multiple gauges with same labels and different label values", async () => {
+                // Arrange
+                const gauge1 = metrics.createGauge("gauge1", "description1");
+                const gauge2 = metrics.createGauge("gauge2", "description2");
+
+                gauge1.increment({ key: "value1" }, 5);
+                gauge2.increment({ key: "value2" }, 7);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description1
+                    # TYPE gauge
+                    gauge1{key="value1"} 5
+
+                    # HELP description2
+                    # TYPE gauge
+                    gauge2{key="value2"} 7\n
+                `);
+            });
+
+            it("gauge with prefix", async () => {
+                // Arrange
+                const registry = metrics.createRegistry({ commonPrefix: "prefix_" });
+                const instrument = registry.createGauge("gauge", "description");
+
+                instrument.increment(5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge
+                    prefix_gauge{} 5\n
+                `);
+            });
+
+            it("gauge with common labels", async () => {
+                // Arrange
+                const metrics = new Metrics({ commonLabels: { key: "value" } });
+                const exporter = new PrometheusExporter(metrics);
+
+                const gauge = metrics.createGauge("gauge", "description");
+
+                gauge.increment(5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge
+                    gauge{key="value"} 5\n
+                `);
+            });
+
+            it("gauge with common labels and instrument labels", async () => {
+                // Arrange
+                const metrics = new Metrics({ commonLabels: { key1: "value1" } });
+                const exporter = new PrometheusExporter(metrics);
+
+                const gauge = metrics.createGauge("gauge", "description");
+
+                gauge.increment({ key2: "value2" }, 5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge
+                    gauge{key1="value1",key2="value2"} 5\n
+                `);
+            });
+        });
     });
 });

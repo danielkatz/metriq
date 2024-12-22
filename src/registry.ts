@@ -1,7 +1,8 @@
-import { Counter } from "./instruments/counter";
 import { Instrument, InstrumentOptions } from "./instruments/instrument";
 import { InstrumentFactory } from "./instruments/factory";
+import { Counter } from "./instruments/counter";
 import { Metrics } from "./metrics";
+import { Gauge } from "./instruments/gauge";
 import { Histogram } from "./instruments/histogram";
 
 export type RegistryOptions = {
@@ -37,6 +38,23 @@ export class Registry implements InstrumentFactory {
         const counter = new Counter(fullName, description, this, merged);
         this.registerInstrument(counter);
         return counter;
+    }
+
+    public createGauge(name: string, description: string, options?: InstrumentOptions): Gauge {
+        const merged: InstrumentOptions = {
+            ttl: this.options.defaultTtl,
+            commonLabels: this.options.commonLabels,
+            ...options,
+        };
+        const fullName = (this.options.commonPrefix ?? "") + name;
+
+        if (this.owner.hasInstrumentName(fullName)) {
+            throw new Error(`Instrument with name "${fullName}" already exists`);
+        }
+
+        const gauge = new Gauge(fullName, description, this, merged);
+        this.registerInstrument(gauge);
+        return gauge;
     }
 
     public createHistogram(

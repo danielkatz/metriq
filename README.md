@@ -1,6 +1,11 @@
 Metrics library targeting nodejs and prometheus (to start with)
 
 - [ ] The API should be largely compatible with prom-client
+    - [ ] Instruments
+        - [x] Counter
+        - [x] Gauge
+        - [-] Histogram
+        - [ ] Summary
 - [x] Support massive amount of metrics
     - [x] Performance
     - [x] Streaming writer
