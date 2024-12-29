@@ -15,10 +15,10 @@ export class PrometheusExporter {
         return Readable.from(this.writeMetrics());
     }
 
-    private *writeMetrics(): Generator<string> {
+    private async *writeMetrics(): AsyncGenerator<string> {
         let isFirst = true;
 
-        for (const instrument of this.metrics.getInstruments()) {
+        for await (const instrument of this.metrics.collect()) {
             if (isFirst) {
                 isFirst = false;
             } else {

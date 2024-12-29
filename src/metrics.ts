@@ -11,10 +11,13 @@ export type MetricsOptions = {
     commonLabels?: Record<string, string>;
 };
 
+export type CollectCallback = () => void | Promise<void>;
+
 const DEFAULT_OPTIONS: MetricsOptions = {};
 
 export class Metrics implements InstrumentFactory {
     private readonly registries = new Set<Registry>();
+    private readonly collectCallbacks = new Set<CollectCallback>();
 
     public readonly options: Readonly<MetricsOptions>;
     public readonly defaultRegistry: Registry;
@@ -53,6 +56,14 @@ export class Metrics implements InstrumentFactory {
         return this.defaultRegistry.createHistogram(name, description, buckets, options);
     }
 
+    public addCollectCallback(callback: CollectCallback): void {
+        this.collectCallbacks.add(callback);
+    }
+
+    public removeCollectCallback(callback: CollectCallback): void {
+        this.collectCallbacks.delete(callback);
+    }
+
     public hasInstrumentName(name: string): boolean {
         for (const registry of this.registries.values()) {
             if (registry.hasInstrumentName(name)) {
@@ -63,7 +74,11 @@ export class Metrics implements InstrumentFactory {
         return false;
     }
 
-    public *getInstruments(): Generator<Instrument> {
+    public async *collect(): AsyncGenerator<Instrument> {
+        for (const callback of this.collectCallbacks) {
+            await Promise.resolve(callback());
+        }
+
         for (const registry of this.registries.values()) {
             yield* registry.getInstruments();
         }

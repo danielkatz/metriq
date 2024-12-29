@@ -482,4 +482,66 @@ describe("PrometheusExporter", () => {
             });
         });
     });
+
+    describe("async collect", () => {
+        let metrics: Metrics;
+        let exporter: PrometheusExporter;
+
+        beforeEach(() => {
+            metrics = new Metrics();
+            exporter = new PrometheusExporter(metrics);
+        });
+
+        it("sync callback", async () => {
+            // Arrange
+            const counter = metrics.createCounter("counter", "description");
+            const gauge = metrics.createGauge("gauge", "description");
+
+            metrics.addCollectCallback(() => {
+                counter.increment(3);
+                gauge.increment(5);
+            });
+
+            // Act
+            const stream = exporter.stream();
+            const result = await readStreamToString(stream);
+
+            // Assert
+            expect(result).toBe(dedent`
+                # HELP description
+                # TYPE counter
+                counter{} 3
+
+                # HELP description
+                # TYPE gauge
+                gauge{} 5\n
+            `);
+        });
+
+        it("async callback", async () => {
+            // Arrange
+            const counter = metrics.createCounter("counter", "description");
+            const gauge = metrics.createGauge("gauge", "description");
+
+            metrics.addCollectCallback(async () => {
+                counter.increment(3);
+                gauge.increment(5);
+            });
+
+            // Act
+            const stream = exporter.stream();
+            const result = await readStreamToString(stream);
+
+            // Assert
+            expect(result).toBe(dedent`
+                # HELP description
+                # TYPE counter
+                counter{} 3
+
+                # HELP description
+                # TYPE gauge
+                gauge{} 5\n
+            `);
+        });
+    });
 });
