@@ -46,3 +46,43 @@ it("gauge", async () => {
 
     console.log(await client.register.metrics());
 });
+
+it("counter without labels", async () => {
+    const counter = new client.Counter({
+        name: "counter1",
+        help: "description",
+    });
+
+    counter.inc(5);
+
+    console.log(await client.register.metrics());
+});
+
+it("counter - empty state", async () => {
+    const counter = new client.Counter({
+        name: "counter2",
+        help: "description",
+    });
+
+    console.log(await client.register.metrics());
+});
+
+it("gauge - empty state", async () => {
+    const gauge = new client.Gauge({
+        name: "gauge2",
+        help: "description",
+        labelNames: ["key"],
+    });
+
+    console.log(await client.register.metrics());
+});
+
+it("histogram - empty state", async () => {
+    const histogram = new client.Histogram({
+        name: "histogram2",
+        help: "description",
+        buckets: [1, 2, 3],
+    });
+
+    console.log(await client.register.metrics());
+});

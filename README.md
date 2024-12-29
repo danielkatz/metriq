@@ -4,7 +4,7 @@ Metrics library targeting nodejs and prometheus (to start with)
     - [ ] Instruments
         - [x] Counter
         - [x] Gauge
-        - [ ] Histogram
+        - [x] Histogram
         - [ ] Summary
     - [x] collect callback
 - [x] Support massive amount of metrics

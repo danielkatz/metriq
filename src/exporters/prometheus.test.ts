@@ -25,6 +25,21 @@ describe("PrometheusExporter", () => {
         });
 
         describe("counter", () => {
+            it("empty state", async () => {
+                // Arrange
+                const counter = metrics.createCounter("counter", "description");
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE counter\n
+                `);
+            });
+
             it("single counter with no labels", async () => {
                 // Arrange
                 const counter = metrics.createCounter("counter", "description");
@@ -39,7 +54,7 @@ describe("PrometheusExporter", () => {
                 expect(result).toBe(dedent`
                     # HELP description
                     # TYPE counter
-                    counter{} 5\n
+                    counter 5\n
                 `);
             });
 
@@ -135,11 +150,11 @@ describe("PrometheusExporter", () => {
                 expect(result).toBe(dedent`
                     # HELP description1
                     # TYPE counter
-                    counter1{} 5
+                    counter1 5
 
                     # HELP description2
                     # TYPE counter
-                    counter2{} 7\n
+                    counter2 7\n
                 `);
             });
 
@@ -206,7 +221,7 @@ describe("PrometheusExporter", () => {
                 expect(result).toBe(dedent`
                     # HELP description
                     # TYPE counter
-                    prefix_counter{} 5\n
+                    prefix_counter 5\n
                 `);
             });
 
@@ -254,6 +269,21 @@ describe("PrometheusExporter", () => {
         });
 
         describe("gauge", () => {
+            it("empty state", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge\n
+                `);
+            });
+
             it("single gauge with no labels", async () => {
                 // Arrange
                 const gauge = metrics.createGauge("gauge", "description");
@@ -268,7 +298,7 @@ describe("PrometheusExporter", () => {
                 expect(result).toBe(dedent`
                     # HELP description
                     # TYPE gauge
-                    gauge{} 5\n
+                    gauge 5\n
                 `);
             });
 
@@ -364,11 +394,11 @@ describe("PrometheusExporter", () => {
                 expect(result).toBe(dedent`
                     # HELP description1
                     # TYPE gauge
-                    gauge1{} 5
+                    gauge1 5
 
                     # HELP description2
                     # TYPE gauge
-                    gauge2{} 7\n
+                    gauge2 7\n
                 `);
             });
 
@@ -435,7 +465,7 @@ describe("PrometheusExporter", () => {
                 expect(result).toBe(dedent`
                     # HELP description
                     # TYPE gauge
-                    prefix_gauge{} 5\n
+                    prefix_gauge 5\n
                 `);
             });
 
@@ -481,6 +511,166 @@ describe("PrometheusExporter", () => {
                 `);
             });
         });
+
+        describe("histogram", () => {
+            it("empty state", async () => {
+                // Arrange
+                const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE histogram\n
+                `);
+            });
+
+            it("single histogram with no labels", async () => {
+                // Arrange
+                const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
+                histogram.observe(1.5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE histogram
+                    histogram_bucket{le="1"} 0
+                    histogram_bucket{le="2"} 1
+                    histogram_bucket{le="3"} 1
+                    histogram_bucket{le="+Inf"} 1
+                    histogram_sum 1.5
+                    histogram_count 1\n
+                `);
+            });
+
+            it("single histogram with labels", async () => {
+                // Arrange
+                const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
+                histogram.observe({ method: "GET" }, 1.5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE histogram
+                    histogram_bucket{method="GET",le="1"} 0
+                    histogram_bucket{method="GET",le="2"} 1
+                    histogram_bucket{method="GET",le="3"} 1
+                    histogram_bucket{method="GET",le="+Inf"} 1
+                    histogram_sum{method="GET"} 1.5
+                    histogram_count{method="GET"} 1\n
+                `);
+            });
+
+            it("single histogram with multiple observations", async () => {
+                // Arrange
+                const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
+                histogram.observe(0.5);
+                histogram.observe(1.5);
+                histogram.observe(2.5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE histogram
+                    histogram_bucket{le="1"} 1
+                    histogram_bucket{le="2"} 2
+                    histogram_bucket{le="3"} 3
+                    histogram_bucket{le="+Inf"} 3
+                    histogram_sum 4.5
+                    histogram_count 3\n
+                `);
+            });
+
+            it("multiple histograms with different labels", async () => {
+                // Arrange
+                const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
+                histogram.observe({ method: "GET" }, 1.5);
+                histogram.observe({ method: "POST" }, 2.5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE histogram
+                    histogram_bucket{method="GET",le="1"} 0
+                    histogram_bucket{method="GET",le="2"} 1
+                    histogram_bucket{method="GET",le="3"} 1
+                    histogram_bucket{method="GET",le="+Inf"} 1
+                    histogram_sum{method="GET"} 1.5
+                    histogram_count{method="GET"} 1
+                    histogram_bucket{method="POST",le="1"} 0
+                    histogram_bucket{method="POST",le="2"} 0
+                    histogram_bucket{method="POST",le="3"} 1
+                    histogram_bucket{method="POST",le="+Inf"} 1
+                    histogram_sum{method="POST"} 2.5
+                    histogram_count{method="POST"} 1\n
+                `);
+            });
+
+            it("histogram with custom buckets", async () => {
+                // Arrange
+                const histogram = metrics.createHistogram("histogram", "description", { buckets: [10, 20, 30] });
+                histogram.observe(15);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE histogram
+                    histogram_bucket{le="10"} 0
+                    histogram_bucket{le="20"} 1
+                    histogram_bucket{le="30"} 1
+                    histogram_bucket{le="+Inf"} 1
+                    histogram_sum 15
+                    histogram_count 1\n
+                `);
+            });
+
+            it("histogram with common labels", async () => {
+                // Arrange
+                const metrics = new Metrics({ commonLabels: { service: "api" } });
+                const exporter = new PrometheusExporter(metrics);
+                const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
+                histogram.observe({ method: "GET" }, 1.5);
+
+                // Act
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE histogram
+                    histogram_bucket{service="api",method="GET",le="1"} 0
+                    histogram_bucket{service="api",method="GET",le="2"} 1
+                    histogram_bucket{service="api",method="GET",le="3"} 1
+                    histogram_bucket{service="api",method="GET",le="+Inf"} 1
+                    histogram_sum{service="api",method="GET"} 1.5
+                    histogram_count{service="api",method="GET"} 1\n
+                `);
+            });
+        });
     });
 
     describe("async collect", () => {
@@ -496,10 +686,12 @@ describe("PrometheusExporter", () => {
             // Arrange
             const counter = metrics.createCounter("counter", "description");
             const gauge = metrics.createGauge("gauge", "description");
+            const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
 
             metrics.addCollectCallback(() => {
                 counter.increment(3);
                 gauge.increment(5);
+                histogram.observe(1);
             });
 
             // Act
@@ -510,11 +702,20 @@ describe("PrometheusExporter", () => {
             expect(result).toBe(dedent`
                 # HELP description
                 # TYPE counter
-                counter{} 3
+                counter 3
 
                 # HELP description
                 # TYPE gauge
-                gauge{} 5\n
+                gauge 5
+
+                # HELP description
+                # TYPE histogram
+                histogram_bucket{le="1"} 1
+                histogram_bucket{le="2"} 1
+                histogram_bucket{le="3"} 1
+                histogram_bucket{le="+Inf"} 1
+                histogram_sum 1
+                histogram_count 1\n
             `);
         });
 
@@ -522,10 +723,12 @@ describe("PrometheusExporter", () => {
             // Arrange
             const counter = metrics.createCounter("counter", "description");
             const gauge = metrics.createGauge("gauge", "description");
+            const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
 
             metrics.addCollectCallback(async () => {
                 counter.increment(3);
                 gauge.increment(5);
+                histogram.observe(1);
             });
 
             // Act
@@ -536,11 +739,20 @@ describe("PrometheusExporter", () => {
             expect(result).toBe(dedent`
                 # HELP description
                 # TYPE counter
-                counter{} 3
+                counter 3
 
                 # HELP description
                 # TYPE gauge
-                gauge{} 5\n
+                gauge 5
+
+                # HELP description
+                # TYPE histogram
+                histogram_bucket{le="1"} 1
+                histogram_bucket{le="2"} 1
+                histogram_bucket{le="3"} 1
+                histogram_bucket{le="+Inf"} 1
+                histogram_sum 1
+                histogram_count 1\n
             `);
         });
     });

@@ -64,14 +64,14 @@ export class PrometheusExporter {
             const count = value[value.length - 2];
             const buckets = value.slice(0, value.length - 2);
 
-            yield `${histogram.name}_sum${this.writeLabels(labels)} ${sum}\n`;
-            yield `${histogram.name}_count${this.writeLabels(labels)} ${count}\n`;
-
             for (let i = 0; i < histogram.buckets.length; i++) {
                 yield `${histogram.name}_bucket${this.writeLabels({ ...labels, le: histogram.buckets[i].toString() })} ${buckets[i]}\n`;
             }
 
             yield `${histogram.name}_bucket${this.writeLabels({ ...labels, le: "+Inf" })} ${buckets[buckets.length - 1]}\n`;
+
+            yield `${histogram.name}_sum${this.writeLabels(labels)} ${sum}\n`;
+            yield `${histogram.name}_count${this.writeLabels(labels)} ${count}\n`;
         }
     }
 
@@ -79,7 +79,7 @@ export class PrometheusExporter {
         const keys = Object.keys(labels);
         const len = keys.length;
         if (len === 0) {
-            return "{}";
+            return "";
         }
 
         const segments = new Array<string>(len);

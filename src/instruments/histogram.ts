@@ -1,17 +1,27 @@
 import { Instrument, InstrumentOptions } from "./instrument";
 import { Registry } from "../registry";
 
-export class Histogram extends Instrument<number[]> {
-    public readonly buckets: number[];
+export type HistogramOptions = InstrumentOptions & {
+    buckets: Readonly<number[]>;
+};
+
+const DEFAULT_BUCKETS = Object.freeze([0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]);
+
+export class Histogram extends Instrument<number[], HistogramOptions> {
+    public readonly buckets: Readonly<number[]>;
     private componentsCount: number;
 
-    constructor(name: string, description: string, buckets: number[], registry: Registry, options?: InstrumentOptions) {
+    constructor(name: string, description: string, registry: Registry, options?: InstrumentOptions) {
         super(name, description, registry, options);
-        this.buckets = buckets;
-        this.componentsCount = buckets.length + 2;
+        this.buckets = this.options.buckets ? Object.freeze(this.options.buckets) : DEFAULT_BUCKETS;
+        this.componentsCount = this.buckets.length + 2;
     }
 
-    observe(labels: Labels, value: number): void {
+    public observe(value: number): void;
+    public observe(labels: Labels, value: number): void;
+    public observe(labelsOrValue?: number | Labels, maybeValue?: number): void {
+        const [labels = {}, value] = this.getLabelsAndValue(labelsOrValue, maybeValue);
+
         this.updateValue(labels, (values) => {
             if (typeof values === "undefined") {
                 values = new Array(this.componentsCount).fill(0);
@@ -20,7 +30,6 @@ export class Histogram extends Instrument<number[]> {
             for (let i = 0; i < this.buckets.length; i++) {
                 if (value <= this.buckets[i]) {
                     values[i]++;
-                    break;
                 }
             }
 
@@ -29,5 +38,21 @@ export class Histogram extends Instrument<number[]> {
 
             return values;
         });
+    }
+
+    private getLabelsAndValue(labelsOrValue?: number | Labels, maybeValue?: number): [Labels | undefined, number] {
+        let labels: Labels | undefined;
+        let value: number;
+
+        if (typeof labelsOrValue === "number") {
+            // Called as func(value)
+            value = labelsOrValue;
+        } else {
+            // Called as func(labels, value)
+            labels = labelsOrValue;
+            value = maybeValue!;
+        }
+
+        return [labels, value];
     }
 }

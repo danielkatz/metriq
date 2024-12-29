@@ -3,7 +3,7 @@ import { InstrumentFactory } from "./instruments/factory";
 import { Registry, RegistryOptions } from "./registry";
 import { Counter } from "./instruments/counter";
 import { Gauge } from "./instruments/gauge";
-import { Histogram } from "./instruments/histogram";
+import { Histogram, HistogramOptions } from "./instruments/histogram";
 
 export type MetricsOptions = {
     defaultTtl?: number;
@@ -39,21 +39,16 @@ export class Metrics implements InstrumentFactory {
         return registry;
     }
 
-    public createCounter(name: string, description: string, options?: InstrumentOptions): Counter {
+    public createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): Counter {
         return this.defaultRegistry.createCounter(name, description, options);
     }
 
-    public createGauge(name: string, description: string, options?: InstrumentOptions): Gauge {
+    public createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): Gauge {
         return this.defaultRegistry.createGauge(name, description, options);
     }
 
-    public createHistogram(
-        name: string,
-        description: string,
-        buckets: number[],
-        options?: InstrumentOptions,
-    ): Histogram {
-        return this.defaultRegistry.createHistogram(name, description, buckets, options);
+    public createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): Histogram {
+        return this.defaultRegistry.createHistogram(name, description, options);
     }
 
     public addCollectCallback(callback: CollectCallback): void {
