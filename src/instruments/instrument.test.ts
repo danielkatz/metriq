@@ -24,7 +24,8 @@ const instruments: [string, TestInstrumentFactory][] = [
     ["gauge", (factory, name, description, options) => factory.createGauge(name, description, options)],
     [
         "histogram",
-        (factory, name, description, options) => factory.createHistogram(name, description, [1, 2, 3], options),
+        (factory, name, description, options) =>
+            factory.createHistogram(name, description, { ...options, buckets: [1, 2, 3] }),
     ],
 ];
 

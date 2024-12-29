@@ -1,18 +1,18 @@
 import { InstrumentOptions } from "./instrument";
 import { Counter } from "./counter";
 import { Gauge } from "./gauge";
-import { Histogram } from "./histogram";
+import { Histogram, HistogramOptions } from "./histogram";
 
 export interface InstrumentFactory extends CounterFactory, GaugeFactory, HistogramFactory {}
 
 interface CounterFactory {
-    createCounter: (name: string, description: string, options?: InstrumentOptions) => Counter;
+    createCounter: (name: string, description: string, options?: Partial<InstrumentOptions>) => Counter;
 }
 
 interface GaugeFactory {
-    createGauge: (name: string, description: string, options?: InstrumentOptions) => Gauge;
+    createGauge: (name: string, description: string, options?: Partial<InstrumentOptions>) => Gauge;
 }
 
 interface HistogramFactory {
-    createHistogram: (name: string, description: string, buckets: number[], options?: InstrumentOptions) => Histogram;
+    createHistogram: (name: string, description: string, options?: Partial<HistogramOptions>) => Histogram;
 }

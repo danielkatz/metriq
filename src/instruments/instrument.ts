@@ -13,24 +13,24 @@ export type InstrumentValue<TValue> = {
     value: TValue;
 };
 
-export abstract class Instrument<TValue = unknown> {
-    public readonly options: Readonly<InstrumentOptions>;
+const DEFAULT_OPTIONS: InstrumentOptions = {};
+
+export abstract class Instrument<TValue = unknown, TOptions extends InstrumentOptions = InstrumentOptions> {
+    public readonly options: Readonly<TOptions>;
 
     private readonly values: Map<string, InstrumentValue<TValue>> = new Map();
     private readonly ttls: Map<string, number> = new Map();
-
-    protected readonly defaultOptions: InstrumentOptions = {};
 
     constructor(
         public readonly name: string,
         public readonly description: string,
         public readonly registry: Registry,
-        options: InstrumentOptions = {},
+        options: Partial<TOptions> = {},
     ) {
         this.options = Object.freeze({
-            ...this.defaultOptions,
+            ...DEFAULT_OPTIONS,
             ...options,
-        });
+        }) as TOptions;
     }
 
     public updateValue(labels: Labels, updater: ValueUpdater<TValue>): void {

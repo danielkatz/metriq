@@ -3,7 +3,7 @@ import { InstrumentFactory } from "./instruments/factory";
 import { Counter } from "./instruments/counter";
 import { Metrics } from "./metrics";
 import { Gauge } from "./instruments/gauge";
-import { Histogram } from "./instruments/histogram";
+import { Histogram, HistogramOptions } from "./instruments/histogram";
 
 export type RegistryOptions = {
     defaultTtl?: number;
@@ -23,7 +23,7 @@ export class Registry implements InstrumentFactory {
         this.options = Object.freeze({ ...DEFAULT_OPTIONS, ...options });
     }
 
-    public createCounter(name: string, description: string, options?: InstrumentOptions): Counter {
+    public createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): Counter {
         const merged: InstrumentOptions = {
             ttl: this.options.defaultTtl,
             commonLabels: this.options.commonLabels,
@@ -40,7 +40,7 @@ export class Registry implements InstrumentFactory {
         return counter;
     }
 
-    public createGauge(name: string, description: string, options?: InstrumentOptions): Gauge {
+    public createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): Gauge {
         const merged: InstrumentOptions = {
             ttl: this.options.defaultTtl,
             commonLabels: this.options.commonLabels,
@@ -57,13 +57,8 @@ export class Registry implements InstrumentFactory {
         return gauge;
     }
 
-    public createHistogram(
-        name: string,
-        description: string,
-        buckets: number[],
-        options?: InstrumentOptions,
-    ): Histogram {
-        const merged: InstrumentOptions = {
+    public createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): Histogram {
+        const merged: Partial<HistogramOptions> = {
             ttl: this.options.defaultTtl,
             commonLabels: this.options.commonLabels,
             ...options,
@@ -74,7 +69,7 @@ export class Registry implements InstrumentFactory {
             throw new Error(`Instrument with name "${fullName}" already exists`);
         }
 
-        const histogram = new Histogram(fullName, description, buckets, this, merged);
+        const histogram = new Histogram(fullName, description, this, merged);
         this.registerInstrument(histogram);
         return histogram;
     }
