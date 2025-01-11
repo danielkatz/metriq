@@ -9,7 +9,6 @@ const DEFAULT_BUCKETS = Object.freeze([0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5,
 
 export class Histogram extends Instrument<number[], HistogramOptions> {
     public readonly buckets: Readonly<number[]>;
-    private componentsCount: number;
 
     constructor(name: string, description: string, registry: Registry, options?: InstrumentOptions) {
         super(name, description, registry, options);

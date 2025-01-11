@@ -4,27 +4,42 @@ import { Registry, RegistryOptions } from "./registry";
 import { Counter } from "./instruments/counter";
 import { Gauge } from "./instruments/gauge";
 import { Histogram, HistogramOptions } from "./instruments/histogram";
+import { InternalMetrics, InternalMetricsImpl, InternalMetricsNoop } from "./internal-metrics";
 
 export type MetricsOptions = {
     defaultTtl?: number;
     commonPrefix?: string;
     commonLabels?: Record<string, string>;
+    enableInternalMetrics?: boolean;
 };
 
 export type CollectCallback = () => void | Promise<void>;
 
-const DEFAULT_OPTIONS: MetricsOptions = {};
+const DEFAULT_OPTIONS: MetricsOptions = {
+    enableInternalMetrics: true,
+};
 
 export class Metrics implements InstrumentFactory {
     private readonly registries = new Set<Registry>();
     private readonly collectCallbacks = new Set<CollectCallback>();
-
+    private readonly internalRegistry: Registry;
+    
     public readonly options: Readonly<MetricsOptions>;
     public readonly defaultRegistry: Registry;
+    public readonly internalMetrics: InternalMetrics;
 
     constructor(options?: Partial<MetricsOptions>) {
         this.options = Object.freeze({ ...DEFAULT_OPTIONS, ...options });
         this.defaultRegistry = this.createRegistry();
+        this.internalRegistry = this.createRegistry();
+
+        this.internalMetrics = new InternalMetricsNoop();
+
+        if (this.options.enableInternalMetrics) {
+            const active = new InternalMetricsImpl(this.internalRegistry);
+            active.registerInstruments();
+            this.internalMetrics = active;
+        }
     }
 
     public createRegistry(options?: RegistryOptions): Registry {

@@ -1,3 +1,4 @@
+import { InternalMetrics } from "../internal-metrics";
 import { Registry } from "../registry";
 import { generateKey } from "../utils";
 
@@ -20,6 +21,8 @@ export abstract class Instrument<TValue = unknown, TOptions extends InstrumentOp
 
     private readonly values: Map<string, InstrumentValue<TValue>> = new Map();
     private readonly ttls: Map<string, number> = new Map();
+    private readonly internalMetrics: InternalMetrics;
+    protected componentsCount: number = 1;
 
     constructor(
         public readonly name: string,
@@ -31,6 +34,8 @@ export abstract class Instrument<TValue = unknown, TOptions extends InstrumentOp
             ...DEFAULT_OPTIONS,
             ...options,
         }) as TOptions;
+
+        this.internalMetrics = registry.owner.internalMetrics;
     }
 
     public updateValue(labels: Labels, updater: ValueUpdater<TValue>): void {
@@ -38,32 +43,38 @@ export abstract class Instrument<TValue = unknown, TOptions extends InstrumentOp
 
         const key = generateKey(labels);
 
-        let value = this.getValueWithTTL(key);
-        const newValue = updater(value?.value);
+        let instrumentValue = this.getInstrumentValueWithTTL(key);
+        let isNew = false;
+        const newValue = updater(instrumentValue?.value);
 
-        if (value === undefined) {
+        if (instrumentValue === undefined) {
             const mergedLabels = { ...this.options.commonLabels, ...labels };
-            value = {
+            instrumentValue = {
                 labels: Object.freeze(mergedLabels),
                 value: newValue,
             };
+            isNew = true;
         } else {
-            value.value = newValue;
+            instrumentValue.value = newValue;
         }
 
-        this.values.set(key, value);
+        this.values.set(key, instrumentValue);
 
         if (this.options.ttl) {
             this.ttls.set(key, Date.now() + this.options.ttl);
+        }
+
+        if (isNew) {
+            this.internalMetrics.onTimeseriesAdded(this.name, this.componentsCount);
         }
     }
 
     public getValue(labels: Labels): TValue | undefined {
         const key = generateKey(labels);
-        return this.getValueWithTTL(key)?.value;
+        return this.getInstrumentValueWithTTL(key)?.value;
     }
 
-    private getValueWithTTL(key: string): InstrumentValue<TValue> | undefined {
+    private getInstrumentValueWithTTL(key: string): InstrumentValue<TValue> | undefined {
         if (this.options.ttl) {
             const ttl = this.ttls.get(key);
             if (ttl && ttl < Date.now()) {

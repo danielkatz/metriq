@@ -10,7 +10,7 @@ describe("PrometheusExporter", () => {
         let exporter: PrometheusExporter;
 
         beforeEach(() => {
-            metrics = new Metrics();
+            metrics = new Metrics({ enableInternalMetrics: false });
             exporter = new PrometheusExporter(metrics);
         });
 
@@ -227,7 +227,7 @@ describe("PrometheusExporter", () => {
 
             it("counter with common labels", async () => {
                 // Arrange
-                const metrics = new Metrics({ commonLabels: { key: "value" } });
+                const metrics = new Metrics({ commonLabels: { key: "value" }, enableInternalMetrics: false });
                 const exporter = new PrometheusExporter(metrics);
 
                 const counter = metrics.createCounter("counter", "description");
@@ -248,7 +248,7 @@ describe("PrometheusExporter", () => {
 
             it("counter with common labels and instrument labels", async () => {
                 // Arrange
-                const metrics = new Metrics({ commonLabels: { key1: "value1" } });
+                const metrics = new Metrics({ commonLabels: { key1: "value1" }, enableInternalMetrics: false });
                 const exporter = new PrometheusExporter(metrics);
 
                 const counter = metrics.createCounter("counter", "description");
@@ -471,7 +471,7 @@ describe("PrometheusExporter", () => {
 
             it("gauge with common labels", async () => {
                 // Arrange
-                const metrics = new Metrics({ commonLabels: { key: "value" } });
+                const metrics = new Metrics({ commonLabels: { key: "value" }, enableInternalMetrics: false });
                 const exporter = new PrometheusExporter(metrics);
 
                 const gauge = metrics.createGauge("gauge", "description");
@@ -492,7 +492,7 @@ describe("PrometheusExporter", () => {
 
             it("gauge with common labels and instrument labels", async () => {
                 // Arrange
-                const metrics = new Metrics({ commonLabels: { key1: "value1" } });
+                const metrics = new Metrics({ commonLabels: { key1: "value1" }, enableInternalMetrics: false });
                 const exporter = new PrometheusExporter(metrics);
 
                 const gauge = metrics.createGauge("gauge", "description");
@@ -649,7 +649,7 @@ describe("PrometheusExporter", () => {
 
             it("histogram with common labels", async () => {
                 // Arrange
-                const metrics = new Metrics({ commonLabels: { service: "api" } });
+                const metrics = new Metrics({ commonLabels: { service: "api" }, enableInternalMetrics: false });
                 const exporter = new PrometheusExporter(metrics);
                 const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
                 histogram.observe({ method: "GET" }, 1.5);
@@ -678,7 +678,7 @@ describe("PrometheusExporter", () => {
         let exporter: PrometheusExporter;
 
         beforeEach(() => {
-            metrics = new Metrics();
+            metrics = new Metrics({ enableInternalMetrics: false });
             exporter = new PrometheusExporter(metrics);
         });
 
@@ -753,6 +753,65 @@ describe("PrometheusExporter", () => {
                 histogram_bucket{le="+Inf"} 1
                 histogram_sum 1
                 histogram_count 1\n
+            `);
+        });
+    });
+
+    describe("internal metrics", () => {
+        let metrics: Metrics;
+        let exporter: PrometheusExporter;
+
+        beforeEach(() => {
+            metrics = new Metrics({ enableInternalMetrics: true });
+            exporter = new PrometheusExporter(metrics);
+        });
+
+        it("empty state", async () => {
+            // Arrange
+            // Act
+            const stream = exporter.stream();
+            const result = await readStreamToString(stream);
+
+            // Assert
+            expect(result).toBe(dedent`
+                # HELP Total number of samples
+                # TYPE counter
+
+                # HELP Total number of timeseries
+                # TYPE counter
+
+                # HELP Total number of metrics
+                # TYPE counter
+                metriq_metrics_total 3\n
+            `);
+        });
+
+        it("single counter", async () => {
+            // Arrange
+            const counter = metrics.createCounter("counter", "description");
+            counter.increment(5);
+
+            // Act
+            const stream = exporter.stream();
+            const result = await readStreamToString(stream);
+
+            // Assert
+            expect(result).toBe(dedent`
+                # HELP description
+                # TYPE counter
+                counter 5
+
+                # HELP Total number of samples
+                # TYPE counter
+                metriq_samples_total{instrument="counter"} 1
+
+                # HELP Total number of timeseries
+                # TYPE counter
+                metriq_timeseries_total{instrument="counter"} 1
+
+                # HELP Total number of metrics
+                # TYPE counter
+                metriq_metrics_total 4\n
             `);
         });
     });

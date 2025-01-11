@@ -6,7 +6,7 @@ import { PrometheusExporter } from "./prometheus";
 import pc from "prom-client";
 
 describe.each([10, 100, 1000, 10_000, 100_000, 1_000_000])("PrometheusExporter (cardinality=%d)", (cardinality) => {
-    const metrics = new Metrics({});
+    const metrics = new Metrics({ enableInternalMetrics: false });
     const counter = metrics.createCounter("counter1", "description");
     const exporter = new PrometheusExporter(metrics);
 
