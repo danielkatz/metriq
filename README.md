@@ -7,6 +7,8 @@ Metrics library targeting nodejs and prometheus (to start with)
         - [x] Histogram
         - [ ] Summary
     - [x] collect callback
+    - [ ] type safety
+    - [ ] clear/reset
 - [x] Support massive amount of metrics
     - [x] Performance
     - [x] Streaming writer
@@ -16,5 +18,6 @@ Metrics library targeting nodejs and prometheus (to start with)
 - [x] Default labels
 - [ ] Internal metrics
     - [ ] Exposure bytes and duration
-    - [ ] Sample count
+    - [x] Sample count
+        - [ ] support deletion
     - [ ] etc.

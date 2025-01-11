@@ -76,6 +76,8 @@ export class Registry implements InstrumentFactory {
 
     private registerInstrument(instrument: Instrument): void {
         this.instruments.set(instrument.name, instrument);
+
+        this.owner.internalMetrics.onInstrumentAdded();
     }
 
     public hasInstrumentName(name: string): boolean {
@@ -84,5 +86,9 @@ export class Registry implements InstrumentFactory {
 
     public getInstruments(): IterableIterator<Instrument> {
         return this.instruments.values();
+    }
+
+    public getInstrumentsCount(): number {
+        return this.instruments.size;
     }
 }
