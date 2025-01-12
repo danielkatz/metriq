@@ -1,4 +1,4 @@
-import { Counter } from "./instruments/counter";
+import { Gauge } from "./instruments/gauge";
 import { Registry } from "./registry";
 
 export interface InternalMetrics {
@@ -7,51 +7,51 @@ export interface InternalMetrics {
     onInstrumentAdded(): void;
     onInstrumentRemoved(): void;
     onTimeseriesAdded(instrumentName: string, componentCount: number): void;
-    onTimeseriesRemoved(instrumentName: string, componentCount: number): void;
+    onTimeseriesRemoved(instrumentName: string, instrumentCount: number, componentCount: number): void;
 }
 
 export class InternalMetricsImpl implements InternalMetrics {
     private readonly registry: Registry;
 
-    public readonly metricCounter: Counter;
-    public readonly timeseriesCounter: Counter;
-    public readonly sampleCounter: Counter;
+    public readonly metricGauge: Gauge;
+    public readonly timeseriesGauge: Gauge;
+    public readonly sampleGauge: Gauge;
 
     constructor(registry: Registry) {
         this.registry = registry;
 
-        this.metricCounter = new Counter("metriq_metrics_total", "Total number of metrics", registry);
+        this.metricGauge = new Gauge("metriq_metrics_total", "Total number of metrics", registry);
 
-        this.timeseriesCounter = new Counter("metriq_timeseries_total", "Total number of timeseries", registry);
+        this.timeseriesGauge = new Gauge("metriq_timeseries_total", "Total number of timeseries", registry);
 
-        this.sampleCounter = new Counter("metriq_samples_total", "Total number of samples", registry);
+        this.sampleGauge = new Gauge("metriq_samples_total", "Total number of samples", registry);
     }
 
     public registerInstruments() {
-        this.registry["registerInstrument"](this.sampleCounter);
-        this.registry["registerInstrument"](this.timeseriesCounter);
-        this.registry["registerInstrument"](this.metricCounter);
+        this.registry["registerInstrument"](this.sampleGauge);
+        this.registry["registerInstrument"](this.timeseriesGauge);
+        this.registry["registerInstrument"](this.metricGauge);
 
         // Internal metrics need to be counted manually
-        this.metricCounter.increment(this.registry.getInstrumentsCount());
+        this.metricGauge.increment(this.registry.getInstrumentsCount());
     }
 
     public onInstrumentAdded() {
-        this.metricCounter.increment();
+        this.metricGauge.increment();
     }
 
     public onInstrumentRemoved() {
-        this.metricCounter.increment(-1);
+        this.metricGauge.decrement();
     }
 
     public onTimeseriesAdded(instrumentName: string, componentCount: number) {
-        this.timeseriesCounter.increment({ instrument: instrumentName }, 1);
-        this.sampleCounter.increment({ instrument: instrumentName }, componentCount);
+        this.timeseriesGauge.increment({ instrument: instrumentName });
+        this.sampleGauge.increment({ instrument: instrumentName }, componentCount);
     }
 
-    public onTimeseriesRemoved(instrumentName: string, componentCount: number) {
-        this.timeseriesCounter.increment({ instrument: instrumentName }, -1);
-        this.sampleCounter.increment({ instrument: instrumentName }, -componentCount);
+    public onTimeseriesRemoved(instrumentName: string, instrumentCount: number, componentCount: number) {
+        this.timeseriesGauge.decrement({ instrument: instrumentName }, instrumentCount);
+        this.sampleGauge.decrement({ instrument: instrumentName }, componentCount * instrumentCount);
     }
 }
 

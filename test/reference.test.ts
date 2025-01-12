@@ -86,3 +86,19 @@ it("histogram - empty state", async () => {
 
     console.log(await client.register.metrics());
 });
+
+it("test", async () => {
+    const counter = new client.Counter({
+        name: "counter3",
+        help: "description",
+        labelNames: ["key"],
+    });
+
+    counter.labels("foo").inc(5);
+    counter.labels("bar").inc(5);
+
+    //counter.reset();
+    counter.remove("foo");
+
+    console.log(await client.register.metrics());
+});

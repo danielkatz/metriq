@@ -189,6 +189,64 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
             expect(counter.options.commonLabels).toEqual({ key: "value" });
         });
     });
+
+    describe("removal", () => {
+        it("should remove a value with empty labels", () => {
+            // Arrange
+            const metrics = new Metrics();
+            const instrument = new TestInstrument("name", "description", metrics.defaultRegistry);
+
+            // Act
+            instrument.updateValue({}, () => 3);
+            instrument.remove({});
+
+            // Assert
+            expect(instrument.getValue({})).toBe(undefined);
+        });
+
+        it("should remove a value with labels", () => {
+            // Arrange
+            const metrics = new Metrics();
+            const instrument = new TestInstrument("name", "description", metrics.defaultRegistry);
+
+            // Act
+            instrument.updateValue({ key: "value" }, () => 3);
+            instrument.remove({ key: "value" });
+
+            // Assert
+            expect(instrument.getValue({ key: "value" })).toBe(undefined);
+        });
+
+        it("should only remove the value with the same labels", () => {
+            // Arrange
+            const metrics = new Metrics();
+            const instrument = new TestInstrument("name", "description", metrics.defaultRegistry);
+
+            // Act
+            instrument.updateValue({ key: "value" }, () => 3);
+            instrument.updateValue({ key: "value2" }, () => 5);
+            instrument.remove({ key: "value" });
+
+            // Assert
+            expect(instrument.getValue({ key: "value" })).toBe(undefined);
+            expect(instrument.getValue({ key: "value2" })).toBe(5);
+        });
+
+        it("should remove all values when clearing", () => {
+            // Arrange
+            const metrics = new Metrics();
+            const instrument = new TestInstrument("name", "description", metrics.defaultRegistry);
+
+            // Act
+            instrument.updateValue({ key: "value" }, () => 3);
+            instrument.updateValue({ key: "value2" }, () => 5);
+            instrument.clear();
+
+            // Assert
+            expect(instrument.getValue({ key: "value" })).toBe(undefined);
+            expect(instrument.getValue({ key: "value2" })).toBe(undefined);
+        });
+    });
 });
 
 describe("TTL", () => {

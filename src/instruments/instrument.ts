@@ -74,12 +74,30 @@ export abstract class Instrument<TValue = unknown, TOptions extends InstrumentOp
         return this.getInstrumentValueWithTTL(key)?.value;
     }
 
+    public remove(labels: Labels): void {
+        const key = generateKey(labels);
+        this.removeValue(key);
+    }
+
+    public clear(): void {
+        const instrumentCount = this.getInstrumentValueCount();
+        this.values.clear();
+        this.ttls.clear();
+        this.internalMetrics.onTimeseriesRemoved(this.name, instrumentCount, this.componentsCount);
+    }
+
+    private removeValue(key: string): void {
+        if (this.values.delete(key)) {
+            this.ttls.delete(key);
+            this.internalMetrics.onTimeseriesRemoved(this.name, 1, this.componentsCount);
+        }
+    }
+
     private getInstrumentValueWithTTL(key: string): InstrumentValue<TValue> | undefined {
         if (this.options.ttl) {
             const ttl = this.ttls.get(key);
             if (ttl && ttl < Date.now()) {
-                this.values.delete(key);
-                this.ttls.delete(key);
+                this.removeValue(key);
                 return undefined;
             }
         }
@@ -101,8 +119,7 @@ export abstract class Instrument<TValue = unknown, TOptions extends InstrumentOp
         const now = Date.now();
         for (const [key, ttl] of this.ttls) {
             if (ttl < now) {
-                this.values.delete(key);
-                this.ttls.delete(key);
+                this.removeValue(key);
             }
         }
     }
@@ -111,5 +128,9 @@ export abstract class Instrument<TValue = unknown, TOptions extends InstrumentOp
         if ("__name__" in labels) {
             throw new Error("Label __name__ is reserved");
         }
+    }
+
+    public getInstrumentValueCount(): number {
+        return this.values.size;
     }
 }
