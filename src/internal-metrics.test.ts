@@ -11,11 +11,11 @@ describe("InternalMetrics", () => {
         internalMetrics = metriq["internalMetrics"] as InternalMetricsImpl;
     });
 
-    describe("metricCounter", () => {
+    describe("metricGauge", () => {
         let baseCount: number;
 
         beforeEach(() => {
-            baseCount = internalMetrics.metricCounter.getValue({})!;
+            baseCount = internalMetrics.metricGauge.getValue({})!;
         });
 
         it("internal metrics should be counted as well", () => {
@@ -27,7 +27,7 @@ describe("InternalMetrics", () => {
             metriq.createCounter("counter", "Counter");
 
             // Assert
-            expect(internalMetrics.metricCounter.getValue({})).toBe(baseCount + 1);
+            expect(internalMetrics.metricGauge.getValue({})).toBe(baseCount + 1);
         });
 
         it("should count multivariate metrics as one", () => {
@@ -35,7 +35,7 @@ describe("InternalMetrics", () => {
             metriq.createHistogram("histogram", "Histogram", { buckets: [1, 2, 3] });
 
             // Assert
-            expect(internalMetrics.metricCounter.getValue({})).toBe(baseCount + 1);
+            expect(internalMetrics.metricGauge.getValue({})).toBe(baseCount + 1);
         });
 
         it("should count metric with multiple timeseries as one", () => {
@@ -47,11 +47,11 @@ describe("InternalMetrics", () => {
             counter.increment({ a: "2" });
 
             // Assert
-            expect(internalMetrics.metricCounter.getValue({})).toBe(baseCount + 1);
+            expect(internalMetrics.metricGauge.getValue({})).toBe(baseCount + 1);
         });
     });
 
-    describe("timeseriesCounter", () => {
+    describe("timeseriesGauge", () => {
         it("should count timeseries", () => {
             // Arrange
             const counter = metriq.createCounter("counter", "Counter");
@@ -60,7 +60,7 @@ describe("InternalMetrics", () => {
             counter.increment({ a: "1" });
 
             // Assert
-            expect(internalMetrics.timeseriesCounter.getValue({ instrument: "counter" })).toBe(1);
+            expect(internalMetrics.timeseriesGauge.getValue({ instrument: "counter" })).toBe(1);
         });
 
         it("should count multivariate metrics as one", () => {
@@ -71,11 +71,38 @@ describe("InternalMetrics", () => {
             histogram.observe(1);
 
             // Assert
-            expect(internalMetrics.timeseriesCounter.getValue({ instrument: "histogram" })).toBe(1);
+            expect(internalMetrics.timeseriesGauge.getValue({ instrument: "histogram" })).toBe(1);
+        });
+
+        it("should decrease count when timeseries is removed", () => {
+            // Arrange
+            const counter = metriq.createCounter("counter", "Counter");
+
+            // Act
+            counter.increment({ a: "1" });
+            counter.increment({ a: "2" });
+            counter.remove({ a: "1" });
+
+            // Assert
+            expect(internalMetrics.timeseriesGauge.getValue({ instrument: "counter" })).toBe(1);
+        });
+
+        it("should reset count when metric is cleared", () => {
+            // Arrange
+            const counter = metriq.createCounter("counter", "Counter");
+
+            // Act
+            counter.increment();
+            counter.increment({ a: "1" });
+            counter.increment({ a: "2" });
+            counter.clear();
+
+            // Assert
+            expect(internalMetrics.timeseriesGauge.getValue({ instrument: "counter" })).toBe(0);
         });
     });
 
-    describe("sampleCounter", () => {
+    describe("sampleGauge", () => {
         it("should count samples", () => {
             // Arrange
             const counter = metriq.createCounter("counter", "Counter");
@@ -84,7 +111,7 @@ describe("InternalMetrics", () => {
             counter.increment({ a: "1" });
 
             // Assert
-            expect(internalMetrics.sampleCounter.getValue({ instrument: "counter" })).toBe(1);
+            expect(internalMetrics.sampleGauge.getValue({ instrument: "counter" })).toBe(1);
         });
 
         it("should count multivariate metrics as many", () => {
@@ -95,7 +122,48 @@ describe("InternalMetrics", () => {
             histogram.observe(1);
 
             // Assert
-            expect(internalMetrics.sampleCounter.getValue({ instrument: "histogram" })).toBe(5);
+            expect(internalMetrics.sampleGauge.getValue({ instrument: "histogram" })).toBe(5);
+        });
+
+        it("should decrease count when timeseries is removed", () => {
+            // Arrange
+            const counter = metriq.createCounter("counter", "Counter");
+
+            // Act
+            counter.increment({ a: "1" });
+            counter.increment({ a: "2" });
+            counter.remove({ a: "1" });
+
+            // Assert
+            expect(internalMetrics.sampleGauge.getValue({ instrument: "counter" })).toBe(1);
+        });
+
+        it("should reset count when counter is cleared", () => {
+            // Arrange
+            const counter = metriq.createCounter("counter", "Counter");
+
+            // Act
+            counter.increment();
+            counter.increment({ a: "1" });
+            counter.increment({ a: "2" });
+            counter.clear();
+
+            // Assert
+            expect(internalMetrics.sampleGauge.getValue({ instrument: "counter" })).toBe(0);
+        });
+
+        it("should reset count when histogram is cleared", () => {
+            // Arrange
+            const histogram = metriq.createHistogram("histogram", "Histogram", { buckets: [1, 2, 3] });
+
+            // Act
+            histogram.observe(1);
+            histogram.observe({ a: "1" }, 2);
+            histogram.observe({ a: "2" }, 3);
+            histogram.clear();
+
+            // Assert
+            expect(internalMetrics.sampleGauge.getValue({ instrument: "histogram" })).toBe(0);
         });
     });
 });

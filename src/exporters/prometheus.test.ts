@@ -266,6 +266,81 @@ describe("PrometheusExporter", () => {
                     counter{key1="value1",key2="value2"} 5\n
                 `);
             });
+
+            it("should export metric family only when metrics removed", async () => {
+                // Arrange
+                const counter = metrics.createCounter("counter", "description");
+                counter.increment(5);
+
+                // Act
+                counter.remove({});
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE counter\n
+                `);
+            });
+
+            it("should export metric family only when metrics removed with labels", async () => {
+                // Arrange
+                const counter = metrics.createCounter("counter", "description");
+                counter.increment({ key: "value" }, 5);
+
+                // Act
+                counter.remove({ key: "value" });
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE counter\n
+                `);
+            });
+
+            it("should export only not removed metrics", async () => {
+                // Arrange
+                const counter = metrics.createCounter("counter", "description");
+                counter.increment({ key: "foo" }, 3);
+                counter.increment({ key: "bar" }, 5);
+
+                // Act
+                counter.remove({ key: "foo" });
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE counter
+                    counter{key="bar"} 5\n
+                `);
+            });
+
+            it("should export metric family only when metrics are cleared", async () => {
+                // Arrange
+                const counter = metrics.createCounter("counter", "description");
+                counter.increment(5);
+                counter.increment({ key: "value" }, 5);
+
+                // Act
+                counter.clear();
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE counter\n
+                `);
+            });
         });
 
         describe("gauge", () => {
@@ -510,6 +585,81 @@ describe("PrometheusExporter", () => {
                     gauge{key1="value1",key2="value2"} 5\n
                 `);
             });
+
+            it("should export metric family only when metrics removed", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+                gauge.increment(5);
+
+                // Act
+                gauge.remove({});
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge\n
+                `);
+            });
+
+            it("should export metric family only when metrics removed with labels", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+                gauge.increment({ key: "value" }, 5);
+
+                // Act
+                gauge.remove({ key: "value" });
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge\n
+                `);
+            });
+
+            it("should export only not removed metrics", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+                gauge.increment({ key: "foo" }, 3);
+                gauge.increment({ key: "bar" }, 5);
+
+                // Act
+                gauge.remove({ key: "foo" });
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge
+                    gauge{key="bar"} 5\n
+                `);
+            });
+
+            it("should export metric family only when metrics are cleared", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+                gauge.increment(5);
+                gauge.increment({ key: "value" }, 5);
+
+                // Act
+                gauge.clear();
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE gauge\n
+                `);
+            });
         });
 
         describe("histogram", () => {
@@ -670,6 +820,86 @@ describe("PrometheusExporter", () => {
                     histogram_count{service="api",method="GET"} 1\n
                 `);
             });
+
+            it("should export metric family only when metrics removed", async () => {
+                // Arrange
+                const histogram = metrics.createHistogram("histogram", "description");
+                histogram.observe(1);
+
+                // Act
+                histogram.remove({});
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE histogram\n
+                `);
+            });
+
+            it("should export metric family only when metrics removed with labels", async () => {
+                // Arrange
+                const histogram = metrics.createHistogram("histogram", "description");
+                histogram.observe({ key: "value" }, 5);
+
+                // Act
+                histogram.remove({ key: "value" });
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE histogram\n
+                `);
+            });
+
+            it("should export only not removed metrics", async () => {
+                // Arrange
+                const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
+                histogram.observe({ key: "foo" }, 3);
+                histogram.observe({ key: "bar" }, 5);
+
+                // Act
+                histogram.remove({ key: "foo" });
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE histogram
+                    histogram_bucket{key="bar",le="1"} 0
+                    histogram_bucket{key="bar",le="2"} 0
+                    histogram_bucket{key="bar",le="3"} 0
+                    histogram_bucket{key="bar",le="+Inf"} 0
+                    histogram_sum{key="bar"} 5
+                    histogram_count{key="bar"} 1\n
+                `);
+            });
+
+            it("should export metric family only when metrics are cleared", async () => {
+                // Arrange
+                const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
+                histogram.observe({ key: "foo" }, 3);
+                histogram.observe({ key: "bar" }, 5);
+
+                // Act
+                histogram.clear();
+
+                let stream = exporter.stream();
+                let result = await readStreamToString(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP description
+                    # TYPE histogram\n
+                `);
+            });
         });
     });
 
@@ -775,13 +1005,13 @@ describe("PrometheusExporter", () => {
             // Assert
             expect(result).toBe(dedent`
                 # HELP Total number of samples
-                # TYPE counter
+                # TYPE gauge
 
                 # HELP Total number of timeseries
-                # TYPE counter
+                # TYPE gauge
 
                 # HELP Total number of metrics
-                # TYPE counter
+                # TYPE gauge
                 metriq_metrics_total 3\n
             `);
         });
@@ -802,15 +1032,15 @@ describe("PrometheusExporter", () => {
                 counter 5
 
                 # HELP Total number of samples
-                # TYPE counter
+                # TYPE gauge
                 metriq_samples_total{instrument="counter"} 1
 
                 # HELP Total number of timeseries
-                # TYPE counter
+                # TYPE gauge
                 metriq_timeseries_total{instrument="counter"} 1
 
                 # HELP Total number of metrics
-                # TYPE counter
+                # TYPE gauge
                 metriq_metrics_total 4\n
             `);
         });
