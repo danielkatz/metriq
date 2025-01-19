@@ -27,7 +27,7 @@ describe("PrometheusExporter", () => {
         describe("counter", () => {
             it("empty state", async () => {
                 // Arrange
-                const counter = metrics.createCounter("counter", "description");
+                metrics.createCounter("counter", "description");
 
                 // Act
                 const stream = exporter.stream();
@@ -275,8 +275,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 counter.remove({});
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -293,8 +293,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 counter.remove({ key: "value" });
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -312,8 +312,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 counter.remove({ key: "foo" });
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -332,8 +332,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 counter.clear();
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -346,7 +346,7 @@ describe("PrometheusExporter", () => {
         describe("gauge", () => {
             it("empty state", async () => {
                 // Arrange
-                const gauge = metrics.createGauge("gauge", "description");
+                metrics.createGauge("gauge", "description");
 
                 // Act
                 const stream = exporter.stream();
@@ -594,8 +594,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 gauge.remove({});
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -612,8 +612,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 gauge.remove({ key: "value" });
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -631,8 +631,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 gauge.remove({ key: "foo" });
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -651,8 +651,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 gauge.clear();
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -665,7 +665,7 @@ describe("PrometheusExporter", () => {
         describe("histogram", () => {
             it("empty state", async () => {
                 // Arrange
-                const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
+                metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
 
                 // Act
                 const stream = exporter.stream();
@@ -829,8 +829,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 histogram.remove({});
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -847,8 +847,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 histogram.remove({ key: "value" });
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -866,8 +866,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 histogram.remove({ key: "foo" });
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -891,8 +891,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 histogram.clear();
 
-                let stream = exporter.stream();
-                let result = await readStreamToString(stream);
+                const stream = exporter.stream();
+                const result = await readStreamToString(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -959,6 +959,8 @@ describe("PrometheusExporter", () => {
                 counter.increment(3);
                 gauge.increment(5);
                 histogram.observe(1);
+
+                await Promise.resolve();
             });
 
             // Act

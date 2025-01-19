@@ -1,5 +1,6 @@
 import { Instrument, InstrumentOptions } from "./instrument";
 import { Registry } from "../registry";
+import { Labels } from "../types";
 
 export type HistogramOptions = InstrumentOptions & {
     buckets: Readonly<number[]>;

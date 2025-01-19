@@ -1,4 +1,5 @@
 import { Readable } from "node:stream";
+import { Labels } from "./types";
 
 export function readStreamToString(stream: Readable): Promise<string> {
     return new Promise((resolve, reject) => {

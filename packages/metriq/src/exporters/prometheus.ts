@@ -3,6 +3,7 @@ import { Counter } from "../instruments/counter";
 import { Gauge } from "../instruments/gauge";
 import { Histogram } from "../instruments/histogram";
 import { Metrics } from "../metrics";
+import { Labels } from "../types";
 
 export class PrometheusExporter {
     private metrics: Metrics;

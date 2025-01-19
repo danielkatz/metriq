@@ -1,5 +1,6 @@
 import { InternalMetrics } from "../internal-metrics";
 import { Registry } from "../registry";
+import { Labels } from "../types";
 import { generateKey } from "../utils";
 
 export type ValueUpdater<TValue> = (value: TValue | undefined) => TValue;
