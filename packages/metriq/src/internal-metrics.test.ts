@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { Metrics } from "./metrics";
+import { MetricsImpl } from "./metrics";
 import { InternalMetricsImpl } from "./internal-metrics";
 
 describe("InternalMetrics", () => {
-    let metriq: Metrics;
+    let metriq: MetricsImpl;
     let internalMetrics: InternalMetricsImpl;
 
     beforeEach(() => {
-        metriq = new Metrics();
+        metriq = new MetricsImpl();
         internalMetrics = metriq["internalMetrics"] as InternalMetricsImpl;
     });
 

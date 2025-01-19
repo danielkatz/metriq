@@ -1,5 +1,5 @@
-import { Gauge } from "./instruments/gauge";
-import { Registry } from "./registry";
+import { GaugeImpl } from "./instruments/gauge";
+import { RegistryImpl } from "./registry";
 
 export interface InternalMetrics {
     registerInstruments(): void;
@@ -11,20 +11,20 @@ export interface InternalMetrics {
 }
 
 export class InternalMetricsImpl implements InternalMetrics {
-    private readonly registry: Registry;
+    private readonly registry: RegistryImpl;
 
-    public readonly metricGauge: Gauge;
-    public readonly timeseriesGauge: Gauge;
-    public readonly sampleGauge: Gauge;
+    public readonly metricGauge: GaugeImpl;
+    public readonly timeseriesGauge: GaugeImpl;
+    public readonly sampleGauge: GaugeImpl;
 
-    constructor(registry: Registry) {
+    constructor(registry: RegistryImpl) {
         this.registry = registry;
 
-        this.metricGauge = new Gauge("metriq_metrics_total", "Total number of metrics", registry);
+        this.metricGauge = new GaugeImpl("metriq_metrics_total", "Total number of metrics", registry);
 
-        this.timeseriesGauge = new Gauge("metriq_timeseries_total", "Total number of timeseries", registry);
+        this.timeseriesGauge = new GaugeImpl("metriq_timeseries_total", "Total number of timeseries", registry);
 
-        this.sampleGauge = new Gauge("metriq_samples_total", "Total number of samples", registry);
+        this.sampleGauge = new GaugeImpl("metriq_samples_total", "Total number of samples", registry);
     }
 
     public registerInstruments() {

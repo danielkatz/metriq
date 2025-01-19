@@ -5,12 +5,16 @@
         "lib": [
             "ES2020"
         ],
+        "types": [
+            "node"
+        ],
         "moduleResolution": "node",
         "strict": true,
         "declaration": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "noEmit": true
     },
     "exclude": [
         "node_modules",

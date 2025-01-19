@@ -1,11 +1,11 @@
 import { it, expect, describe, beforeEach, afterEach, vi } from "vitest";
-import { Instrument, InstrumentOptions } from "./instrument";
-import { Registry } from "../registry";
-import { Metrics } from "../metrics";
+import { InstrumentImpl, InstrumentOptions } from "./instrument";
+import { RegistryImpl } from "../registry";
+import { MetricsImpl } from "../metrics";
 import { InstrumentFactory } from "./factory";
 
-class TestInstrument extends Instrument<number> {
-    constructor(name: string, description: string, registry: Registry, options?: InstrumentOptions) {
+class TestInstrument extends InstrumentImpl<number> {
+    constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
         super(name, description, registry, options);
 
         registry["registerInstrument"](this);
@@ -17,7 +17,7 @@ type TestInstrumentFactory = (
     name: string,
     description: string,
     options?: InstrumentOptions,
-) => Instrument;
+) => InstrumentImpl;
 
 const instruments: [string, TestInstrumentFactory][] = [
     ["counter", (factory, name, description, options) => factory.createCounter(name, description, options)],
@@ -33,7 +33,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
     describe("Names and Duplication", () => {
         it("should create a counter with the given name and description", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const registry = metrics.createRegistry();
 
             // Act
@@ -46,7 +46,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should throw error when creating counter with duplicate name in metrics root", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             createInstrument(metrics, "name", "description");
 
             // Act
@@ -56,7 +56,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should throw error when creating counter with duplicate name in same registry", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const registry = metrics.createRegistry();
 
             createInstrument(registry, "name", "description");
@@ -68,7 +68,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should throw error when creating counter with duplicate name across registries", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const registry1 = metrics.createRegistry();
             const registry2 = metrics.createRegistry();
 
@@ -81,7 +81,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should throw error when creating counter with duplicate prefixed name", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const registry = metrics.createRegistry({ commonPrefix: "prefix_" });
 
             createInstrument(registry, "name", "description");
@@ -95,7 +95,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
     describe("Options", () => {
         it("should have undefined TTL when not specified", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const registry = metrics.createRegistry({});
 
             // Act
@@ -107,7 +107,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should use ttl from options", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const registry = metrics.createRegistry();
 
             // Act
@@ -119,7 +119,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should use the default TTL from the registry", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const registry = metrics.createRegistry({ defaultTtl: 60000 });
 
             // Act
@@ -131,7 +131,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should use the default TTL from the root", () => {
             // Arrange
-            const metrics = new Metrics({ defaultTtl: 60000 });
+            const metrics = new MetricsImpl({ defaultTtl: 60000 });
             const registry = metrics.createRegistry();
 
             // Act
@@ -143,7 +143,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should use prefix from root", () => {
             // Arrange
-            const metrics = new Metrics({ commonPrefix: "prefix_" });
+            const metrics = new MetricsImpl({ commonPrefix: "prefix_" });
             const registry = metrics.createRegistry();
 
             // Act
@@ -155,7 +155,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should use prefix from registry", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const registry = metrics.createRegistry({ commonPrefix: "prefix_" });
 
             // Act
@@ -167,7 +167,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should use common labels from root", () => {
             // Arrange
-            const metrics = new Metrics({ commonLabels: { key: "value" } });
+            const metrics = new MetricsImpl({ commonLabels: { key: "value" } });
             const registry = metrics.createRegistry();
 
             // Act
@@ -179,7 +179,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should use common labels from registry", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const registry = metrics.createRegistry({ commonLabels: { key: "value" } });
 
             // Act
@@ -193,7 +193,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
     describe("removal", () => {
         it("should remove a value with empty labels", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const instrument = new TestInstrument("name", "description", metrics.defaultRegistry);
 
             // Act
@@ -206,7 +206,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should remove a value with labels", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const instrument = new TestInstrument("name", "description", metrics.defaultRegistry);
 
             // Act
@@ -219,7 +219,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should only remove the value with the same labels", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const instrument = new TestInstrument("name", "description", metrics.defaultRegistry);
 
             // Act
@@ -234,7 +234,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 
         it("should remove all values when clearing", () => {
             // Arrange
-            const metrics = new Metrics();
+            const metrics = new MetricsImpl();
             const instrument = new TestInstrument("name", "description", metrics.defaultRegistry);
 
             // Act
@@ -250,11 +250,11 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
 });
 
 describe("TTL", () => {
-    let registry: Registry;
-    let metrics: Metrics;
+    let registry: RegistryImpl;
+    let metrics: MetricsImpl;
 
     beforeEach(() => {
-        metrics = new Metrics();
+        metrics = new MetricsImpl();
         registry = metrics.defaultRegistry;
 
         vi.useFakeTimers();

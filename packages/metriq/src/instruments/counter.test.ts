@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { Metrics } from "../metrics";
+import { MetricsImpl } from "../metrics";
 
 describe("Counter", () => {
-    let metrics: Metrics;
+    let metrics: MetricsImpl;
 
     beforeEach(() => {
-        metrics = new Metrics();
+        metrics = new MetricsImpl();
     });
 
     it("should increment value by one", () => {

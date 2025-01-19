@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { Metrics } from "../metrics";
+import { MetricsImpl } from "../metrics";
 
 describe("Histogram", () => {
-    let metrics: Metrics;
+    let metrics: MetricsImpl;
 
     beforeEach(() => {
-        metrics = new Metrics();
+        metrics = new MetricsImpl();
     });
 
     it("should create a default histogram", () => {

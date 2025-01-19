@@ -1,5 +1,5 @@
-import { Instrument, InstrumentOptions } from "./instrument";
-import { Registry } from "../registry";
+import { Instrument, InstrumentImpl, InstrumentOptions } from "./instrument";
+import { RegistryImpl } from "../registry";
 import { Labels } from "../types";
 
 export type HistogramOptions = InstrumentOptions & {
@@ -8,10 +8,15 @@ export type HistogramOptions = InstrumentOptions & {
 
 const DEFAULT_BUCKETS = Object.freeze([0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]);
 
-export class Histogram extends Instrument<number[], HistogramOptions> {
+export interface Histogram extends Instrument {
+    observe(value: number): void;
+    observe(labels: Labels, value: number): void;
+}
+
+export class HistogramImpl extends InstrumentImpl<number[], HistogramOptions> implements Histogram {
     public readonly buckets: Readonly<number[]>;
 
-    constructor(name: string, description: string, registry: Registry, options?: InstrumentOptions) {
+    constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
         super(name, description, registry, options);
         this.buckets = this.options.buckets ? Object.freeze(this.options.buckets) : DEFAULT_BUCKETS;
         this.componentsCount = this.buckets.length + 2;

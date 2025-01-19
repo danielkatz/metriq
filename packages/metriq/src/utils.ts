@@ -1,28 +1,13 @@
-import { Readable } from "node:stream";
 import { Labels } from "./types";
 
-export function readStreamToString(stream: Readable): Promise<string> {
-    return new Promise((resolve, reject) => {
-        let data = "";
+export async function readStreamToString(stream: ReadableStream<string>): Promise<string> {
+    let data = "";
 
-        // Ensure the stream provides strings rather than Buffers.
-        stream.setEncoding("utf8");
+    for await (const chunk of stream) {
+        data += chunk;
+    }
 
-        // Accumulate chunks into the data string.
-        stream.on("data", (chunk: string) => {
-            data += chunk;
-        });
-
-        // When the stream ends, resolve with the full string.
-        stream.on("end", () => {
-            resolve(data);
-        });
-
-        // If there's an error, reject the promise.
-        stream.on("error", (err: Error) => {
-            reject(err);
-        });
-    });
+    return data;
 }
 
 export function generateKey(labels: Labels): string {

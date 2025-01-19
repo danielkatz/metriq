@@ -1,19 +1,22 @@
-import { Readable } from "node:stream";
-import { Counter } from "../instruments/counter";
-import { Gauge } from "../instruments/gauge";
-import { Histogram } from "../instruments/histogram";
-import { Metrics } from "../metrics";
+import { CounterImpl } from "../instruments/counter";
+import { GaugeImpl } from "../instruments/gauge";
+import { HistogramImpl } from "../instruments/histogram";
+import { MetricsImpl } from "../metrics";
 import { Labels } from "../types";
 
-export class PrometheusExporter {
-    private metrics: Metrics;
+export interface PrometheusExporter {
+    stream(): ReadableStream<string>;
+}
 
-    constructor(metrics: Metrics) {
+export class PrometheusExporterImpl implements PrometheusExporter {
+    private metrics: MetricsImpl;
+
+    constructor(metrics: MetricsImpl) {
         this.metrics = metrics;
     }
 
-    public stream(): Readable {
-        return Readable.from(this.writeMetrics());
+    public stream(): ReadableStream<string> {
+        return ReadableStream.from(this.writeMetrics());
     }
 
     private async *writeMetrics(): AsyncGenerator<string> {
@@ -26,11 +29,11 @@ export class PrometheusExporter {
                 yield "\n";
             }
 
-            if (instrument instanceof Counter) {
+            if (instrument instanceof CounterImpl) {
                 yield* this.writeCounter(instrument);
-            } else if (instrument instanceof Gauge) {
+            } else if (instrument instanceof GaugeImpl) {
                 yield* this.writeGauge(instrument);
-            } else if (instrument instanceof Histogram) {
+            } else if (instrument instanceof HistogramImpl) {
                 yield* this.writeHistogram(instrument);
             } else {
                 throw new Error(`Unknown instrument type: ${instrument.constructor.name}`);
@@ -38,7 +41,7 @@ export class PrometheusExporter {
         }
     }
 
-    private *writeCounter(counter: Counter): Generator<string> {
+    private *writeCounter(counter: CounterImpl): Generator<string> {
         yield `# HELP ${counter.description}\n`;
         yield `# TYPE counter\n`;
 
@@ -47,7 +50,7 @@ export class PrometheusExporter {
         }
     }
 
-    private *writeGauge(instrument: Gauge): Generator<string> {
+    private *writeGauge(instrument: GaugeImpl): Generator<string> {
         yield `# HELP ${instrument.description}\n`;
         yield `# TYPE gauge\n`;
 
@@ -56,7 +59,7 @@ export class PrometheusExporter {
         }
     }
 
-    private *writeHistogram(histogram: Histogram): Generator<string> {
+    private *writeHistogram(histogram: HistogramImpl): Generator<string> {
         yield `# HELP ${histogram.description}\n`;
         yield `# TYPE histogram\n`;
 

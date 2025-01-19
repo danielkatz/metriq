@@ -1,17 +1,17 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import dedent from "dedent";
-import { Metrics } from "../metrics";
-import { PrometheusExporter } from "./prometheus";
+import { MetricsImpl } from "../metrics";
+import { PrometheusExporterImpl } from "./prometheus";
 import { readStreamToString } from "../utils";
 
 describe("PrometheusExporter", () => {
     describe("single registry", () => {
-        let metrics: Metrics;
-        let exporter: PrometheusExporter;
+        let metrics: MetricsImpl;
+        let exporter: PrometheusExporterImpl;
 
         beforeEach(() => {
-            metrics = new Metrics({ enableInternalMetrics: false });
-            exporter = new PrometheusExporter(metrics);
+            metrics = new MetricsImpl({ enableInternalMetrics: false });
+            exporter = new PrometheusExporterImpl(metrics);
         });
 
         it("empty state", async () => {
@@ -227,8 +227,8 @@ describe("PrometheusExporter", () => {
 
             it("counter with common labels", async () => {
                 // Arrange
-                const metrics = new Metrics({ commonLabels: { key: "value" }, enableInternalMetrics: false });
-                const exporter = new PrometheusExporter(metrics);
+                const metrics = new MetricsImpl({ commonLabels: { key: "value" }, enableInternalMetrics: false });
+                const exporter = new PrometheusExporterImpl(metrics);
 
                 const counter = metrics.createCounter("counter", "description");
 
@@ -248,8 +248,8 @@ describe("PrometheusExporter", () => {
 
             it("counter with common labels and instrument labels", async () => {
                 // Arrange
-                const metrics = new Metrics({ commonLabels: { key1: "value1" }, enableInternalMetrics: false });
-                const exporter = new PrometheusExporter(metrics);
+                const metrics = new MetricsImpl({ commonLabels: { key1: "value1" }, enableInternalMetrics: false });
+                const exporter = new PrometheusExporterImpl(metrics);
 
                 const counter = metrics.createCounter("counter", "description");
 
@@ -546,8 +546,8 @@ describe("PrometheusExporter", () => {
 
             it("gauge with common labels", async () => {
                 // Arrange
-                const metrics = new Metrics({ commonLabels: { key: "value" }, enableInternalMetrics: false });
-                const exporter = new PrometheusExporter(metrics);
+                const metrics = new MetricsImpl({ commonLabels: { key: "value" }, enableInternalMetrics: false });
+                const exporter = new PrometheusExporterImpl(metrics);
 
                 const gauge = metrics.createGauge("gauge", "description");
 
@@ -567,8 +567,8 @@ describe("PrometheusExporter", () => {
 
             it("gauge with common labels and instrument labels", async () => {
                 // Arrange
-                const metrics = new Metrics({ commonLabels: { key1: "value1" }, enableInternalMetrics: false });
-                const exporter = new PrometheusExporter(metrics);
+                const metrics = new MetricsImpl({ commonLabels: { key1: "value1" }, enableInternalMetrics: false });
+                const exporter = new PrometheusExporterImpl(metrics);
 
                 const gauge = metrics.createGauge("gauge", "description");
 
@@ -799,8 +799,8 @@ describe("PrometheusExporter", () => {
 
             it("histogram with common labels", async () => {
                 // Arrange
-                const metrics = new Metrics({ commonLabels: { service: "api" }, enableInternalMetrics: false });
-                const exporter = new PrometheusExporter(metrics);
+                const metrics = new MetricsImpl({ commonLabels: { service: "api" }, enableInternalMetrics: false });
+                const exporter = new PrometheusExporterImpl(metrics);
                 const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
                 histogram.observe({ method: "GET" }, 1.5);
 
@@ -904,12 +904,12 @@ describe("PrometheusExporter", () => {
     });
 
     describe("async collect", () => {
-        let metrics: Metrics;
-        let exporter: PrometheusExporter;
+        let metrics: MetricsImpl;
+        let exporter: PrometheusExporterImpl;
 
         beforeEach(() => {
-            metrics = new Metrics({ enableInternalMetrics: false });
-            exporter = new PrometheusExporter(metrics);
+            metrics = new MetricsImpl({ enableInternalMetrics: false });
+            exporter = new PrometheusExporterImpl(metrics);
         });
 
         it("sync callback", async () => {
@@ -990,12 +990,12 @@ describe("PrometheusExporter", () => {
     });
 
     describe("internal metrics", () => {
-        let metrics: Metrics;
-        let exporter: PrometheusExporter;
+        let metrics: MetricsImpl;
+        let exporter: PrometheusExporterImpl;
 
         beforeEach(() => {
-            metrics = new Metrics({ enableInternalMetrics: true });
-            exporter = new PrometheusExporter(metrics);
+            metrics = new MetricsImpl({ enableInternalMetrics: true });
+            exporter = new PrometheusExporterImpl(metrics);
         });
 
         it("empty state", async () => {

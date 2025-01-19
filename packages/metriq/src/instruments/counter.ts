@@ -1,9 +1,16 @@
-import { Instrument, InstrumentOptions } from "./instrument";
-import { Registry } from "../registry";
+import { Instrument, InstrumentImpl, InstrumentOptions } from "./instrument";
+import { RegistryImpl } from "../registry";
 import { Labels } from "../types";
 
-export class Counter extends Instrument<number> {
-    constructor(name: string, description: string, registry: Registry, options?: InstrumentOptions) {
+export interface Counter extends Instrument {
+    increment(): void;
+    increment(delta: number): void;
+    increment(labels: Labels): void;
+    increment(labels: Labels, delta: number): void;
+}
+
+export class CounterImpl extends InstrumentImpl<number> {
+    constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
         super(name, description, registry, options);
     }
 

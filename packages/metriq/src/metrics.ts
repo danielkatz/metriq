@@ -1,9 +1,8 @@
-import { Instrument, InstrumentOptions } from "./instruments/instrument";
-import { InstrumentFactory } from "./instruments/factory";
-import { Registry, RegistryOptions } from "./registry";
-import { Counter } from "./instruments/counter";
-import { Gauge } from "./instruments/gauge";
-import { Histogram, HistogramOptions } from "./instruments/histogram";
+import { InstrumentImpl, InstrumentOptions } from "./instruments/instrument";
+import { Registry, RegistryImpl, RegistryOptions } from "./registry";
+import { Counter, CounterImpl } from "./instruments/counter";
+import { Gauge, GaugeImpl } from "./instruments/gauge";
+import { Histogram, HistogramImpl, HistogramOptions } from "./instruments/histogram";
 import { InternalMetrics, InternalMetricsImpl, InternalMetricsNoop } from "./internal-metrics";
 
 export type MetricsOptions = {
@@ -19,13 +18,26 @@ const DEFAULT_OPTIONS: MetricsOptions = {
     enableInternalMetrics: true,
 };
 
-export class Metrics implements InstrumentFactory {
-    private readonly registries = new Set<Registry>();
+export interface Metrics {
+    readonly defaultRegistry: Registry;
+
+    createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): Counter;
+    createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): Gauge;
+    createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): Histogram;
+
+    createRegistry(options?: Partial<RegistryOptions>): Registry;
+
+    addCollectCallback(callback: CollectCallback): void;
+    removeCollectCallback(callback: CollectCallback): void;
+}
+
+export class MetricsImpl implements Metrics {
+    private readonly registries = new Set<RegistryImpl>();
     private readonly collectCallbacks = new Set<CollectCallback>();
-    private readonly internalRegistry: Registry;
-    
+    private readonly internalRegistry: RegistryImpl;
+
     public readonly options: Readonly<MetricsOptions>;
-    public readonly defaultRegistry: Registry;
+    public readonly defaultRegistry: RegistryImpl;
     public readonly internalMetrics: InternalMetrics;
 
     constructor(options?: Partial<MetricsOptions>) {
@@ -42,27 +54,27 @@ export class Metrics implements InstrumentFactory {
         }
     }
 
-    public createRegistry(options?: RegistryOptions): Registry {
+    public createRegistry(options?: RegistryOptions): RegistryImpl {
         const merged: RegistryOptions = {
             defaultTtl: this.options.defaultTtl,
             commonPrefix: this.options.commonPrefix,
             commonLabels: this.options.commonLabels,
             ...options,
         };
-        const registry = new Registry(this, merged);
+        const registry = new RegistryImpl(this, merged);
         this.registries.add(registry);
         return registry;
     }
 
-    public createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): Counter {
+    public createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): CounterImpl {
         return this.defaultRegistry.createCounter(name, description, options);
     }
 
-    public createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): Gauge {
+    public createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): GaugeImpl {
         return this.defaultRegistry.createGauge(name, description, options);
     }
 
-    public createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): Histogram {
+    public createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): HistogramImpl {
         return this.defaultRegistry.createHistogram(name, description, options);
     }
 
@@ -84,13 +96,15 @@ export class Metrics implements InstrumentFactory {
         return false;
     }
 
-    public async *collect(): AsyncGenerator<Instrument> {
+    public async *collect(): AsyncGenerator<InstrumentImpl> {
         for (const callback of this.collectCallbacks) {
             await Promise.resolve(callback());
         }
 
         for (const registry of this.registries.values()) {
-            yield* registry.getInstruments();
+            for (const instrument of registry.getInstruments()) {
+                yield instrument;
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 import { InternalMetrics } from "../internal-metrics";
-import { Registry } from "../registry";
+import { Registry, RegistryImpl } from "../registry";
 import { Labels } from "../types";
 import { generateKey } from "../utils";
 
@@ -17,7 +17,15 @@ export type InstrumentValue<TValue> = {
 
 const DEFAULT_OPTIONS: InstrumentOptions = {};
 
-export abstract class Instrument<TValue = unknown, TOptions extends InstrumentOptions = InstrumentOptions> {
+export interface Instrument {
+    readonly name: string;
+    readonly description: string;
+    readonly registry: Registry;
+}
+
+export abstract class InstrumentImpl<TValue = unknown, TOptions extends InstrumentOptions = InstrumentOptions>
+    implements Instrument
+{
     public readonly options: Readonly<TOptions>;
 
     private readonly values: Map<string, InstrumentValue<TValue>> = new Map();
@@ -28,7 +36,7 @@ export abstract class Instrument<TValue = unknown, TOptions extends InstrumentOp
     constructor(
         public readonly name: string,
         public readonly description: string,
-        public readonly registry: Registry,
+        public readonly registry: RegistryImpl,
         options: Partial<TOptions> = {},
     ) {
         this.options = Object.freeze({

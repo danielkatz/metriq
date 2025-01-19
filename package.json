@@ -2,13 +2,16 @@
   "name": "metriq-monorepo",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/metriq",
+    "packages/adapters/*",
+    "examples",
+    "benchmarks"
   ],
   "scripts": {
     "build": "npm run build --workspaces",
-    "test": "npm run test --workspaces",
-    "test:coverage": "npm run test:coverage --workspaces",
-    "test:types": "npm run test:types --workspaces",
+    "test": "npm run test --workspaces --if-present",
+    "test:coverage": "npm run test:coverage --workspaces --if-present",
+    "test:types": "npm run test:types --workspaces --if-present",
     "lint": "npm run lint --workspaces",
     "format": "npm run format --workspaces"
   },
@@ -18,8 +21,11 @@
     "@typescript-eslint/parser": "^8.16.0",
     "@vitest/coverage-v8": "^2.1.6",
     "eslint": "^9.18.0",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "eslint-plugin-import-x": "^4.6.1",
     "jiti": "^2.4.2",
     "prettier": "^3.4.1",
+    "tsup": "^8.3.5",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0",
     "vitest": "^2.1.6"

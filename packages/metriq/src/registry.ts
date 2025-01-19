@@ -1,9 +1,8 @@
-import { Instrument, InstrumentOptions } from "./instruments/instrument";
-import { InstrumentFactory } from "./instruments/factory";
-import { Counter } from "./instruments/counter";
-import { Metrics } from "./metrics";
-import { Gauge } from "./instruments/gauge";
-import { Histogram, HistogramOptions } from "./instruments/histogram";
+import { InstrumentImpl, InstrumentOptions } from "./instruments/instrument";
+import { Counter, CounterImpl } from "./instruments/counter";
+import { Metrics, MetricsImpl } from "./metrics";
+import { Gauge, GaugeImpl } from "./instruments/gauge";
+import { Histogram, HistogramImpl, HistogramOptions } from "./instruments/histogram";
 
 export type RegistryOptions = {
     defaultTtl?: number;
@@ -13,17 +12,25 @@ export type RegistryOptions = {
 
 const DEFAULT_OPTIONS: RegistryOptions = {};
 
-export class Registry implements InstrumentFactory {
-    public readonly owner: Metrics;
-    private readonly options: Readonly<RegistryOptions>;
-    private readonly instruments: Map<string, Instrument> = new Map();
+export interface Registry {
+    readonly owner: Metrics;
 
-    constructor(owner: Metrics, options: RegistryOptions) {
+    createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): Counter;
+    createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): Gauge;
+    createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): Histogram;
+}
+
+export class RegistryImpl implements Registry {
+    public readonly owner: MetricsImpl;
+    private readonly options: Readonly<RegistryOptions>;
+    private readonly instruments: Map<string, InstrumentImpl> = new Map();
+
+    constructor(owner: MetricsImpl, options: RegistryOptions) {
         this.owner = owner;
         this.options = Object.freeze({ ...DEFAULT_OPTIONS, ...options });
     }
 
-    public createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): Counter {
+    public createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): CounterImpl {
         const merged: InstrumentOptions = {
             ttl: this.options.defaultTtl,
             commonLabels: this.options.commonLabels,
@@ -35,12 +42,12 @@ export class Registry implements InstrumentFactory {
             throw new Error(`Instrument with name "${fullName}" already exists`);
         }
 
-        const counter = new Counter(fullName, description, this, merged);
+        const counter = new CounterImpl(fullName, description, this, merged);
         this.registerInstrument(counter);
         return counter;
     }
 
-    public createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): Gauge {
+    public createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): GaugeImpl {
         const merged: InstrumentOptions = {
             ttl: this.options.defaultTtl,
             commonLabels: this.options.commonLabels,
@@ -52,12 +59,12 @@ export class Registry implements InstrumentFactory {
             throw new Error(`Instrument with name "${fullName}" already exists`);
         }
 
-        const gauge = new Gauge(fullName, description, this, merged);
+        const gauge = new GaugeImpl(fullName, description, this, merged);
         this.registerInstrument(gauge);
         return gauge;
     }
 
-    public createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): Histogram {
+    public createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): HistogramImpl {
         const merged: Partial<HistogramOptions> = {
             ttl: this.options.defaultTtl,
             commonLabels: this.options.commonLabels,
@@ -69,12 +76,12 @@ export class Registry implements InstrumentFactory {
             throw new Error(`Instrument with name "${fullName}" already exists`);
         }
 
-        const histogram = new Histogram(fullName, description, this, merged);
+        const histogram = new HistogramImpl(fullName, description, this, merged);
         this.registerInstrument(histogram);
         return histogram;
     }
 
-    private registerInstrument(instrument: Instrument): void {
+    private registerInstrument(instrument: InstrumentImpl): void {
         this.instruments.set(instrument.name, instrument);
 
         this.owner.internalMetrics.onInstrumentAdded();
@@ -84,7 +91,7 @@ export class Registry implements InstrumentFactory {
         return this.instruments.has(name);
     }
 
-    public getInstruments(): IterableIterator<Instrument> {
+    public getInstruments(): IterableIterator<InstrumentImpl> {
         return this.instruments.values();
     }
 

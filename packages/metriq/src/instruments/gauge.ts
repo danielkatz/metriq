@@ -1,9 +1,24 @@
-import { Instrument, InstrumentOptions } from "./instrument";
-import { Registry } from "../registry";
+import { Instrument, InstrumentImpl, InstrumentOptions } from "./instrument";
+import { RegistryImpl } from "../registry";
 import { Labels } from "../types";
 
-export class Gauge extends Instrument<number> {
-    constructor(name: string, description: string, registry: Registry, options?: InstrumentOptions) {
+export interface Gauge extends Instrument {
+    increment(): void;
+    increment(delta: number): void;
+    increment(labels: Labels): void;
+    increment(labels: Labels, delta: number): void;
+
+    decrement(): void;
+    decrement(delta: number): void;
+    decrement(labels: Labels): void;
+    decrement(labels: Labels, delta: number): void;
+
+    set(value: number): void;
+    set(labels: Labels, value: number): void;
+}
+
+export class GaugeImpl extends InstrumentImpl<number> implements Gauge {
+    constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
         super(name, description, registry, options);
     }
 
