@@ -1,6 +1,6 @@
 import { Labels } from "./types";
 
-export async function readStreamToString(stream: ReadableStream<string>): Promise<string> {
+export async function readStreamToString(stream: AsyncGenerator<string>): Promise<string> {
     let data = "";
 
     for await (const chunk of stream) {
