@@ -5,7 +5,7 @@ export const metriq = (options?: Partial<MetricsOptions>): Metrics => {
     return new MetricsImpl(options);
 };
 
-export const prometheus = (metrics: Metrics): PrometheusExporter => {
+export const prometheusExporter = (metrics: Metrics): PrometheusExporter => {
     if (!(metrics instanceof MetricsImpl)) {
         throw new Error("Metrics must be an instance of MetricsImpl");
     }

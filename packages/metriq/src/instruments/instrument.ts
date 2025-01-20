@@ -21,6 +21,9 @@ export interface Instrument {
     readonly name: string;
     readonly description: string;
     readonly registry: Registry;
+
+    remove(labels: Labels): void;
+    clear(): void;
 }
 
 export abstract class InstrumentImpl<TValue = unknown, TOptions extends InstrumentOptions = InstrumentOptions>

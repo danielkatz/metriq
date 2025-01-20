@@ -1,47 +1,47 @@
- DEV  v2.1.6 /home/daniel/work/metrics
+ DEV  v2.1.8 /home/daniel/work/metrics/benchmarks
 
- ✓ src/exporters/prometheus.bench.ts (12) 60543ms
-   ✓ PrometheusExporter (cardinality=10) (2) 1244ms
+ ✓ src/prometheus.bench.ts (12) 58776ms
+   ✓ PrometheusExporter (cardinality=10) (2) 1249ms
      name                 hz     min     max    mean     p75     p99    p995    p999     rme  samples
-   · metrics       15,152.66  0.0399  5.6027  0.0660  0.0572  0.1460  0.2452  3.9069  ±7.11%     7577
-   · prom-client  117,679.17  0.0052  4.2347  0.0085  0.0068  0.0215  0.0248  0.9776  ±5.09%    58840   fastest
-   ✓ PrometheusExporter (cardinality=100) (2) 1210ms
+   · metrics       28,073.86  0.0249  3.5457  0.0356  0.0316  0.0895  0.1581  1.7455  ±4.37%    14037
+   · prom-client  115,783.69  0.0048  5.9730  0.0086  0.0063  0.0261  0.0337  1.2229  ±6.09%    57892   fastest
+   ✓ PrometheusExporter (cardinality=100) (2) 1207ms
      name                hz     min     max    mean     p75     p99    p995    p999     rme  samples
-   · metrics       5,582.12  0.1130  5.1710  0.1791  0.1488  2.0493  2.4602  3.6311  ±5.83%     2792
-   · prom-client  11,974.78  0.0504  5.2744  0.0835  0.0637  0.2849  1.9058  3.4217  ±6.75%     5988   fastest
-   ✓ PrometheusExporter (cardinality=1000) (2) 1208ms
+   · metrics       8,871.99  0.0803  3.6944  0.1127  0.1023  0.9085  1.1581  1.9719  ±3.74%     4436
+   · prom-client  12,179.72  0.0469  4.8383  0.0821  0.0641  0.3330  2.0578  3.0339  ±6.94%     6090   fastest
+   ✓ PrometheusExporter (cardinality=1000) (2) 1210ms
      name               hz     min     max    mean     p75     p99    p995    p999     rme  samples
-   · metrics        739.76  1.0265  4.3596  1.3518  1.2892  3.7500  4.0609  4.3596  ±3.66%      370
-   · prom-client  1,077.80  0.5688  7.1683  0.9278  0.7587  4.3446  6.0367  7.1683  ±7.08%      539   fastest
-   ✓ PrometheusExporter (cardinality=10000) (2) 1234ms
-     name              hz      min      max     mean      p75      p99     p995     p999     rme  samples
-   · metrics      76.4265  11.3245  18.8920  13.0845  13.2754  18.8920  18.8920  18.8920  ±4.65%       39
-   · prom-client  84.6750   9.6095  21.6794  11.8099  11.9367  21.6794  21.6794  21.6794  ±6.31%       43   fastest
-   ✓ PrometheusExporter (cardinality=100000) (2) 4483ms
-     name             hz     min     max    mean     p75     p99    p995    p999      rme  samples
-   · metrics      7.5625  123.10  142.27  132.23  136.74  142.27  142.27  142.27   ±3.56%       10   fastest
-   · prom-client  5.5563  132.67  466.92  179.98  153.38  466.92  466.92  466.92  ±40.16%       10
-   ✓ PrometheusExporter (cardinality=1000000) (2) 51158ms
+   · metrics      1,017.24  0.6622  4.9610  0.9831  0.9522  2.6016  3.5069  4.9610  ±4.20%      510
+   · prom-client  1,049.87  0.5528  7.6422  0.9525  0.7983  4.4596  5.3492  7.6422  ±7.63%      526   fastest
+   ✓ PrometheusExporter (cardinality=10000) (2) 1229ms
+     name              hz     min      max     mean      p75      p99     p995     p999     rme  samples
+   · metrics       104.85  7.9728  12.7960   9.5370  10.0670  12.7960  12.7960  12.7960  ±3.13%       53   fastest
+   · prom-client  84.7833  9.6061  18.4794  11.7948  12.6109  18.4794  18.4794  18.4794  ±4.33%       43
+   ✓ PrometheusExporter (cardinality=100000) (2) 3906ms
+     name             hz      min     max    mean     p75     p99    p995    p999     rme  samples
+   · metrics      9.9695  93.6414  105.71  100.31  103.52  105.71  105.71  105.71  ±2.88%       10   fastest
+   · prom-client  6.0788   145.66  195.75  164.51  167.60  195.75  195.75  195.75  ±5.78%       10
+   ✓ PrometheusExporter (cardinality=1000000) (2) 49971ms
      name             hz       min       max      mean       p75       p99      p995      p999     rme  samples
-   · metrics      0.7578  1,287.55  1,355.87  1,319.68  1,334.98  1,355.87  1,355.87  1,355.87  ±1.22%       10   fastest
-   · prom-client  0.4675  1,901.88  2,410.43  2,138.82  2,315.55  2,410.43  2,410.43  2,410.43  ±6.85%       10
+   · metrics      0.9130  1,049.55  1,197.80  1,095.30  1,114.87  1,197.80  1,197.80  1,197.80  ±2.89%       10   fastest
+   · prom-client  0.4554  1,902.29  2,568.06  2,195.99  2,306.42  2,568.06  2,568.06  2,568.06  ±6.73%       10
 
  BENCH  Summary
 
-  prom-client - src/exporters/prometheus.bench.ts > PrometheusExporter (cardinality=10)
-    7.77x faster than metrics
+  prom-client - src/prometheus.bench.ts > PrometheusExporter (cardinality=10)
+    4.12x faster than metrics
 
-  prom-client - src/exporters/prometheus.bench.ts > PrometheusExporter (cardinality=100)
-    2.15x faster than metrics
+  prom-client - src/prometheus.bench.ts > PrometheusExporter (cardinality=100)
+    1.37x faster than metrics
 
-  prom-client - src/exporters/prometheus.bench.ts > PrometheusExporter (cardinality=1000)
-    1.46x faster than metrics
+  prom-client - src/prometheus.bench.ts > PrometheusExporter (cardinality=1000)
+    1.03x faster than metrics
 
-  prom-client - src/exporters/prometheus.bench.ts > PrometheusExporter (cardinality=10000)
-    1.11x faster than metrics
+  metrics - src/prometheus.bench.ts > PrometheusExporter (cardinality=10000)
+    1.24x faster than prom-client
 
-  metrics - src/exporters/prometheus.bench.ts > PrometheusExporter (cardinality=100000)
-    1.36x faster than prom-client
+  metrics - src/prometheus.bench.ts > PrometheusExporter (cardinality=100000)
+    1.64x faster than prom-client
 
-  metrics - src/exporters/prometheus.bench.ts > PrometheusExporter (cardinality=1000000)
-    1.62x faster than prom-client
+  metrics - src/prometheus.bench.ts > PrometheusExporter (cardinality=1000000)
+    2.00x faster than prom-client

@@ -5,7 +5,7 @@ import { MetricsImpl } from "../metrics";
 import { Labels } from "../types";
 
 export interface PrometheusExporter {
-    stream(): ReadableStream<string>;
+    stream(): AsyncGenerator<string>;
 }
 
 export class PrometheusExporterImpl implements PrometheusExporter {
@@ -15,8 +15,8 @@ export class PrometheusExporterImpl implements PrometheusExporter {
         this.metrics = metrics;
     }
 
-    public stream(): ReadableStream<string> {
-        return ReadableStream.from(this.writeMetrics());
+    public stream(): AsyncGenerator<string> {
+        return this.writeMetrics();
     }
 
     private async *writeMetrics(): AsyncGenerator<string> {

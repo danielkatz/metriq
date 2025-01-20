@@ -10,6 +10,7 @@ This monorepo contains the Metriq metrics collection library and related package
         - [x] Gauge
         - [x] Histogram
         - [ ] Summary
+        - [ ] FIX: metric name missing in prometheus
     - [x] collect callback
     - [ ] type safety
     - [x] clear/reset
