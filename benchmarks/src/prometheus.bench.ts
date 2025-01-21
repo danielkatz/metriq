@@ -2,8 +2,6 @@ import { bench, describe } from "vitest";
 import { pipeline } from "node:stream/promises";
 import { PassThrough } from "node:stream";
 import { metriq, prometheusExporter } from "metriq";
-
-/* eslint-disable import-x/no-named-as-default-member */
 import pc from "prom-client";
 
 describe.each([10, 100, 1000, 10_000, 100_000, 1_000_000])("PrometheusExporter (cardinality=%d)", (cardinality) => {

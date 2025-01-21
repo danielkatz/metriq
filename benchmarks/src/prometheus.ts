@@ -1,8 +1,6 @@
 import { metriq } from "metriq";
 import { prometheus } from "@metriq/express";
 import express, { Request, Response, NextFunction } from "express";
-
-/* eslint-disable import-x/no-named-as-default-member */
 import pc from "prom-client";
 
 const PORT = 3001;

@@ -1,19 +1,9 @@
-import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
+import baseConfig from "../eslint.config";
 
-export default tseslint.config(eslint.configs.recommended, tseslint.configs.recommendedTypeChecked, {
-    languageOptions: {
-        parserOptions: {
-            projectService: true,
-            tsconfigRootDir: import.meta.dirname,
-        },
-    },
+export default tseslint.config(baseConfig, {
     rules: {
-        "@typescript-eslint/no-unused-vars": [
-            "error",
-            { argsIgnorePattern: "^_", varsIgnorePattern: "^_", destructuredArrayIgnorePattern: "^_" },
-        ],
-        "@typescript-eslint/no-floating-promises": "error",
-        "@typescript-eslint/no-misused-promises": "error",
+        "import-x/no-unresolved": "off",
+        "import-x/no-named-as-default-member": "off",
     },
 });
