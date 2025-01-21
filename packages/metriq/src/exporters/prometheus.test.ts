@@ -35,8 +35,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter\n
+                    # HELP counter description
+                    # TYPE counter counter\n
                 `);
             });
 
@@ -52,8 +52,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter
+                    # HELP counter description
+                    # TYPE counter counter
                     counter 5\n
                 `);
             });
@@ -70,8 +70,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter
+                    # HELP counter description
+                    # TYPE counter counter
                     counter{key="value"} 5\n
                 `);
             });
@@ -88,8 +88,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter
+                    # HELP counter description
+                    # TYPE counter counter
                     counter{key1="value1",key2="value2"} 5\n
                 `);
             });
@@ -107,8 +107,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter
+                    # HELP counter description
+                    # TYPE counter counter
                     counter{key="value1"} 5
                     counter{key="value2"} 7\n
                 `);
@@ -127,8 +127,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter
+                    # HELP counter description
+                    # TYPE counter counter
                     counter{key1="value1",key2="value2"} 5
                     counter{key1="value3",key2="value4"} 7\n
                 `);
@@ -148,12 +148,12 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description1
-                    # TYPE counter
+                    # HELP counter1 description1
+                    # TYPE counter1 counter
                     counter1 5
 
-                    # HELP description2
-                    # TYPE counter
+                    # HELP counter2 description2
+                    # TYPE counter2 counter
                     counter2 7\n
                 `);
             });
@@ -172,12 +172,12 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description1
-                    # TYPE counter
+                    # HELP counter1 description1
+                    # TYPE counter1 counter
                     counter1{key="value"} 5
 
-                    # HELP description2
-                    # TYPE counter
+                    # HELP counter2 description2
+                    # TYPE counter2 counter
                     counter2{key="value"} 7\n
                 `);
             });
@@ -196,12 +196,12 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description1
-                    # TYPE counter
+                    # HELP counter1 description1
+                    # TYPE counter1 counter
                     counter1{key="value1"} 5
 
-                    # HELP description2
-                    # TYPE counter
+                    # HELP counter2 description2
+                    # TYPE counter2 counter
                     counter2{key="value2"} 7\n
                 `);
             });
@@ -219,8 +219,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter
+                    # HELP prefix_counter description
+                    # TYPE prefix_counter counter
                     prefix_counter 5\n
                 `);
             });
@@ -240,8 +240,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter
+                    # HELP counter description
+                    # TYPE counter counter
                     counter{key="value"} 5\n
                 `);
             });
@@ -261,8 +261,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter
+                    # HELP counter description
+                    # TYPE counter counter
                     counter{key1="value1",key2="value2"} 5\n
                 `);
             });
@@ -280,8 +280,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter\n
+                    # HELP counter description
+                    # TYPE counter counter\n
                 `);
             });
 
@@ -298,8 +298,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter\n
+                    # HELP counter description
+                    # TYPE counter counter\n
                 `);
             });
 
@@ -317,8 +317,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter
+                    # HELP counter description
+                    # TYPE counter counter
                     counter{key="bar"} 5\n
                 `);
             });
@@ -337,8 +337,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE counter\n
+                    # HELP counter description
+                    # TYPE counter counter\n
                 `);
             });
         });
@@ -354,8 +354,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge\n
+                    # HELP gauge description
+                    # TYPE gauge gauge\n
                 `);
             });
 
@@ -371,8 +371,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge
+                    # HELP gauge description
+                    # TYPE gauge gauge
                     gauge 5\n
                 `);
             });
@@ -389,8 +389,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge
+                    # HELP gauge description
+                    # TYPE gauge gauge
                     gauge{key="value"} 5\n
                 `);
             });
@@ -407,8 +407,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge
+                    # HELP gauge description
+                    # TYPE gauge gauge
                     gauge{key1="value1",key2="value2"} 5\n
                 `);
             });
@@ -426,8 +426,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge
+                    # HELP gauge description
+                    # TYPE gauge gauge
                     gauge{key="value1"} 5
                     gauge{key="value2"} 7\n
                 `);
@@ -446,8 +446,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge
+                    # HELP gauge description
+                    # TYPE gauge gauge
                     gauge{key1="value1",key2="value2"} 5
                     gauge{key1="value3",key2="value4"} 7\n
                 `);
@@ -467,12 +467,12 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description1
-                    # TYPE gauge
+                    # HELP gauge1 description1
+                    # TYPE gauge1 gauge
                     gauge1 5
 
-                    # HELP description2
-                    # TYPE gauge
+                    # HELP gauge2 description2
+                    # TYPE gauge2 gauge
                     gauge2 7\n
                 `);
             });
@@ -491,12 +491,12 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description1
-                    # TYPE gauge
+                    # HELP gauge1 description1
+                    # TYPE gauge1 gauge
                     gauge1{key="value"} 5
 
-                    # HELP description2
-                    # TYPE gauge
+                    # HELP gauge2 description2
+                    # TYPE gauge2 gauge
                     gauge2{key="value"} 7\n
                 `);
             });
@@ -515,12 +515,12 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description1
-                    # TYPE gauge
+                    # HELP gauge1 description1
+                    # TYPE gauge1 gauge
                     gauge1{key="value1"} 5
 
-                    # HELP description2
-                    # TYPE gauge
+                    # HELP gauge2 description2
+                    # TYPE gauge2 gauge
                     gauge2{key="value2"} 7\n
                 `);
             });
@@ -538,8 +538,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge
+                    # HELP prefix_gauge description
+                    # TYPE prefix_gauge gauge
                     prefix_gauge 5\n
                 `);
             });
@@ -559,8 +559,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge
+                    # HELP gauge description
+                    # TYPE gauge gauge
                     gauge{key="value"} 5\n
                 `);
             });
@@ -580,8 +580,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge
+                    # HELP gauge description
+                    # TYPE gauge gauge
                     gauge{key1="value1",key2="value2"} 5\n
                 `);
             });
@@ -599,8 +599,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge\n
+                    # HELP gauge description
+                    # TYPE gauge gauge\n
                 `);
             });
 
@@ -617,8 +617,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge\n
+                    # HELP gauge description
+                    # TYPE gauge gauge\n
                 `);
             });
 
@@ -636,8 +636,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge
+                    # HELP gauge description
+                    # TYPE gauge gauge
                     gauge{key="bar"} 5\n
                 `);
             });
@@ -656,8 +656,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE gauge\n
+                    # HELP gauge description
+                    # TYPE gauge gauge\n
                 `);
             });
         });
@@ -673,8 +673,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE histogram\n
+                    # HELP histogram description
+                    # TYPE histogram histogram\n
                 `);
             });
 
@@ -689,8 +689,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE histogram
+                    # HELP histogram description
+                    # TYPE histogram histogram
                     histogram_bucket{le="1"} 0
                     histogram_bucket{le="2"} 1
                     histogram_bucket{le="3"} 1
@@ -711,8 +711,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE histogram
+                    # HELP histogram description
+                    # TYPE histogram histogram
                     histogram_bucket{method="GET",le="1"} 0
                     histogram_bucket{method="GET",le="2"} 1
                     histogram_bucket{method="GET",le="3"} 1
@@ -735,8 +735,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE histogram
+                    # HELP histogram description
+                    # TYPE histogram histogram
                     histogram_bucket{le="1"} 1
                     histogram_bucket{le="2"} 2
                     histogram_bucket{le="3"} 3
@@ -758,8 +758,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE histogram
+                    # HELP histogram description
+                    # TYPE histogram histogram
                     histogram_bucket{method="GET",le="1"} 0
                     histogram_bucket{method="GET",le="2"} 1
                     histogram_bucket{method="GET",le="3"} 1
@@ -786,8 +786,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE histogram
+                    # HELP histogram description
+                    # TYPE histogram histogram
                     histogram_bucket{le="10"} 0
                     histogram_bucket{le="20"} 1
                     histogram_bucket{le="30"} 1
@@ -810,8 +810,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE histogram
+                    # HELP histogram description
+                    # TYPE histogram histogram
                     histogram_bucket{service="api",method="GET",le="1"} 0
                     histogram_bucket{service="api",method="GET",le="2"} 1
                     histogram_bucket{service="api",method="GET",le="3"} 1
@@ -834,8 +834,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE histogram\n
+                    # HELP histogram description
+                    # TYPE histogram histogram\n
                 `);
             });
 
@@ -852,8 +852,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE histogram\n
+                    # HELP histogram description
+                    # TYPE histogram histogram\n
                 `);
             });
 
@@ -871,8 +871,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE histogram
+                    # HELP histogram description
+                    # TYPE histogram histogram
                     histogram_bucket{key="bar",le="1"} 0
                     histogram_bucket{key="bar",le="2"} 0
                     histogram_bucket{key="bar",le="3"} 0
@@ -896,8 +896,8 @@ describe("PrometheusExporter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP description
-                    # TYPE histogram\n
+                    # HELP histogram description
+                    # TYPE histogram histogram\n
                 `);
             });
         });
@@ -930,16 +930,16 @@ describe("PrometheusExporter", () => {
 
             // Assert
             expect(result).toBe(dedent`
-                # HELP description
-                # TYPE counter
+                # HELP counter description
+                # TYPE counter counter
                 counter 3
 
-                # HELP description
-                # TYPE gauge
+                # HELP gauge description
+                # TYPE gauge gauge
                 gauge 5
 
-                # HELP description
-                # TYPE histogram
+                # HELP histogram description
+                # TYPE histogram histogram
                 histogram_bucket{le="1"} 1
                 histogram_bucket{le="2"} 1
                 histogram_bucket{le="3"} 1
@@ -969,16 +969,16 @@ describe("PrometheusExporter", () => {
 
             // Assert
             expect(result).toBe(dedent`
-                # HELP description
-                # TYPE counter
+                # HELP counter description
+                # TYPE counter counter
                 counter 3
 
-                # HELP description
-                # TYPE gauge
+                # HELP gauge description
+                # TYPE gauge gauge
                 gauge 5
 
-                # HELP description
-                # TYPE histogram
+                # HELP histogram description
+                # TYPE histogram histogram
                 histogram_bucket{le="1"} 1
                 histogram_bucket{le="2"} 1
                 histogram_bucket{le="3"} 1
@@ -1006,14 +1006,14 @@ describe("PrometheusExporter", () => {
 
             // Assert
             expect(result).toBe(dedent`
-                # HELP Total number of samples
-                # TYPE gauge
+                # HELP metriq_samples_total Total number of samples
+                # TYPE metriq_samples_total gauge
 
-                # HELP Total number of timeseries
-                # TYPE gauge
+                # HELP metriq_timeseries_total Total number of timeseries
+                # TYPE metriq_timeseries_total gauge
 
-                # HELP Total number of metrics
-                # TYPE gauge
+                # HELP metriq_metrics_total Total number of metrics
+                # TYPE metriq_metrics_total gauge
                 metriq_metrics_total 3\n
             `);
         });
@@ -1029,20 +1029,20 @@ describe("PrometheusExporter", () => {
 
             // Assert
             expect(result).toBe(dedent`
-                # HELP description
-                # TYPE counter
+                # HELP counter description
+                # TYPE counter counter
                 counter 5
 
-                # HELP Total number of samples
-                # TYPE gauge
+                # HELP metriq_samples_total Total number of samples
+                # TYPE metriq_samples_total gauge
                 metriq_samples_total{instrument="counter"} 1
 
-                # HELP Total number of timeseries
-                # TYPE gauge
+                # HELP metriq_timeseries_total Total number of timeseries
+                # TYPE metriq_timeseries_total gauge
                 metriq_timeseries_total{instrument="counter"} 1
 
-                # HELP Total number of metrics
-                # TYPE gauge
+                # HELP metriq_metrics_total Total number of metrics
+                # TYPE metriq_metrics_total gauge
                 metriq_metrics_total 4\n
             `);
         });
