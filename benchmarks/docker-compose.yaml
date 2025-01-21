@@ -1,0 +1,66 @@
+services:
+  metrics-server:
+    build:
+      context: ..
+      dockerfile: benchmarks/Dockerfile
+    ports:
+      - "3001:3001"
+    restart: no
+    labels:
+      - "com.docker.compose.service=metrics-server"
+
+  k6:
+    image: grafana/k6:latest
+    volumes:
+      - ../benchmarks/src:/scripts
+    environment:
+      - K6_OUT=influxdb=http://influxdb:8086/k6
+    depends_on:
+      - metrics-server
+      - influxdb
+    command: run --compatibility-mode=experimental_enhanced /scripts/k6-test.ts
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - metrics-server
+      - cadvisor
+
+  influxdb:
+    image: influxdb:1.8
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=k6
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+      - influxdb
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    privileged: true
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro,rslave
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro,rslave
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - "/dev/kmsg"
