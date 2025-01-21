@@ -45,8 +45,8 @@ export class PrometheusExporterImpl implements PrometheusExporter {
     }
 
     private *writeCounter(counter: CounterImpl): Generator<string> {
-        yield `# HELP ${counter.description}\n`;
-        yield `# TYPE counter\n`;
+        yield `# HELP ${counter.name} ${counter.description}\n`;
+        yield `# TYPE ${counter.name} counter\n`;
 
         yield* batchGenerator(
             counter.getInstrumentValues(),
@@ -56,8 +56,8 @@ export class PrometheusExporterImpl implements PrometheusExporter {
     }
 
     private *writeGauge(instrument: GaugeImpl): Generator<string> {
-        yield `# HELP ${instrument.description}\n`;
-        yield `# TYPE gauge\n`;
+        yield `# HELP ${instrument.name} ${instrument.description}\n`;
+        yield `# TYPE ${instrument.name} gauge\n`;
 
         yield* batchGenerator(
             instrument.getInstrumentValues(),
@@ -67,8 +67,8 @@ export class PrometheusExporterImpl implements PrometheusExporter {
     }
 
     private *writeHistogram(histogram: HistogramImpl): Generator<string> {
-        yield `# HELP ${histogram.description}\n`;
-        yield `# TYPE histogram\n`;
+        yield `# HELP ${histogram.name} ${histogram.description}\n`;
+        yield `# TYPE ${histogram.name} histogram\n`;
 
         yield* batchGenerator(histogram.getInstrumentValues(), BATCH_SIZE, ({ labels, value }) => {
             const sum = value[value.length - 1];

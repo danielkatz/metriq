@@ -12,7 +12,7 @@ services:
   k6:
     image: grafana/k6:latest
     volumes:
-      - ../benchmarks/src:/scripts
+      - ../benchmarks/src:/scripts:ro
     environment:
       - K6_OUT=influxdb=http://influxdb:8086/k6
     depends_on:
@@ -23,7 +23,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
     depends_on:
@@ -45,8 +45,8 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
     volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
       - influxdb
