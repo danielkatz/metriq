@@ -7,6 +7,10 @@ export const prometheus = (metrics: Metrics) => {
 
     return (req: Request, res: Response, next: NextFunction): void => {
         res.set("Content-Type", "text/plain; version=0.0.4; charset=utf-8");
-        pipeline(exporter.stream(), res).catch(next);
+        pipeline(exporter.stream(), res)
+            .then(() => {
+                res.end();
+            })
+            .catch(next);
     };
 };
