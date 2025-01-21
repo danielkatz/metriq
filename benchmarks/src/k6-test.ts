@@ -1,5 +1,3 @@
-/* eslint-disable import-x/no-unresolved */
-
 import http from "k6/http";
 import { Options } from "k6/options";
 import { check } from "k6";
