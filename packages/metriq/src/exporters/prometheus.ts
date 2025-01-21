@@ -3,6 +3,9 @@ import { GaugeImpl } from "../instruments/gauge";
 import { HistogramImpl } from "../instruments/histogram";
 import { MetricsImpl } from "../metrics";
 import { Labels } from "../types";
+import { batchGenerator } from "../utils";
+
+const BATCH_SIZE = 40000;
 
 export interface PrometheusExporter {
     stream(): AsyncGenerator<string>;
@@ -45,38 +48,46 @@ export class PrometheusExporterImpl implements PrometheusExporter {
         yield `# HELP ${counter.description}\n`;
         yield `# TYPE counter\n`;
 
-        for (const { labels, value } of counter.getInstrumentValues()) {
-            yield `${counter.name}${this.writeLabels(labels)} ${value}\n`;
-        }
+        yield* batchGenerator(
+            counter.getInstrumentValues(),
+            BATCH_SIZE,
+            (item) => `${counter.name}${this.writeLabels(item.labels)} ${item.value}\n`,
+        );
     }
 
     private *writeGauge(instrument: GaugeImpl): Generator<string> {
         yield `# HELP ${instrument.description}\n`;
         yield `# TYPE gauge\n`;
 
-        for (const { labels, value } of instrument.getInstrumentValues()) {
-            yield `${instrument.name}${this.writeLabels(labels)} ${value}\n`;
-        }
+        yield* batchGenerator(
+            instrument.getInstrumentValues(),
+            BATCH_SIZE,
+            (item) => `${instrument.name}${this.writeLabels(item.labels)} ${item.value}\n`,
+        );
     }
 
     private *writeHistogram(histogram: HistogramImpl): Generator<string> {
         yield `# HELP ${histogram.description}\n`;
         yield `# TYPE histogram\n`;
 
-        for (const { labels, value } of histogram.getInstrumentValues()) {
+        yield* batchGenerator(histogram.getInstrumentValues(), BATCH_SIZE, ({ labels, value }) => {
             const sum = value[value.length - 1];
             const count = value[value.length - 2];
             const buckets = value.slice(0, value.length - 2);
 
+            let output = "";
+
             for (let i = 0; i < histogram.buckets.length; i++) {
-                yield `${histogram.name}_bucket${this.writeLabels({ ...labels, le: histogram.buckets[i].toString() })} ${buckets[i]}\n`;
+                output += `${histogram.name}_bucket${this.writeLabels({ ...labels, le: histogram.buckets[i].toString() })} ${buckets[i]}\n`;
             }
 
-            yield `${histogram.name}_bucket${this.writeLabels({ ...labels, le: "+Inf" })} ${buckets[buckets.length - 1]}\n`;
+            output += `${histogram.name}_bucket${this.writeLabels({ ...labels, le: "+Inf" })} ${buckets[buckets.length - 1]}\n`;
 
-            yield `${histogram.name}_sum${this.writeLabels(labels)} ${sum}\n`;
-            yield `${histogram.name}_count${this.writeLabels(labels)} ${count}\n`;
-        }
+            output += `${histogram.name}_sum${this.writeLabels(labels)} ${sum}\n`;
+            output += `${histogram.name}_count${this.writeLabels(labels)} ${count}\n`;
+
+            return output;
+        });
     }
 
     private writeLabels(labels: Labels): string {

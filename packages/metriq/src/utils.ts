@@ -22,3 +22,24 @@ export function generateKey(labels: Labels): string {
 
     return JSON.stringify(finalLabels);
 }
+
+export function* batchGenerator<T>(
+    generator: Generator<T>,
+    batchSize: number,
+    formatter: (item: T) => string,
+): Generator<string> {
+    let batch = "";
+
+    for (const item of generator) {
+        batch += formatter(item);
+
+        if (batch.length >= batchSize) {
+            yield batch;
+            batch = "";
+        }
+    }
+
+    if (batch.length > 0) {
+        yield batch;
+    }
+}
