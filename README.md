@@ -20,16 +20,13 @@ A high-performance TypeScript metrics collection library designed for heavy work
   - Dynamic labels
   - Streaming writer
 
-## 📦 Packages
-
-- [`metriq`](metriq/README.md) - The core metrics collection and reporting library
-- [`@metriq/express`](adapters/express/README.md) - Express middleware for Metriq
-
-## 🚀 Quick Start
+## 📦 Installation
 
 ```bash
 npm install metriq
 ```
+
+## 🚀 Quick Start
 
 ```typescript
 import { metriq } from 'metriq';
@@ -55,22 +52,23 @@ requestCounter.increment({ method: 'GET', path: '/api/users' });
 requestCounter.increment({ method: 'POST', path: '/api/users' }, 5);
 ```
 
+## 📚 Packages
+
+- [`metriq`](metriq/README.md) - Core metrics collection library
+- [`@metriq/express`](adapters/express/README.md) - Express middleware adapter
+
 ## 🛠️ Development
 
 This repository uses npm workspaces. To get started:
 
-1. Install dependencies:
 ```bash
+# Install dependencies
 npm install
-```
 
-2. Build all packages:
-```bash
+# Build all packages
 npm run build
-```
 
-3. Run tests:
-```bash
+# Run tests
 npm test
 ```
 
@@ -87,32 +85,3 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 ## 📄 License
 
 MIT
-
-## Development
-
-This repository uses npm workspaces. To get started:
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Build all packages:
-```bash
-npm run build
-```
-
-3. Run tests:
-```bash
-npm test
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
-
-## License

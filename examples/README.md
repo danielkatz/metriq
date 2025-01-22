@@ -1,28 +1,21 @@
 # Metriq Examples
 
-This package contains examples demonstrating how to use the `metriq` package for metrics collection and reporting.
+Example applications demonstrating Metriq usage in different scenarios.
 
-## Examples
+## 📝 Examples
 
-### Basic Usage
+- **[Basic Usage](src/basic-usage.ts)**: Core features demonstration
+  - Creating metrics registry
+  - Working with counters, gauges, and histograms
+  - Label handling
+  - Metrics exposition
 
-The [basic-usage.ts](src/basic-usage.ts) example demonstrates:
-- Creating a metrics registry
-- Working with counters
-- Working with gauges
-- Working with histograms
-- Printing metrics
+## 🚀 Running Examples
 
-## Running Examples
-
-To run an example:
-
-1. Build the packages:
 ```bash
+# Build packages
 npm run build
-```
 
-2. Run a specific example:
-```bash
+# Run specific example
 npx tsx src/basic-usage.ts
 ``` 
