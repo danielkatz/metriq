@@ -1,7 +1,7 @@
 {
   "name": "metriq",
   "version": "0.1.0",
-  "description": "A TypeScript metrics collection and reporting library",
+  "description": "High-performance TypeScript metrics collection library designed for heavy workloads",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -26,11 +26,14 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "keywords": [
-    "metrics",
     "monitoring",
-    "typescript"
+    "prometheus",
+    "metrics",
+    "nodejs",
+    "fast",
+    "scalable"
   ],
-  "author": "",
+  "author": "Daniel Katz",
   "license": "MIT",
   "devDependencies": {
     "dedent": "^1.5.3"
