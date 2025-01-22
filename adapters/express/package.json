@@ -1,7 +1,19 @@
 {
   "name": "@metriq/express",
   "version": "0.1.0",
-  "description": "Express middleware for Metriq",
+  "description": "Express middleware adapter for Metriq - high-performance TypeScript metrics collection library",
+  "author": "Daniel Katz",
+  "license": "MIT",
+  "keywords": [
+    "monitoring",
+    "prometheus",
+    "metrics",
+    "nodejs",
+    "fast",
+    "scalable",
+    "express",
+    "middleware"
+  ],
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -26,9 +38,6 @@
     "bench": "vitest bench",
     "format": "prettier --write \"src/**/*.ts\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "metriq": "*"
   },

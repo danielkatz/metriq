@@ -1,6 +1,9 @@
 {
   "name": "metriq-monorepo",
   "private": true,
+  "description": "High-performance TypeScript metrics collection library monorepo",
+  "author": "Daniel Katz",
+  "license": "MIT",
   "workspaces": [
     "metriq",
     "adapters/*",

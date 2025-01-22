@@ -2,6 +2,9 @@
   "name": "@metriq/examples",
   "version": "0.1.0",
   "private": true,
+  "description": "Example applications using Metriq - high-performance TypeScript metrics collection library",
+  "author": "Daniel Katz",
+  "license": "MIT",
   "scripts": {
     "build": "tsc --project ./tsconfig.build.json",
     "dev": "tsc --watch --project ./tsconfig.build.json",
