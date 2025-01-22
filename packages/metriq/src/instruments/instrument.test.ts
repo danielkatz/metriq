@@ -3,6 +3,9 @@ import { InstrumentImpl, InstrumentOptions } from "./instrument";
 import { RegistryImpl } from "../registry";
 import { MetricsImpl } from "../metrics";
 import { InstrumentFactory } from "./factory";
+import { CounterImpl } from "./counter";
+import { GaugeImpl } from "./gauge";
+import { HistogramImpl } from "./histogram";
 
 class TestInstrument extends InstrumentImpl<number> {
     constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
@@ -20,12 +23,15 @@ type TestInstrumentFactory = (
 ) => InstrumentImpl;
 
 const instruments: [string, TestInstrumentFactory][] = [
-    ["counter", (factory, name, description, options) => factory.createCounter(name, description, options)],
-    ["gauge", (factory, name, description, options) => factory.createGauge(name, description, options)],
+    [
+        "counter",
+        (factory, name, description, options) => factory.createCounter(name, description, options) as CounterImpl,
+    ],
+    ["gauge", (factory, name, description, options) => factory.createGauge(name, description, options) as GaugeImpl],
     [
         "histogram",
         (factory, name, description, options) =>
-            factory.createHistogram(name, description, { ...options, buckets: [1, 2, 3] }),
+            factory.createHistogram(name, description, { ...options, buckets: [1, 2, 3] }) as HistogramImpl,
     ],
 ];
 

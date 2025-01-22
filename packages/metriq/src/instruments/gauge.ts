@@ -1,8 +1,22 @@
 import { Instrument, InstrumentImpl, InstrumentOptions } from "./instrument";
 import { RegistryImpl } from "../registry";
-import { Labels } from "../types";
+import { HasRequiredKeys, Labels, RequiredLabels } from "../types";
 
-export interface Gauge extends Instrument {
+interface BaseGauge<T extends Labels> extends Instrument {
+    getDebugValue(labels: RequiredLabels<T>): number | undefined;
+}
+
+interface GaugeWithRequiredLabels<T extends Labels> {
+    increment(labels: RequiredLabels<T>): void;
+    increment(labels: RequiredLabels<T>, delta: number): void;
+
+    decrement(labels: RequiredLabels<T>): void;
+    decrement(labels: RequiredLabels<T>, delta: number): void;
+
+    set(labels: RequiredLabels<T>, value: number): void;
+}
+
+interface GaugeWithOptionalLabels {
     increment(): void;
     increment(delta: number): void;
     increment(labels: Labels): void;
@@ -17,45 +31,54 @@ export interface Gauge extends Instrument {
     set(labels: Labels, value: number): void;
 }
 
-export class GaugeImpl extends InstrumentImpl<number> implements Gauge {
+type IGauge<T extends Labels> = BaseGauge<T> & GaugeWithOptionalLabels & GaugeWithRequiredLabels<T>;
+
+export type Gauge<T extends Labels> = BaseGauge<T> &
+    (HasRequiredKeys<T> extends true ? GaugeWithRequiredLabels<T> : GaugeWithOptionalLabels);
+
+export class GaugeImpl<T extends Labels = Labels> extends InstrumentImpl<number> implements IGauge<T> {
     constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
         super(name, description, registry, options);
     }
 
     public increment(): void;
     public increment(delta: number): void;
-    public increment(labels: Labels): void;
-    public increment(labels: Labels, delta: number): void;
-    public increment(labelsOrDelta?: number | Labels, maybeDelta?: number): void {
+    public increment(labels: RequiredLabels<T>): void;
+    public increment(labels: RequiredLabels<T>, delta: number): void;
+    public increment(labelsOrDelta?: number | RequiredLabels<T>, maybeDelta?: number): void {
         const [labels = {}, delta = 1] = this.getLabelsAndValue(labelsOrDelta, maybeDelta);
         this.updateValue(labels, (value = 0) => value + delta);
     }
 
     public decrement(): void;
     public decrement(delta: number): void;
-    public decrement(labels: Labels): void;
-    public decrement(labels: Labels, delta: number): void;
-    public decrement(labelsOrDelta?: number | Labels, maybeDelta?: number): void {
+    public decrement(labels: RequiredLabels<T>): void;
+    public decrement(labels: RequiredLabels<T>, delta: number): void;
+    public decrement(labelsOrDelta?: number | RequiredLabels<T>, maybeDelta?: number): void {
         const [labels = {}, delta = 1] = this.getLabelsAndValue(labelsOrDelta, maybeDelta);
         this.updateValue(labels, (value = 0) => value - delta);
     }
 
     public set(value: number): void;
-    public set(labels: Labels, value: number): void;
-    public set(labelsOrValue?: number | Labels, maybeValue?: number): void {
+    public set(labels: RequiredLabels<T>, value: number): void;
+    public set(labelsOrValue?: number | RequiredLabels<T>, maybeValue?: number): void {
         const [labels = {}, value = 0] = this.getLabelsAndValue(labelsOrValue, maybeValue);
         this.updateValue(labels, () => value);
     }
 
-    public getValue(labels: Labels): number | undefined {
+    public getValue(labels: RequiredLabels<T>): number | undefined {
+        return super.getValue(labels);
+    }
+
+    public getDebugValue(labels: RequiredLabels<T>): number | undefined {
         return super.getValue(labels);
     }
 
     private getLabelsAndValue(
-        labelsOrValue?: number | Labels,
+        labelsOrValue?: number | RequiredLabels<T>,
         maybeValue?: number,
-    ): [Labels | undefined, number | undefined] {
-        let labels: Labels | undefined;
+    ): [RequiredLabels<T> | undefined, number | undefined] {
+        let labels: RequiredLabels<T> | undefined;
         let value: number | undefined;
 
         if (typeof labelsOrValue === "number") {

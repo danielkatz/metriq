@@ -11,7 +11,7 @@ This monorepo contains the Metriq metrics collection library and related package
         - [x] Histogram
         - [ ] Summary
     - [x] collect callback
-    - [ ] type safety
+    - [x] typed labels
     - [x] clear/reset
 - [x] Support massive amount of metrics
     - [x] Performance

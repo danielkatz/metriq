@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { MetricsImpl } from "../metrics";
+import { Metrics, metriq } from "../index";
 
 describe("Counter", () => {
-    let metrics: MetricsImpl;
+    let metrics: Metrics;
 
     beforeEach(() => {
-        metrics = new MetricsImpl();
+        metrics = metriq();
     });
 
     it("should increment value by one", () => {
@@ -17,7 +17,7 @@ describe("Counter", () => {
         counter.increment(labels);
 
         // Assert
-        expect(counter.getValue(labels)).toBe(1);
+        expect(counter.getDebugValue(labels)).toBe(1);
     });
 
     it("should increment value by delta", () => {
@@ -29,7 +29,7 @@ describe("Counter", () => {
         counter.increment(labels, 5);
 
         // Assert
-        expect(counter.getValue(labels)).toBe(5);
+        expect(counter.getDebugValue(labels)).toBe(5);
     });
 
     it("should increment value by delta multiple times", () => {
@@ -42,7 +42,7 @@ describe("Counter", () => {
         counter.increment(labels, 3);
 
         // Assert
-        expect(counter.getValue(labels)).toBe(8);
+        expect(counter.getDebugValue(labels)).toBe(8);
     });
 
     it("should increment value by delta for different labels", () => {
@@ -56,8 +56,8 @@ describe("Counter", () => {
         counter.increment(labels2, 3);
 
         // Assert
-        expect(counter.getValue(labels1)).toBe(5);
-        expect(counter.getValue(labels2)).toBe(3);
+        expect(counter.getDebugValue(labels1)).toBe(5);
+        expect(counter.getDebugValue(labels2)).toBe(3);
     });
 
     it("should return undefined if no value is set", () => {
@@ -66,7 +66,7 @@ describe("Counter", () => {
         const labels = { key: "value" };
 
         // Act
-        const value = counter.getValue(labels);
+        const value = counter.getDebugValue(labels);
 
         // Assert
         expect(value).toBe(undefined);
@@ -79,11 +79,43 @@ describe("Counter", () => {
         const labels2 = { key: "value2" };
 
         // Act
-        const value1 = counter.getValue(labels1);
-        const value2 = counter.getValue(labels2);
+        const value1 = counter.getDebugValue(labels1);
+        const value2 = counter.getDebugValue(labels2);
 
         // Assert
         expect(value1).toBe(undefined);
         expect(value2).toBe(undefined);
+    });
+
+    it("typed labels", () => {
+        // Arrange
+        type CounterLabels = { foo: string };
+        const counter = metrics.createCounter<CounterLabels>("counter", "description");
+
+        // Act
+        counter.increment({ foo: "bar" });
+        counter.increment({ foo: "bar", baz: "faz" });
+        counter.increment({ foo: "bar", baz: "faz", dog: undefined });
+        counter.increment({ foo: "bar" }, 1);
+        counter.increment({ foo: "bar", baz: "faz" }, 1);
+        counter.increment({ foo: "bar", baz: "faz", dog: undefined }, 1);
+
+        // Assert
+        // @ts-expect-error wrong types
+        counter.increment();
+        // @ts-expect-error wrong types
+        counter.increment({});
+        // @ts-expect-error wrong types
+        counter.increment({ foo: 1 });
+        // @ts-expect-error wrong types
+        counter.increment({ foo: "bar", baz: "faz", num: 3 });
+        // @ts-expect-error wrong types
+        counter.increment(1);
+        // @ts-expect-error wrong types
+        counter.increment({}, 1);
+        // @ts-expect-error wrong types
+        counter.increment({ foo: 1 }, 1);
+        // @ts-expect-error wrong types
+        counter.increment({ foo: "bar", baz: "faz", num: 3 }, 1);
     });
 });
