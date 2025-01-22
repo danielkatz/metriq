@@ -1,8 +1,10 @@
 import { InstrumentImpl, InstrumentOptions } from "./instruments/instrument";
-import { Counter, CounterImpl } from "./instruments/counter";
+import { CounterImpl } from "./instruments/counter";
 import { Metrics, MetricsImpl } from "./metrics";
-import { Gauge, GaugeImpl } from "./instruments/gauge";
-import { Histogram, HistogramImpl, HistogramOptions } from "./instruments/histogram";
+import { GaugeImpl } from "./instruments/gauge";
+import { HistogramImpl, HistogramOptions } from "./instruments/histogram";
+import { Labels } from "./types";
+import { InstrumentFactory } from "./instruments/factory";
 
 export type RegistryOptions = {
     defaultTtl?: number;
@@ -12,12 +14,8 @@ export type RegistryOptions = {
 
 const DEFAULT_OPTIONS: RegistryOptions = {};
 
-export interface Registry {
+export interface Registry extends InstrumentFactory {
     readonly owner: Metrics;
-
-    createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): Counter;
-    createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): Gauge;
-    createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): Histogram;
 }
 
 export class RegistryImpl implements Registry {
@@ -30,7 +28,11 @@ export class RegistryImpl implements Registry {
         this.options = Object.freeze({ ...DEFAULT_OPTIONS, ...options });
     }
 
-    public createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): CounterImpl {
+    public createCounter<T extends Labels = Labels>(
+        name: string,
+        description: string,
+        options?: Partial<InstrumentOptions>,
+    ): CounterImpl<T> {
         const merged: InstrumentOptions = {
             ttl: this.options.defaultTtl,
             commonLabels: this.options.commonLabels,
@@ -42,12 +44,16 @@ export class RegistryImpl implements Registry {
             throw new Error(`Instrument with name "${fullName}" already exists`);
         }
 
-        const counter = new CounterImpl(fullName, description, this, merged);
+        const counter = new CounterImpl<T>(fullName, description, this, merged);
         this.registerInstrument(counter);
         return counter;
     }
 
-    public createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): GaugeImpl {
+    public createGauge<T extends Labels = Labels>(
+        name: string,
+        description: string,
+        options?: Partial<InstrumentOptions>,
+    ): GaugeImpl<T> {
         const merged: InstrumentOptions = {
             ttl: this.options.defaultTtl,
             commonLabels: this.options.commonLabels,
@@ -59,12 +65,16 @@ export class RegistryImpl implements Registry {
             throw new Error(`Instrument with name "${fullName}" already exists`);
         }
 
-        const gauge = new GaugeImpl(fullName, description, this, merged);
+        const gauge = new GaugeImpl<T>(fullName, description, this, merged);
         this.registerInstrument(gauge);
         return gauge;
     }
 
-    public createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): HistogramImpl {
+    public createHistogram<T extends Labels = Labels>(
+        name: string,
+        description: string,
+        options?: Partial<HistogramOptions>,
+    ): HistogramImpl<T> {
         const merged: Partial<HistogramOptions> = {
             ttl: this.options.defaultTtl,
             commonLabels: this.options.commonLabels,
@@ -76,7 +86,7 @@ export class RegistryImpl implements Registry {
             throw new Error(`Instrument with name "${fullName}" already exists`);
         }
 
-        const histogram = new HistogramImpl(fullName, description, this, merged);
+        const histogram = new HistogramImpl<T>(fullName, description, this, merged);
         this.registerInstrument(histogram);
         return histogram;
     }

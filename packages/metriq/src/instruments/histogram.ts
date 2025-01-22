@@ -1,19 +1,41 @@
 import { Instrument, InstrumentImpl, InstrumentOptions } from "./instrument";
 import { RegistryImpl } from "../registry";
-import { Labels } from "../types";
+import { HasRequiredKeys, Labels, RequiredLabels } from "../types";
 
 export type HistogramOptions = InstrumentOptions & {
     buckets: Readonly<number[]>;
 };
 
+export type HistogramDebugValue = {
+    buckets: Readonly<Map<number, number>>;
+    sum: number;
+    count: number;
+};
+
 const DEFAULT_BUCKETS = Object.freeze([0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]);
 
-export interface Histogram extends Instrument {
+interface BaseHistogram<T extends Labels> extends Instrument {
+    getDebugValue(labels: RequiredLabels<T>): Readonly<HistogramDebugValue> | undefined;
+}
+
+interface HistogramWithRequiredLabels<T extends Labels> {
+    observe(labels: RequiredLabels<T>, value: number): void;
+}
+
+interface HistogramWithOptionalLabels {
     observe(value: number): void;
     observe(labels: Labels, value: number): void;
 }
 
-export class HistogramImpl extends InstrumentImpl<number[], HistogramOptions> implements Histogram {
+type IHistogram<T extends Labels> = BaseHistogram<T> & HistogramWithOptionalLabels & HistogramWithRequiredLabels<T>;
+
+export type Histogram<T extends Labels> = BaseHistogram<T> &
+    (HasRequiredKeys<T> extends true ? HistogramWithRequiredLabels<T> : HistogramWithOptionalLabels);
+
+export class HistogramImpl<T extends Labels = Labels>
+    extends InstrumentImpl<number[], HistogramOptions>
+    implements IHistogram<T>
+{
     public readonly buckets: Readonly<number[]>;
 
     constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
@@ -23,8 +45,8 @@ export class HistogramImpl extends InstrumentImpl<number[], HistogramOptions> im
     }
 
     public observe(value: number): void;
-    public observe(labels: Labels, value: number): void;
-    public observe(labelsOrValue?: number | Labels, maybeValue?: number): void {
+    public observe(labels: RequiredLabels<T>, value: number): void;
+    public observe(labelsOrValue?: number | RequiredLabels<T>, maybeValue?: number): void {
         const [labels = {}, value] = this.getLabelsAndValue(labelsOrValue, maybeValue);
 
         this.updateValue(labels, (values) => {
@@ -45,8 +67,29 @@ export class HistogramImpl extends InstrumentImpl<number[], HistogramOptions> im
         });
     }
 
-    private getLabelsAndValue(labelsOrValue?: number | Labels, maybeValue?: number): [Labels | undefined, number] {
-        let labels: Labels | undefined;
+    public getDebugValue(labels: RequiredLabels<T>): Readonly<HistogramDebugValue> | undefined {
+        const values = super.getValue(labels);
+        if (typeof values === "undefined") {
+            return undefined;
+        }
+
+        const buckets = new Map<number, number>();
+        for (let i = 0; i < this.buckets.length; i++) {
+            buckets.set(this.buckets[i], values[i]);
+        }
+
+        return {
+            buckets: buckets,
+            sum: values[this.buckets.length],
+            count: values[this.buckets.length + 1],
+        };
+    }
+
+    private getLabelsAndValue(
+        labelsOrValue?: number | RequiredLabels<T>,
+        maybeValue?: number,
+    ): [RequiredLabels<T> | undefined, number] {
+        let labels: RequiredLabels<T> | undefined;
         let value: number;
 
         if (typeof labelsOrValue === "number") {

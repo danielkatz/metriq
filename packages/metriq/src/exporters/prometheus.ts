@@ -33,11 +33,11 @@ export class PrometheusExporterImpl implements PrometheusExporter {
             }
 
             if (instrument instanceof CounterImpl) {
-                yield* this.writeCounter(instrument);
+                yield* this.writeCounter(instrument as CounterImpl);
             } else if (instrument instanceof GaugeImpl) {
-                yield* this.writeGauge(instrument);
+                yield* this.writeGauge(instrument as GaugeImpl);
             } else if (instrument instanceof HistogramImpl) {
-                yield* this.writeHistogram(instrument);
+                yield* this.writeHistogram(instrument as HistogramImpl);
             } else {
                 throw new Error(`Unknown instrument type: ${instrument.constructor.name}`);
             }

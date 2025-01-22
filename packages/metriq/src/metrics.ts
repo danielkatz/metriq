@@ -1,9 +1,11 @@
 import { InstrumentImpl, InstrumentOptions } from "./instruments/instrument";
 import { Registry, RegistryImpl, RegistryOptions } from "./registry";
-import { Counter, CounterImpl } from "./instruments/counter";
-import { Gauge, GaugeImpl } from "./instruments/gauge";
-import { Histogram, HistogramImpl, HistogramOptions } from "./instruments/histogram";
+import { CounterImpl } from "./instruments/counter";
+import { GaugeImpl } from "./instruments/gauge";
+import { HistogramImpl, HistogramOptions } from "./instruments/histogram";
 import { InternalMetrics, InternalMetricsImpl, InternalMetricsNoop } from "./internal-metrics";
+import { Labels } from "./types";
+import { InstrumentFactory } from "./instruments/factory";
 
 export type MetricsOptions = {
     defaultTtl?: number;
@@ -18,12 +20,8 @@ const DEFAULT_OPTIONS: MetricsOptions = {
     enableInternalMetrics: true,
 };
 
-export interface Metrics {
+export interface Metrics extends InstrumentFactory {
     readonly defaultRegistry: Registry;
-
-    createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): Counter;
-    createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): Gauge;
-    createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): Histogram;
 
     createRegistry(options?: Partial<RegistryOptions>): Registry;
 
@@ -66,15 +64,27 @@ export class MetricsImpl implements Metrics {
         return registry;
     }
 
-    public createCounter(name: string, description: string, options?: Partial<InstrumentOptions>): CounterImpl {
+    public createCounter<T extends Labels = Labels>(
+        name: string,
+        description: string,
+        options?: Partial<InstrumentOptions>,
+    ): CounterImpl<T> {
         return this.defaultRegistry.createCounter(name, description, options);
     }
 
-    public createGauge(name: string, description: string, options?: Partial<InstrumentOptions>): GaugeImpl {
+    public createGauge<T extends Labels = Labels>(
+        name: string,
+        description: string,
+        options?: Partial<InstrumentOptions>,
+    ): GaugeImpl<T> {
         return this.defaultRegistry.createGauge(name, description, options);
     }
 
-    public createHistogram(name: string, description: string, options?: Partial<HistogramOptions>): HistogramImpl {
+    public createHistogram<T extends Labels = Labels>(
+        name: string,
+        description: string,
+        options?: Partial<HistogramOptions>,
+    ): HistogramImpl<T> {
         return this.defaultRegistry.createHistogram(name, description, options);
     }
 
