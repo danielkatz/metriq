@@ -2,8 +2,8 @@
   "name": "metriq-monorepo",
   "private": true,
   "workspaces": [
-    "packages/metriq",
-    "packages/adapters/*",
+    "metriq",
+    "adapters/*",
     "examples",
     "benchmarks"
   ],
