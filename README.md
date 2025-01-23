@@ -6,33 +6,40 @@ A high-performance TypeScript metrics collection library designed for heavy work
 
 - **7.5x faster** than prom-client when exposing 1M timeseries
 - Entirely non-blocking architecture
-- Optimized for high-throughput scenarios
-- Efficient memory usage with streaming exports
+- Memory efficient streaming exports
 
 ## 🔑 Key Features
 
-- **Type-safe API**: Full TypeScript support with typed labels
-- **High Performance**: Optimized for handling millions of timeseries
+- **High Performance**: Optimized for millions of timeseries
 - **Non-blocking**: All operations are non-blocking by design
 - **Memory Efficient**: Streaming exports prevent memory spikes
-- **Advanced Features**:
-  - TTL for metrics
-  - Dynamic labels
-  - Streaming writer
+- **TTL Support**: Supports removal of least recently used timeseries
+- **Dynamic Labels**: Supports optional labels on the fly
+- **Streaming Writer**: Memory-efficient metrics exposition
+- **Testable Design**: No singletons, simple access to metric values
 
 ## 📦 Installation
 
 ```bash
+# Core library
 npm install metriq
+
+# Express middleware (optional)
+npm install @metriq/express
 ```
 
 ## 🚀 Quick Start
 
 ```typescript
+import express from 'express';
 import { metriq } from 'metriq';
+import { prometheus } from '@metriq/express';
 
 // Initialize metrics
-const metrics = metriq();
+const metrics = metriq({
+  // Automatically remove timeseries not updated in 1 hour
+  ttl: 3600000
+});
 
 // Create a counter with typed labels
 type RequestLabels = {
@@ -40,16 +47,25 @@ type RequestLabels = {
   path: string;
 };
 
-const requestCounter = metrics.createCounter<RequestLabels>(
+const requests = metrics.createCounter<RequestLabels>(
   'http_requests_total',
   'Total HTTP requests'
 );
 
-// Increment counter
-requestCounter.increment({ method: 'GET', path: '/api/users' });
+// Dynamic labels - no pre-registration needed
+requests.increment({ 
+  method: 'GET', 
+  path: '/api/users',
+  status: '200' // Additional label on the fly
+});
 
-// Increment by specific amount
-requestCounter.increment({ method: 'POST', path: '/api/users' }, 5);
+// Create Express app and expose metrics
+const app = express();
+app.get('/metrics', prometheus(metrics));
+app.listen(3000);
+
+// Access metric values (great for testing)
+console.log(requests.getDebugValue({ method: 'GET', path: '/api/users' }));
 ```
 
 ## 📚 Packages
