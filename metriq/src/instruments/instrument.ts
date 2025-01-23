@@ -12,6 +12,7 @@ export type InstrumentOptions = {
 
 export type InstrumentValue<TValue> = {
     labels: Readonly<Labels>;
+    expireAt?: number;
     value: TValue;
 };
 
@@ -32,7 +33,6 @@ export abstract class InstrumentImpl<TValue = unknown, TOptions extends Instrume
     public readonly options: Readonly<TOptions>;
 
     private readonly values: Map<string, InstrumentValue<TValue>> = new Map();
-    private readonly ttls: Map<string, number> = new Map();
     private readonly internalMetrics: InternalMetrics;
     protected componentsCount: number = 1;
 
@@ -70,11 +70,11 @@ export abstract class InstrumentImpl<TValue = unknown, TOptions extends Instrume
             instrumentValue.value = newValue;
         }
 
-        this.values.set(key, instrumentValue);
-
         if (this.options.ttl) {
-            this.ttls.set(key, Date.now() + this.options.ttl);
+            instrumentValue.expireAt = Date.now() + this.options.ttl;
         }
+
+        this.values.set(key, instrumentValue);
 
         if (isNew) {
             this.internalMetrics.onTimeseriesAdded(this.name, this.componentsCount);
@@ -94,21 +94,19 @@ export abstract class InstrumentImpl<TValue = unknown, TOptions extends Instrume
     public clear(): void {
         const instrumentCount = this.getInstrumentValueCount();
         this.values.clear();
-        this.ttls.clear();
         this.internalMetrics.onTimeseriesRemoved(this.name, instrumentCount, this.componentsCount);
     }
 
     private removeValue(key: string): void {
         if (this.values.delete(key)) {
-            this.ttls.delete(key);
             this.internalMetrics.onTimeseriesRemoved(this.name, 1, this.componentsCount);
         }
     }
 
     private getInstrumentValueWithTTL(key: string): InstrumentValue<TValue> | undefined {
         if (this.options.ttl) {
-            const ttl = this.ttls.get(key);
-            if (ttl && ttl < Date.now()) {
+            const instrumentValue = this.values.get(key);
+            if (instrumentValue?.expireAt && instrumentValue.expireAt < Date.now()) {
                 this.removeValue(key);
                 return undefined;
             }
@@ -129,8 +127,8 @@ export abstract class InstrumentImpl<TValue = unknown, TOptions extends Instrume
         }
 
         const now = Date.now();
-        for (const [key, ttl] of this.ttls) {
-            if (ttl < now) {
+        for (const [key, instrumentValue] of this.values) {
+            if (instrumentValue.expireAt && instrumentValue.expireAt < now) {
                 this.removeValue(key);
             }
         }
