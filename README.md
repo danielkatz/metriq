@@ -2,6 +2,8 @@
 
 A high-performance TypeScript metrics collection library designed for heavy workloads. Metriq provides a modern, type-safe API for collecting and exposing metrics with exceptional performance characteristics.
 
+> **Note**: The API is not yet stabilized and may change. NPM package will be published once the API is stable.
+
 ## ⚡ Performance
 
 - **7.5x faster** than prom-client when exposing 1M timeseries
