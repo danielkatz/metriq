@@ -18,23 +18,21 @@ interface BaseHistogram<T extends Labels> extends Instrument {
     getDebugValue(labels: RequiredLabels<T>): Readonly<HistogramDebugValue> | undefined;
 }
 
-interface HistogramWithRequiredLabels<T extends Labels> {
+interface HistogramWithRequiredLabels<T extends Labels> extends BaseHistogram<T> {
     observe(labels: RequiredLabels<T>, value: number): void;
 }
 
-interface HistogramWithOptionalLabels {
+interface HistogramWithOptionalLabels<T extends Labels = Labels> extends HistogramWithRequiredLabels<T> {
     observe(value: number): void;
-    observe(labels: Labels, value: number): void;
+    observe(labels: RequiredLabels<T>, value: number): void;
 }
 
-type IHistogram<T extends Labels> = BaseHistogram<T> & HistogramWithOptionalLabels & HistogramWithRequiredLabels<T>;
-
-export type Histogram<T extends Labels> = BaseHistogram<T> &
-    (HasRequiredKeys<T> extends true ? HistogramWithRequiredLabels<T> : HistogramWithOptionalLabels);
+export type Histogram<T extends Labels> =
+    HasRequiredKeys<T> extends true ? HistogramWithRequiredLabels<T> : HistogramWithOptionalLabels;
 
 export class HistogramImpl<T extends Labels = Labels>
     extends InstrumentImpl<number[], HistogramOptions>
-    implements IHistogram<T>
+    implements HistogramWithOptionalLabels<T>
 {
     public readonly buckets: Readonly<number[]>;
 
