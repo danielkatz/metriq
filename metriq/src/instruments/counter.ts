@@ -6,24 +6,25 @@ interface BaseCounter<T extends Labels> extends Instrument {
     getDebugValue(labels: RequiredLabels<T>): number | undefined;
 }
 
-interface CounterWithRequiredLabels<T extends Labels> {
+interface CounterWithRequiredLabels<T extends Labels> extends BaseCounter<T> {
     increment(labels: RequiredLabels<T>): void;
     increment(labels: RequiredLabels<T>, delta: number): void;
 }
 
-interface CounterWithOptionalLabels {
+interface CounterWithOptionalLabels<T extends Labels = Labels> extends CounterWithRequiredLabels<T> {
     increment(): void;
     increment(delta: number): void;
-    increment(labels: Labels): void;
-    increment(labels: Labels, delta: number): void;
+    increment(labels: RequiredLabels<T>): void;
+    increment(labels: RequiredLabels<T>, delta: number): void;
 }
 
-type ICounter<T extends Labels> = BaseCounter<T> & CounterWithOptionalLabels & CounterWithRequiredLabels<T>;
+export type Counter<T extends Labels> =
+    HasRequiredKeys<T> extends true ? CounterWithRequiredLabels<T> : CounterWithOptionalLabels;
 
-export type Counter<T extends Labels> = BaseCounter<T> &
-    (HasRequiredKeys<T> extends true ? CounterWithRequiredLabels<T> : CounterWithOptionalLabels);
-
-export class CounterImpl<T extends Labels = Labels> extends InstrumentImpl<number> implements ICounter<T> {
+export class CounterImpl<T extends Labels = Labels>
+    extends InstrumentImpl<number>
+    implements CounterWithOptionalLabels<T>
+{
     constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
         super(name, description, registry, options);
     }

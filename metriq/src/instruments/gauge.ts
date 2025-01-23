@@ -6,7 +6,7 @@ interface BaseGauge<T extends Labels> extends Instrument {
     getDebugValue(labels: RequiredLabels<T>): number | undefined;
 }
 
-interface GaugeWithRequiredLabels<T extends Labels> {
+interface GaugeWithRequiredLabels<T extends Labels> extends BaseGauge<T> {
     increment(labels: RequiredLabels<T>): void;
     increment(labels: RequiredLabels<T>, delta: number): void;
 
@@ -16,27 +16,25 @@ interface GaugeWithRequiredLabels<T extends Labels> {
     set(labels: RequiredLabels<T>, value: number): void;
 }
 
-interface GaugeWithOptionalLabels {
+interface GaugeWithOptionalLabels<T extends Labels = Labels> extends GaugeWithRequiredLabels<T> {
     increment(): void;
     increment(delta: number): void;
-    increment(labels: Labels): void;
-    increment(labels: Labels, delta: number): void;
+    increment(labels: RequiredLabels<T>): void;
+    increment(labels: RequiredLabels<T>, delta: number): void;
 
     decrement(): void;
     decrement(delta: number): void;
-    decrement(labels: Labels): void;
-    decrement(labels: Labels, delta: number): void;
+    decrement(labels: RequiredLabels<T>): void;
+    decrement(labels: RequiredLabels<T>, delta: number): void;
 
     set(value: number): void;
-    set(labels: Labels, value: number): void;
+    set(labels: RequiredLabels<T>, value: number): void;
 }
 
-type IGauge<T extends Labels> = BaseGauge<T> & GaugeWithOptionalLabels & GaugeWithRequiredLabels<T>;
+export type Gauge<T extends Labels> =
+    HasRequiredKeys<T> extends true ? GaugeWithRequiredLabels<T> : GaugeWithOptionalLabels;
 
-export type Gauge<T extends Labels> = BaseGauge<T> &
-    (HasRequiredKeys<T> extends true ? GaugeWithRequiredLabels<T> : GaugeWithOptionalLabels);
-
-export class GaugeImpl<T extends Labels = Labels> extends InstrumentImpl<number> implements IGauge<T> {
+export class GaugeImpl<T extends Labels = Labels> extends InstrumentImpl<number> implements GaugeWithOptionalLabels<T> {
     constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
         super(name, description, registry, options);
     }
