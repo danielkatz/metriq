@@ -16,25 +16,25 @@ interface GaugeWithRequiredLabels<T extends Labels> extends BaseGauge<T> {
     set(labels: RequiredLabels<T>, value: number): void;
 }
 
-interface GaugeWithOptionalLabels<T extends Labels = Labels> extends GaugeWithRequiredLabels<T> {
+interface GaugeWithOptionalLabels extends GaugeWithRequiredLabels<Labels> {
     increment(): void;
     increment(delta: number): void;
-    increment(labels: RequiredLabels<T>): void;
-    increment(labels: RequiredLabels<T>, delta: number): void;
+    increment(labels: Labels): void;
+    increment(labels: Labels, delta: number): void;
 
     decrement(): void;
     decrement(delta: number): void;
-    decrement(labels: RequiredLabels<T>): void;
-    decrement(labels: RequiredLabels<T>, delta: number): void;
+    decrement(labels: Labels): void;
+    decrement(labels: Labels, delta: number): void;
 
     set(value: number): void;
-    set(labels: RequiredLabels<T>, value: number): void;
+    set(labels: Labels, value: number): void;
 }
 
 export type Gauge<T extends Labels> =
     HasRequiredKeys<T> extends true ? GaugeWithRequiredLabels<T> : GaugeWithOptionalLabels;
 
-export class GaugeImpl<T extends Labels = Labels> extends InstrumentImpl<number> implements GaugeWithOptionalLabels<T> {
+export class GaugeImpl<T extends Labels = Labels> extends InstrumentImpl<number> implements GaugeWithOptionalLabels {
     constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
         super(name, description, registry, options);
     }
