@@ -16,7 +16,10 @@
   },
   "dependencies": {
     "@metriq/express": "*",
+    "@metriq/fastify": "*",
     "express": "^4.21.2",
+    "fastify": "^5.2.1",
+    "get-port": "^7.1.0",
     "metriq": "*",
     "prom-client": "^15.1.3"
   },

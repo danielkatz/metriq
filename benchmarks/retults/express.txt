@@ -1,0 +1,54 @@
+ DEV  v2.1.8 /home/daniel/work/metrics/benchmarks
+
+ ✓ src/express.bench.ts (14) 62364ms
+   ✓ Express (cardinality=10) (2) 1212ms
+     name               hz     min     max    mean     p75     p99    p995    p999     rme  samples
+   · metriq       1,458.61  0.4805  6.1364  0.6856  0.6837  3.6944  4.5137  6.1364  ±4.91%      735
+   · prom-client  2,389.47  0.3138  5.5377  0.4185  0.4032  2.8161  3.9825  4.6199  ±5.02%     1195   fastest
+   ✓ Express (cardinality=100) (2) 1206ms
+     name               hz     min     max    mean     p75     p99    p995    p999     rme  samples
+   · metriq       1,881.53  0.4087  5.6886  0.5315  0.5049  3.1624  3.7409  5.6886  ±4.88%      941
+   · prom-client  2,182.88  0.3263  4.1986  0.4581  0.4139  3.5097  3.7924  4.0659  ±5.65%     1092   fastest
+   ✓ Express (cardinality=1000) (2) 1206ms
+     name               hz     min     max    mean     p75     p99    p995    p999     rme  samples
+   · metriq       1,320.71  0.5697  7.1644  0.7572  0.6778  2.6919  2.8325  7.1644  ±4.97%      661   fastest
+   · prom-client    706.62  1.0100  5.9080  1.4152  1.2030  4.4243  5.2483  5.9080  ±6.00%      354
+   ✓ Express (cardinality=10000) (2) 1216ms
+     name              hz      min      max     mean      p75      p99     p995     p999     rme  samples
+   · metriq        317.27   2.3000   8.1519   3.1518   3.7591   6.8227   8.1519   8.1519  ±4.75%      159   fastest
+   · prom-client  72.7850  11.9871  18.8872  13.7391  14.5191  18.8872  18.8872  18.8872  ±4.46%       37
+   ✓ Express (cardinality=100000) (2) 3409ms
+     name              hz      min      max     mean      p75      p99     p995     p999      rme  samples
+   · metriq       37.0389  23.7411  35.8887  26.9986  27.8061  35.8887  35.8887  35.8887   ±6.03%       19   fastest
+   · prom-client   5.0796   159.02   492.08   196.87   171.95   492.08   492.08   492.08  ±37.76%       10
+   ✓ Express (cardinality=500000) (2) 16320ms
+     name             hz     min       max    mean       p75       p99      p995      p999      rme  samples
+   · metriq       7.8463  114.61    139.80  127.45    132.86    139.80    139.80    139.80   ±4.98%       10   fastest
+   · prom-client  1.0551  837.79  1,301.02  947.79  1,014.48  1,301.02  1,301.02  1,301.02  ±11.04%       10
+   ✓ Express (cardinality=1000000) (2) 37783ms
+     name             hz       min       max      mean       p75       p99      p995      p999     rme  samples
+   · metriq       3.6735    253.88    303.89    272.22    277.85    303.89    303.89    303.89  ±4.42%       10   fastest
+   · prom-client  0.4389  1,878.62  2,808.35  2,278.19  2,441.19  2,808.35  2,808.35  2,808.35  ±9.08%       10
+
+ BENCH  Summary
+
+  prom-client - src/express.bench.ts > Express (cardinality=10)
+    1.64x faster than metriq
+
+  prom-client - src/express.bench.ts > Express (cardinality=100)
+    1.16x faster than metriq
+
+  metriq - src/express.bench.ts > Express (cardinality=1000)
+    1.87x faster than prom-client
+
+  metriq - src/express.bench.ts > Express (cardinality=10000)
+    4.36x faster than prom-client
+
+  metriq - src/express.bench.ts > Express (cardinality=100000)
+    7.29x faster than prom-client
+
+  metriq - src/express.bench.ts > Express (cardinality=500000)
+    7.44x faster than prom-client
+
+  metriq - src/express.bench.ts > Express (cardinality=1000000)
+    8.37x faster than prom-client

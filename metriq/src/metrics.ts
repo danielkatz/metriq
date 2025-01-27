@@ -3,7 +3,7 @@ import { Registry, RegistryImpl, RegistryOptions } from "./registry";
 import { CounterImpl } from "./instruments/counter";
 import { GaugeImpl } from "./instruments/gauge";
 import { HistogramImpl, HistogramOptions } from "./instruments/histogram";
-import { InternalMetrics, InternalMetricsImpl, InternalMetricsNoop } from "./internal-metrics";
+import { InternalMetrics, AdapterMetrics, InternalMetricsImpl, InternalMetricsNoop } from "./internal-metrics";
 import { Labels } from "./types";
 import { InstrumentFactory } from "./instruments/factory";
 
@@ -20,6 +20,8 @@ const DEFAULT_OPTIONS: MetricsOptions = {
     enableInternalMetrics: true,
 };
 
+export type AdapterFactory<T> = (metrics: Metrics, adapterMetrics: AdapterMetrics) => T;
+
 export interface Metrics extends InstrumentFactory {
     readonly defaultRegistry: Registry;
 
@@ -27,6 +29,8 @@ export interface Metrics extends InstrumentFactory {
 
     addCollectCallback(callback: CollectCallback): void;
     removeCollectCallback(callback: CollectCallback): void;
+
+    createAdapter<T>(adapter: AdapterFactory<T>): T;
 }
 
 export class MetricsImpl implements Metrics {
@@ -116,5 +120,9 @@ export class MetricsImpl implements Metrics {
                 yield instrument;
             }
         }
+    }
+
+    public createAdapter<T>(factory: AdapterFactory<T>): T {
+        return factory(this, this.internalMetrics);
     }
 }

@@ -330,7 +330,7 @@ describe("PrometheusExporter", () => {
                 counter.increment({ key: "value" }, 5);
 
                 // Act
-                counter.clear();
+                counter.removeAll();
 
                 const stream = exporter.stream();
                 const result = await readStreamToString(stream);
@@ -649,7 +649,7 @@ describe("PrometheusExporter", () => {
                 gauge.increment({ key: "value" }, 5);
 
                 // Act
-                gauge.clear();
+                gauge.removeAll();
 
                 const stream = exporter.stream();
                 const result = await readStreamToString(stream);
@@ -889,7 +889,7 @@ describe("PrometheusExporter", () => {
                 histogram.observe({ key: "bar" }, 5);
 
                 // Act
-                histogram.clear();
+                histogram.removeAll();
 
                 const stream = exporter.stream();
                 const result = await readStreamToString(stream);
@@ -1006,15 +1006,24 @@ describe("PrometheusExporter", () => {
 
             // Assert
             expect(result).toBe(dedent`
-                # HELP metriq_samples_total Total number of samples
-                # TYPE metriq_samples_total gauge
+                # HELP metriq_samples_count Current number of samples registered
+                # TYPE metriq_samples_count gauge
 
-                # HELP metriq_timeseries_total Total number of timeseries
-                # TYPE metriq_timeseries_total gauge
+                # HELP metriq_timeseries_count Current number of timeseries registered
+                # TYPE metriq_timeseries_count gauge
 
-                # HELP metriq_metrics_total Total number of metrics
-                # TYPE metriq_metrics_total gauge
-                metriq_metrics_total 3\n
+                # HELP metriq_metrics_count Current number of metrics registered
+                # TYPE metriq_metrics_count gauge
+                metriq_metrics_count 3
+
+                # HELP metriq_scrapes_total Number of scrapes since startup
+                # TYPE metriq_scrapes_total counter
+
+                # HELP metriq_last_scrape_bytes Bytes returned during last scrape
+                # TYPE metriq_last_scrape_bytes gauge
+
+                # HELP metriq_last_scrape_duration_seconds Duration of last scrape in seconds
+                # TYPE metriq_last_scrape_duration_seconds gauge\n
             `);
         });
 
@@ -1033,17 +1042,26 @@ describe("PrometheusExporter", () => {
                 # TYPE counter counter
                 counter 5
 
-                # HELP metriq_samples_total Total number of samples
-                # TYPE metriq_samples_total gauge
-                metriq_samples_total{instrument="counter"} 1
+                # HELP metriq_samples_count Current number of samples registered
+                # TYPE metriq_samples_count gauge
+                metriq_samples_count{instrument="counter"} 1
 
-                # HELP metriq_timeseries_total Total number of timeseries
-                # TYPE metriq_timeseries_total gauge
-                metriq_timeseries_total{instrument="counter"} 1
+                # HELP metriq_timeseries_count Current number of timeseries registered
+                # TYPE metriq_timeseries_count gauge
+                metriq_timeseries_count{instrument="counter"} 1
 
-                # HELP metriq_metrics_total Total number of metrics
-                # TYPE metriq_metrics_total gauge
-                metriq_metrics_total 4\n
+                # HELP metriq_metrics_count Current number of metrics registered
+                # TYPE metriq_metrics_count gauge
+                metriq_metrics_count 4
+
+                # HELP metriq_scrapes_total Number of scrapes since startup
+                # TYPE metriq_scrapes_total counter
+
+                # HELP metriq_last_scrape_bytes Bytes returned during last scrape
+                # TYPE metriq_last_scrape_bytes gauge
+
+                # HELP metriq_last_scrape_duration_seconds Duration of last scrape in seconds
+                # TYPE metriq_last_scrape_duration_seconds gauge\n
             `);
         });
     });

@@ -95,7 +95,7 @@ describe("InternalMetrics", () => {
             counter.increment();
             counter.increment({ a: "1" });
             counter.increment({ a: "2" });
-            counter.clear();
+            counter.removeAll();
 
             // Assert
             expect(internalMetrics.timeseriesGauge.getValue({ instrument: "counter" })).toBe(0);
@@ -146,7 +146,7 @@ describe("InternalMetrics", () => {
             counter.increment();
             counter.increment({ a: "1" });
             counter.increment({ a: "2" });
-            counter.clear();
+            counter.removeAll();
 
             // Assert
             expect(internalMetrics.sampleGauge.getValue({ instrument: "counter" })).toBe(0);
@@ -160,10 +160,36 @@ describe("InternalMetrics", () => {
             histogram.observe(1);
             histogram.observe({ a: "1" }, 2);
             histogram.observe({ a: "2" }, 3);
-            histogram.clear();
+            histogram.removeAll();
 
             // Assert
             expect(internalMetrics.sampleGauge.getValue({ instrument: "histogram" })).toBe(0);
+        });
+    });
+
+    describe("onScrape", () => {
+        it("should count scrapes", () => {
+            // Act
+            internalMetrics.onScrape(100, 1);
+
+            // Assert
+            expect(internalMetrics.scrapeCount?.getDebugValue({})).toBe(1);
+        });
+
+        it("should count bytes scraped", () => {
+            // Act
+            internalMetrics.onScrape(100, 1);
+
+            // Assert
+            expect(internalMetrics.scrapeBytesGauge?.getDebugValue({})).toBe(100);
+        });
+
+        it("should count duration scraped", () => {
+            // Act
+            internalMetrics.onScrape(100, 1);
+
+            // Assert
+            expect(internalMetrics.scrapeDurationGauge?.getDebugValue({})).toBe(1);
         });
     });
 });

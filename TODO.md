@@ -1,5 +1,7 @@
 # TODO
 
+## Roadmap for 1.0.0
+
 - [ ] The API should be largely compatible with prom-client
     - [ ] Instruments
         - [x] Counter
@@ -9,6 +11,7 @@
     - [x] collect callback
     - [x] typed labels
     - [x] clear/reset
+    - [ ] validation/escaping
 - [x] Support massive amount of metrics
     - [x] Performance
     - [x] Streaming writer
@@ -16,8 +19,10 @@
 - [x] Dynamic labels
 - [x] Default common prefix
 - [x] Default labels
-- [ ] Internal metrics
-    - [ ] Exposure bytes and duration
+- [x] Internal metrics
+    - [x] Exposure bytes and duration
     - [x] Sample count
-        - [x] support deletion
-    - [ ] etc. 
+- [ ] Adapters
+    - [x] Express
+    - [x] Fastify
+    - [ ] NextJS

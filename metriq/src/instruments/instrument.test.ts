@@ -246,7 +246,7 @@ describe.each(instruments)("Instrument: %s", (name, createInstrument) => {
             // Act
             instrument.updateValue({ key: "value" }, () => 3);
             instrument.updateValue({ key: "value2" }, () => 5);
-            instrument.clear();
+            instrument.removeAll();
 
             // Assert
             expect(instrument.getValue({ key: "value" })).toBe(undefined);

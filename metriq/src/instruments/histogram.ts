@@ -22,17 +22,17 @@ interface HistogramWithRequiredLabels<T extends Labels> extends BaseHistogram<T>
     observe(labels: RequiredLabels<T>, value: number): void;
 }
 
-interface HistogramWithOptionalLabels<T extends Labels = Labels> extends HistogramWithRequiredLabels<T> {
+interface HistogramWithOptionalLabels extends HistogramWithRequiredLabels<Labels> {
     observe(value: number): void;
-    observe(labels: RequiredLabels<T>, value: number): void;
+    observe(labels: Labels, value: number): void;
 }
 
-export type Histogram<T extends Labels> =
+export type Histogram<T extends Labels = Labels> =
     HasRequiredKeys<T> extends true ? HistogramWithRequiredLabels<T> : HistogramWithOptionalLabels;
 
 export class HistogramImpl<T extends Labels = Labels>
     extends InstrumentImpl<number[], HistogramOptions>
-    implements HistogramWithOptionalLabels<T>
+    implements HistogramWithOptionalLabels
 {
     public readonly buckets: Readonly<number[]>;
 
