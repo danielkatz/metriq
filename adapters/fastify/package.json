@@ -41,7 +41,7 @@
     "metriq": "*"
   },
   "peerDependencies": {
-    "fastify": "*"
+    "fastify": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.7",
