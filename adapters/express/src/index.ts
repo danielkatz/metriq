@@ -1,16 +1,11 @@
-import { pipeline } from "node:stream/promises";
-import { Request, Response, NextFunction } from "express";
 import { Metrics, prometheusExporter } from "metriq";
+import { RequestHandler } from "express";
+import { ExpressPrometheusAdapter } from "./express-adapter";
 
-export const prometheus = (metrics: Metrics) => {
+export const prometheus = (metrics: Metrics): RequestHandler => {
     const exporter = prometheusExporter(metrics);
-
-    return (req: Request, res: Response, next: NextFunction): void => {
-        res.set("Content-Type", "text/plain; version=0.0.4; charset=utf-8");
-        pipeline(exporter.stream(), res)
-            .then(() => {
-                res.end();
-            })
-            .catch(next);
-    };
+    const adapter = metrics.createAdapter(
+        (metrics, builtinMetrics) => new ExpressPrometheusAdapter(metrics, builtinMetrics, exporter),
+    );
+    return adapter.middleware;
 };

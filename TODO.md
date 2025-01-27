@@ -9,6 +9,11 @@
     - [x] collect callback
     - [x] typed labels
     - [x] clear/reset
+    - [ ] validation
+- [ ] Adapters
+    - [x] Express
+    - [x] Fastify
+    - [ ] NextJS
 - [x] Support massive amount of metrics
     - [x] Performance
     - [x] Streaming writer
@@ -16,8 +21,6 @@
 - [x] Dynamic labels
 - [x] Default common prefix
 - [x] Default labels
-- [ ] Internal metrics
-    - [ ] Exposure bytes and duration
+- [x] Internal metrics
+    - [x] Exposure bytes and duration
     - [x] Sample count
-        - [x] support deletion
-    - [ ] etc. 

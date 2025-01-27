@@ -18,3 +18,4 @@ export { Counter } from "./instruments/counter";
 export { Gauge } from "./instruments/gauge";
 export { Histogram } from "./instruments/histogram";
 export { PrometheusExporter } from "./exporters/prometheus";
+export { AdapterMetrics } from "./internal-metrics";

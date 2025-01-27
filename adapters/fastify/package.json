@@ -1,7 +1,7 @@
 {
-  "name": "@metriq/express",
+  "name": "@metriq/fastify",
   "version": "0.1.0",
-  "description": "Express middleware adapter for Metriq - high-performance TypeScript metrics collection library",
+  "description": "Fastify middleware adapter for Metriq - high-performance TypeScript metrics collection library",
   "author": "Daniel Katz",
   "license": "MIT",
   "keywords": [
@@ -11,8 +11,7 @@
     "nodejs",
     "fast",
     "scalable",
-    "express",
-    "middleware"
+    "fastify"
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -42,13 +41,12 @@
     "metriq": "*"
   },
   "peerDependencies": {
-    "express": "*"
+    "fastify": "*"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
-    "express": "^4.21.2",
+    "fastify": "^5.2.1",
     "supertest": "^7.0.0",
     "tsup": "^8.3.5"
   }

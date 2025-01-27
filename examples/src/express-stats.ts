@@ -1,38 +1,6 @@
-# @metriq/express
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
-Express middleware adapter for Metriq metrics library.
-
-## 📦 Installation
-
-```bash
-npm install @metriq/express
-```
-
-## 🚀 Quick Start
-
-```typescript
-import express from "express";
-import { metriq } from "metriq";
-import { prometheus } from "@metriq/express";
-
-// Initialize metrics
-const metrics = metriq();
-
-// Create a counter
-metrics.createCounter("http_requests_total", "Total HTTP requests");
-
-// Create Express app
-const app = express();
-
-// Add metrics endpoint
-app.get("/metrics", prometheus(metrics));
-
-app.listen(3000);
-```
-
-## 🔧 Request Monitoring Example
-
-```typescript
 import express from "express";
 import { metriq } from "metriq";
 import { prometheus } from "@metriq/express";
@@ -85,4 +53,3 @@ app.use((req, res, next) => {
 app.get("/metrics", prometheus(metrics));
 
 app.listen(3000);
-```

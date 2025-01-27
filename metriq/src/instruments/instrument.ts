@@ -24,7 +24,7 @@ export interface Instrument {
     readonly registry: Registry;
 
     remove(labels: Labels): void;
-    clear(): void;
+    removeAll(): void;
 }
 
 export abstract class InstrumentImpl<TValue = unknown, TOptions extends InstrumentOptions = InstrumentOptions>
@@ -91,7 +91,7 @@ export abstract class InstrumentImpl<TValue = unknown, TOptions extends Instrume
         this.removeValue(key);
     }
 
-    public clear(): void {
+    public removeAll(): void {
         const instrumentCount = this.getInstrumentValueCount();
         this.values.clear();
         this.internalMetrics.onTimeseriesRemoved(this.name, instrumentCount, this.componentsCount);

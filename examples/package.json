@@ -9,17 +9,15 @@
     "build": "tsc --project ./tsconfig.build.json",
     "dev": "tsc --watch --project ./tsconfig.build.json",
     "start": "tsx",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
     "test:types": "tsc --noEmit",
     "lint": "eslint src",
-    "bench": "vitest bench",
     "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
     "@metriq/express": "*",
+    "@metriq/fastify": "*",
     "express": "^4.21.2",
+    "fastify": "^5.2.1",
     "metriq": "*",
     "prom-client": "^15.1.3"
   },

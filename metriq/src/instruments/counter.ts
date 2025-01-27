@@ -18,7 +18,7 @@ interface CounterWithOptionalLabels extends CounterWithRequiredLabels<Labels> {
     increment(labels: Labels, delta: number): void;
 }
 
-export type Counter<T extends Labels> =
+export type Counter<T extends Labels = Labels> =
     HasRequiredKeys<T> extends true ? CounterWithRequiredLabels<T> : CounterWithOptionalLabels;
 
 export class CounterImpl<T extends Labels = Labels>

@@ -1,0 +1,54 @@
+ DEV  v2.1.8 /home/daniel/work/metrics/benchmarks
+
+ ✓ src/fastify.bench.ts (14) 68419ms
+   ✓ Fastify (cardinality=10) (2) 1209ms
+     name               hz     min     max    mean     p75     p99    p995    p999     rme  samples
+   · metriq       1,709.40  0.4213  5.2517  0.5850  0.5926  3.3224  3.8482  5.2517  ±4.13%      855
+   · prom-client  2,564.93  0.2919  6.7048  0.3899  0.3765  0.7986  3.5355  4.9984  ±5.07%     1283   fastest
+   ✓ Fastify (cardinality=100) (2) 1207ms
+     name               hz     min     max    mean     p75     p99    p995    p999     rme  samples
+   · metriq       2,170.65  0.3346  5.4601  0.4607  0.4382  2.8604  3.4332  5.3034  ±4.90%     1086
+   · prom-client  2,353.88  0.3101  5.0802  0.4248  0.3842  3.0226  3.3908  4.7657  ±5.50%     1178   fastest
+   ✓ Fastify (cardinality=1000) (2) 1212ms
+     name             hz     min      max    mean     p75      p99     p995     p999      rme  samples
+   · metriq       748.49  0.4993  39.4066  1.3360  0.6809  13.0939  32.5683  39.4066  ±25.27%      377   fastest
+   · prom-client  609.42  1.0495   8.4389  1.6409  1.5233   5.0050   8.1897   8.4389   ±6.74%      306
+   ✓ Fastify (cardinality=10000) (2) 1220ms
+     name              hz      min      max     mean      p75      p99     p995     p999     rme  samples
+   · metriq        273.08   2.5216   9.8274   3.6620   4.7058   8.6080   9.8274   9.8274  ±5.94%      137   fastest
+   · prom-client  68.4931  12.7879  21.8042  14.6000  14.9095  21.8042  21.8042  21.8042  ±4.94%       35
+   ✓ Fastify (cardinality=100000) (2) 3364ms
+     name              hz      min      max     mean      p75      p99     p995     p999      rme  samples
+   · metriq       30.4482  29.0747  37.5130  32.8426  33.6179  37.5130  37.5130  37.5130   ±4.00%       16   fastest
+   · prom-client   5.4243   162.81   248.33   184.36   196.85   248.33   248.33   248.33  ±10.02%       10
+   ✓ Fastify (cardinality=500000) (2) 19771ms
+     name             hz     min       max      mean       p75       p99      p995      p999     rme  samples
+   · metriq       5.7490  165.09    189.16    173.94    174.88    189.16    189.16    189.16  ±2.77%       10   fastest
+   · prom-client  0.8480  950.46  1,464.22  1,179.29  1,301.49  1,464.22  1,464.22  1,464.22  ±9.45%       10
+   ✓ Fastify (cardinality=1000000) (2) 40434ms
+     name             hz       min       max      mean       p75       p99      p995      p999     rme  samples
+   · metriq       3.0775    309.36    337.10    324.94    335.17    337.10    337.10    337.10  ±2.04%       10   fastest
+   · prom-client  0.4186  2,035.94  2,676.46  2,389.20  2,563.46  2,676.46  2,676.46  2,676.46  ±7.40%       10
+
+ BENCH  Summary
+
+  prom-client - src/fastify.bench.ts > Fastify (cardinality=10)
+    1.50x faster than metriq
+
+  prom-client - src/fastify.bench.ts > Fastify (cardinality=100)
+    1.08x faster than metriq
+
+  metriq - src/fastify.bench.ts > Fastify (cardinality=1000)
+    1.23x faster than prom-client
+
+  metriq - src/fastify.bench.ts > Fastify (cardinality=10000)
+    3.99x faster than prom-client
+
+  metriq - src/fastify.bench.ts > Fastify (cardinality=100000)
+    5.61x faster than prom-client
+
+  metriq - src/fastify.bench.ts > Fastify (cardinality=500000)
+    6.78x faster than prom-client
+
+  metriq - src/fastify.bench.ts > Fastify (cardinality=1000000)
+    7.35x faster than prom-client

@@ -31,7 +31,7 @@ interface GaugeWithOptionalLabels extends GaugeWithRequiredLabels<Labels> {
     set(labels: Labels, value: number): void;
 }
 
-export type Gauge<T extends Labels> =
+export type Gauge<T extends Labels = Labels> =
     HasRequiredKeys<T> extends true ? GaugeWithRequiredLabels<T> : GaugeWithOptionalLabels;
 
 export class GaugeImpl<T extends Labels = Labels> extends InstrumentImpl<number> implements GaugeWithOptionalLabels {

@@ -27,7 +27,7 @@ interface HistogramWithOptionalLabels extends HistogramWithRequiredLabels<Labels
     observe(labels: Labels, value: number): void;
 }
 
-export type Histogram<T extends Labels> =
+export type Histogram<T extends Labels = Labels> =
     HasRequiredKeys<T> extends true ? HistogramWithRequiredLabels<T> : HistogramWithOptionalLabels;
 
 export class HistogramImpl<T extends Labels = Labels>

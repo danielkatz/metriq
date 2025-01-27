@@ -1,7 +1,16 @@
-import { GaugeImpl } from "./instruments/gauge";
+import { Counter } from "./instruments/counter";
+import { Gauge, GaugeImpl } from "./instruments/gauge";
 import { RegistryImpl } from "./registry";
 
-export interface InternalMetrics {
+export interface AdapterMetrics {
+    readonly scrapeCount?: Counter;
+    readonly scrapeBytesGauge?: Gauge;
+    readonly scrapeDurationGauge?: Gauge;
+
+    onScrape(bytes: number, durationSeconds: number): void;
+}
+
+export interface InternalMetrics extends AdapterMetrics {
     registerInstruments(): void;
 
     onInstrumentAdded(): void;
@@ -10,21 +19,35 @@ export interface InternalMetrics {
     onTimeseriesRemoved(instrumentName: string, instrumentCount: number, componentCount: number): void;
 }
 
+type MetricLabels = {
+    instrument: string;
+};
+
 export class InternalMetricsImpl implements InternalMetrics {
     private readonly registry: RegistryImpl;
 
     public readonly metricGauge: GaugeImpl;
-    public readonly timeseriesGauge: GaugeImpl;
-    public readonly sampleGauge: GaugeImpl;
+    public readonly timeseriesGauge: GaugeImpl<MetricLabels>;
+    public readonly sampleGauge: GaugeImpl<MetricLabels>;
+
+    public scrapeBytesGauge!: Gauge;
+    public scrapeDurationGauge!: Gauge;
+    public scrapeCount!: Counter;
 
     constructor(registry: RegistryImpl) {
         this.registry = registry;
 
-        this.metricGauge = new GaugeImpl("metriq_metrics_total", "Total number of metrics", registry);
-
-        this.timeseriesGauge = new GaugeImpl("metriq_timeseries_total", "Total number of timeseries", registry);
-
-        this.sampleGauge = new GaugeImpl("metriq_samples_total", "Total number of samples", registry);
+        this.metricGauge = new GaugeImpl("metriq_metrics_count", "Current number of metrics registered", registry);
+        this.timeseriesGauge = new GaugeImpl<MetricLabels>(
+            "metriq_timeseries_count",
+            "Current number of timeseries registered",
+            registry,
+        );
+        this.sampleGauge = new GaugeImpl<MetricLabels>(
+            "metriq_samples_count",
+            "Current number of samples registered",
+            registry,
+        );
     }
 
     public registerInstruments() {
@@ -32,8 +55,19 @@ export class InternalMetricsImpl implements InternalMetrics {
         this.registry["registerInstrument"](this.timeseriesGauge);
         this.registry["registerInstrument"](this.metricGauge);
 
-        // Internal metrics need to be counted manually
+        // Meta metrics need to be counted manually
         this.metricGauge.increment(this.registry.getInstrumentsCount());
+
+        // Scrape metrics
+        this.scrapeCount = this.registry.createCounter("metriq_scrapes_total", "Number of scrapes since startup");
+        this.scrapeBytesGauge = this.registry.createGauge(
+            "metriq_last_scrape_bytes",
+            "Bytes returned during last scrape",
+        );
+        this.scrapeDurationGauge = this.registry.createGauge(
+            "metriq_last_scrape_duration_seconds",
+            "Duration of last scrape in seconds",
+        );
     }
 
     public onInstrumentAdded() {
@@ -53,6 +87,12 @@ export class InternalMetricsImpl implements InternalMetrics {
         this.timeseriesGauge.decrement({ instrument: instrumentName }, instrumentCount);
         this.sampleGauge.decrement({ instrument: instrumentName }, componentCount * instrumentCount);
     }
+
+    public onScrape(bytes: number, durationSeconds: number) {
+        this.scrapeCount.increment();
+        this.scrapeBytesGauge.set(bytes);
+        this.scrapeDurationGauge.set(durationSeconds);
+    }
 }
 
 export class InternalMetricsNoop implements InternalMetrics {
@@ -62,4 +102,5 @@ export class InternalMetricsNoop implements InternalMetrics {
     public onInstrumentRemoved() {}
     public onTimeseriesAdded() {}
     public onTimeseriesRemoved() {}
+    public onScrape() {}
 }

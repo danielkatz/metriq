@@ -42,7 +42,7 @@ app.post("/update", (req, res) => {
 
 app.post("/reset", (req, res) => {
     pcRegistry.clear();
-    counter.clear();
+    counter.removeAll();
 
     res.send("Reset");
 });
