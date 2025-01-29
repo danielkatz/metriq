@@ -18,7 +18,7 @@ describe("Fastify adapter", () => {
                 (metrics, adapterMetrics) => new FastifyPrometheusAdapter(metrics, adapterMetrics, exporter),
             );
 
-            app.get("/metrics", adapter.middleware);
+            app.get("/metrics", adapter.handler);
         });
 
         it("should return metrics in prometheus format with correct content type and status", async () => {
@@ -104,7 +104,7 @@ describe("Fastify adapter", () => {
                 (metrics, adapterMetrics) => new FastifyPrometheusAdapter(metrics, adapterMetrics, exporter),
             );
 
-            app.get("/metrics", adapter.middleware);
+            app.get("/metrics", adapter.handler);
         });
 
         it("should not expose internal metrics", async () => {

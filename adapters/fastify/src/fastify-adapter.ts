@@ -12,7 +12,7 @@ export class FastifyPrometheusAdapter {
         this.exporter = exporter;
     }
 
-    public middleware = (req: FastifyRequest, res: FastifyReply): FastifyReply => {
+    public handler = (req: FastifyRequest, res: FastifyReply): FastifyReply => {
         const startTime = Date.now();
         let totalBytes = 0;
 

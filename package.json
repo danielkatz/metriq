@@ -7,7 +7,7 @@
   "workspaces": [
     "metriq",
     "adapters/*",
-    "examples",
+    "examples/*",
     "benchmarks"
   ],
   "scripts": {

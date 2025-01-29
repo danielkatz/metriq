@@ -25,4 +25,4 @@
 - [ ] Adapters
     - [x] Express
     - [x] Fastify
-    - [ ] NextJS
+    - [x] NestJS

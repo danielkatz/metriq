@@ -7,5 +7,5 @@ export const prometheus = (metrics: Metrics): RouteHandlerMethod => {
     const adapter = metrics.createAdapter(
         (metrics, builtinMetrics) => new FastifyPrometheusAdapter(metrics, builtinMetrics, exporter),
     );
-    return adapter.middleware;
+    return adapter.handler;
 };
