@@ -12,7 +12,7 @@
     "start:basic:debug": "ts-node --inspect src/basic/main.ts",
     "start:stats": "ts-node src/stats/main.ts",
     "start:stats:debug": "ts-node --inspect src/stats/main.ts",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
