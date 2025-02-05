@@ -39,7 +39,7 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
-    "metriq": "*"
+    "metriq": "^0.1.0"
   },
   "peerDependencies": {
     "express": "^4.0.0 || ^5.0.0"
