@@ -1,4 +1,4 @@
-# Metriq
+# metriq
 
 A high-performance TypeScript metrics collection library designed for heavy workloads. Metriq provides a modern, type-safe API for collecting and exposing metrics with exceptional performance characteristics.
 
