@@ -25,10 +25,13 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Build
+        run: npm run build
+
       - name: Publish to npm
         uses: changesets/action@v1
         with:
-          publish: npm run build
+          publish: npm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

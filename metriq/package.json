@@ -33,6 +33,9 @@
     "fast",
     "scalable"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Daniel Katz",
   "license": "MIT",
   "devDependencies": {
