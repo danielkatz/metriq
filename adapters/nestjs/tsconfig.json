@@ -1,12 +1,7 @@
 {
-    "extends": "../../tsconfig.json",
-    "compilerOptions": {
-        "rootDir": "./src",
-        "outDir": "./dist",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-    },
-    "include": [
-        "./src"
-    ]
+  "extends": "../../tsconfig.nest.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  }
 }

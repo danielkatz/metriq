@@ -27,8 +27,8 @@ describe("Express adapter", () => {
             const response = await request(app).get("/metrics");
 
             // Assert
-            expect(response.header["content-type"]).toBe("text/plain; version=0.0.4; charset=utf-8");
             expect(response.status).toBe(200);
+            expect(response.header["content-type"]).toBe("text/plain; version=0.0.4; charset=utf-8");
             expect(response.text).toContain(adapter.adapterMetrics.scrapeDurationGauge!.name);
             expect(response.text).toContain(adapter.adapterMetrics.scrapeBytesGauge!.name);
             expect(response.text).toContain(adapter.adapterMetrics.scrapeCount!.name);
@@ -90,9 +90,12 @@ describe("Express adapter", () => {
             const response = await request(app).get("/metrics");
 
             // Assert
-            expect(response.text).not.toContain(adapter.adapterMetrics.scrapeCount?.name);
-            expect(response.text).not.toContain(adapter.adapterMetrics.scrapeBytesGauge?.name);
-            expect(response.text).not.toContain(adapter.adapterMetrics.scrapeDurationGauge?.name);
+            expect(adapter.adapterMetrics.scrapeDurationGauge).toBeUndefined();
+            expect(adapter.adapterMetrics.scrapeBytesGauge).toBeUndefined();
+            expect(adapter.adapterMetrics.scrapeCount).toBeUndefined();
+            expect(response.text).not.toContain("# TYPE metriq_last_scrape_duration_seconds gauge");
+            expect(response.text).not.toContain("# TYPE metriq_last_scrape_bytes gauge");
+            expect(response.text).not.toContain("# TYPE metriq_scrapes_total counter");
         });
     });
 });

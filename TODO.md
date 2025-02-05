@@ -22,7 +22,11 @@
 - [x] Internal metrics
     - [x] Exposure bytes and duration
     - [x] Sample count
-- [ ] Adapters
+- [x] Adapters
     - [x] Express
     - [x] Fastify
     - [x] NestJS
+- [ ] Documentation
+    - [x] README
+    - [x] Examples
+    - [ ] API Docs
