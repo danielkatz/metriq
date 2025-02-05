@@ -12,10 +12,12 @@ export const prometheusExporter = (metrics: Metrics): PrometheusExporter => {
     return new PrometheusExporterImpl(metrics);
 };
 
-export { Metrics } from "./metrics";
-export { Registry } from "./registry";
+export { Labels, RequiredLabels } from "./types";
+export { Metrics, MetricsOptions } from "./metrics";
+export { Registry, RegistryOptions } from "./registry";
+export { InstrumentOptions } from "./instruments/instrument";
 export { Counter } from "./instruments/counter";
 export { Gauge } from "./instruments/gauge";
-export { Histogram } from "./instruments/histogram";
+export { Histogram, HistogramOptions } from "./instruments/histogram";
 export { PrometheusExporter } from "./exporters/prometheus";
 export { AdapterMetrics } from "./internal-metrics";

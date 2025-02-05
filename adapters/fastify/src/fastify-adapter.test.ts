@@ -18,7 +18,7 @@ describe("Fastify adapter", () => {
                 (metrics, adapterMetrics) => new FastifyPrometheusAdapter(metrics, adapterMetrics, exporter),
             );
 
-            app.get("/metrics", adapter.middleware);
+            app.get("/metrics", adapter.handler);
         });
 
         it("should return metrics in prometheus format with correct content type and status", async () => {
@@ -44,8 +44,8 @@ describe("Fastify adapter", () => {
             });
 
             // Assert
-            expect(response.headers["content-type"]).toBe("text/plain; version=0.0.4; charset=utf-8");
             expect(response.statusCode).toBe(200);
+            expect(response.headers["content-type"]).toBe("text/plain; version=0.0.4; charset=utf-8");
             expect(response.body).toContain(adapter.adapterMetrics.scrapeDurationGauge!.name);
             expect(response.body).toContain(adapter.adapterMetrics.scrapeBytesGauge!.name);
             expect(response.body).toContain(adapter.adapterMetrics.scrapeCount!.name);
@@ -104,7 +104,7 @@ describe("Fastify adapter", () => {
                 (metrics, adapterMetrics) => new FastifyPrometheusAdapter(metrics, adapterMetrics, exporter),
             );
 
-            app.get("/metrics", adapter.middleware);
+            app.get("/metrics", adapter.handler);
         });
 
         it("should not expose internal metrics", async () => {
@@ -115,9 +115,12 @@ describe("Fastify adapter", () => {
             });
 
             // Assert
-            expect(response.body).not.toContain(adapter.adapterMetrics.scrapeCount?.name);
-            expect(response.body).not.toContain(adapter.adapterMetrics.scrapeBytesGauge?.name);
-            expect(response.body).not.toContain(adapter.adapterMetrics.scrapeDurationGauge?.name);
+            expect(adapter.adapterMetrics.scrapeDurationGauge).toBeUndefined();
+            expect(adapter.adapterMetrics.scrapeBytesGauge).toBeUndefined();
+            expect(adapter.adapterMetrics.scrapeCount).toBeUndefined();
+            expect(response.body).not.toContain("# TYPE metriq_last_scrape_duration_seconds gauge");
+            expect(response.body).not.toContain("# TYPE metriq_last_scrape_bytes gauge");
+            expect(response.body).not.toContain("# TYPE metriq_scrapes_total counter");
         });
     });
 });

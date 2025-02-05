@@ -70,8 +70,9 @@ console.log(requests.getDebugValue({ method: "GET", path: "/api/users" }));
 ## 📚 Packages
 
 - [`metriq`](metriq/README.md) - Core metrics collection library
-- [`@metriq/express`](adapters/express/README.md) - Express middleware adapter
-- [`@metriq/fastify`](adapters/fastify/README.md) - Fastify middleware adapter
+- [`@metriq/express`](adapters/express/README.md) - Express adapter
+- [`@metriq/fastify`](adapters/fastify/README.md) - Fastify adapter
+- [`@metriq/nestjs`](adapters/nestjs/README.md) - NestJS adapter
 
 ## 🛠️ Development
 
