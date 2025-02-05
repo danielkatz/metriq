@@ -1,5 +1,11 @@
 # metriq
 
+## 0.2.2
+
+### Patch Changes
+
+- 01f4311: Add npmrc
+
 ## 0.2.1
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @metriq/express
 
+## 0.2.2
+
+### Patch Changes
+
+- 01f4311: Add npmrc
+- Updated dependencies [01f4311]
+    - metriq@0.2.2
+
 ## 0.2.1
 
 ### Patch Changes
