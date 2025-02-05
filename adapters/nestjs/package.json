@@ -1,6 +1,6 @@
 {
   "name": "@metriq/nestjs",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "NestJS adapter for Metriq - high-performance TypeScript metrics collection library",
   "author": "Daniel Katz",
   "license": "MIT",
@@ -38,7 +38,7 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
-    "metriq": "^0.2.1"
+    "metriq": "^0.2.2"
   },
   "peerDependencies": {
     "@nestjs/common": "^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0"
