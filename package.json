@@ -16,7 +16,8 @@
     "test:coverage": "npm run test:coverage --workspaces --if-present",
     "test:types": "npm run test:types --workspaces --if-present",
     "lint": "npm run lint --workspaces",
-    "format": "npm run format --workspaces"
+    "format": "npm run format --workspaces",
+    "release": "changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.10",
