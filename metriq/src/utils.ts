@@ -96,8 +96,11 @@ export function getLabelsAndRequiredValue(
         value = labelsOrValue;
     } else {
         // Called as func(labels, value)
+        if (typeof maybeValue !== "number") {
+            throw new Error("Value is required");
+        }
         labels = labelsOrValue;
-        value = maybeValue!;
+        value = maybeValue;
     }
 
     return [labels, value];
