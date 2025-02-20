@@ -1,5 +1,16 @@
 # @metriq/nestjs
 
+## 0.3.0
+
+### Minor Changes
+
+- 471519f: Simplified adaper implementation
+
+### Patch Changes
+
+- Updated dependencies [471519f]
+    - metriq@0.3.0
+
 ## 0.2.2
 
 ### Patch Changes

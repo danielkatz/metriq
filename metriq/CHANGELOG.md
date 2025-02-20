@@ -1,5 +1,11 @@
 # metriq
 
+## 0.3.0
+
+### Minor Changes
+
+- 471519f: Simplified adaper implementation
+
 ## 0.2.2
 
 ### Patch Changes

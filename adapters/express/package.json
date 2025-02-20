@@ -1,6 +1,6 @@
 {
   "name": "@metriq/express",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Express middleware adapter for Metriq - high-performance TypeScript metrics collection library",
   "author": "Daniel Katz",
   "license": "MIT",
@@ -42,7 +42,7 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
-    "metriq": "^0.2.2"
+    "metriq": "^0.3.0"
   },
   "peerDependencies": {
     "express": "^4.0.0 || ^5.0.0"
