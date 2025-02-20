@@ -7,22 +7,14 @@ import { batchGenerator } from "../utils";
 
 const BATCH_SIZE = 40000;
 
-export interface PrometheusExporter {
-    stream(): AsyncGenerator<string>;
-}
-
-export class PrometheusExporterImpl implements PrometheusExporter {
+export class PrometheusFormatterImpl {
     private metrics: MetricsImpl;
 
     constructor(metrics: MetricsImpl) {
         this.metrics = metrics;
     }
 
-    public stream(): AsyncGenerator<string> {
-        return this.writeMetrics();
-    }
-
-    private async *writeMetrics(): AsyncGenerator<string> {
+    public async *writeMetrics(): AsyncGenerator<string> {
         let isFirst = true;
 
         for await (const instrument of this.metrics.collect()) {

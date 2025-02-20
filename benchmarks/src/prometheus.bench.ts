@@ -1,5 +1,4 @@
 import { bench, describe } from "vitest";
-import { pipeline } from "node:stream/promises";
 import { PassThrough } from "node:stream";
 import { metriq, prometheusExporter } from "metriq";
 import pc from "prom-client";
@@ -29,8 +28,7 @@ describe.each([10, 100, 1000, 10_000, 100_000, 500_000, 1_000_000])(
             const nullStream = new PassThrough();
             nullStream.resume();
 
-            const stream = exporter.stream();
-            await pipeline(stream, nullStream);
+            await exporter.writeToStream(nullStream);
         });
 
         bench("prom-client", async () => {

@@ -25,8 +25,6 @@
     "@typescript-eslint/parser": "^8.16.0",
     "@vitest/coverage-v8": "^2.1.6",
     "eslint": "^9.18.0",
-    "eslint-import-resolver-typescript": "^3.7.0",
-    "eslint-plugin-import-x": "^4.6.1",
     "jiti": "^2.4.2",
     "prettier": "^3.4.1",
     "tsup": "^8.3.5",
