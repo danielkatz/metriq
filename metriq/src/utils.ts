@@ -1,6 +1,7 @@
+import { Readable } from "node:stream";
 import { Labels } from "./types";
 
-export async function readStreamToString(stream: AsyncGenerator<string>): Promise<string> {
+export async function consumeAsyncStringGenerator(stream: AsyncGenerator<string>): Promise<string> {
     let data = "";
 
     for await (const chunk of stream) {
@@ -8,6 +9,24 @@ export async function readStreamToString(stream: AsyncGenerator<string>): Promis
     }
 
     return data;
+}
+
+export function consumeStringStream(stream: Readable): Promise<string> {
+    return new Promise((resolve, reject) => {
+        let data = "";
+
+        stream.on("data", (chunk) => {
+            data += chunk;
+        });
+
+        stream.on("end", () => {
+            resolve(data);
+        });
+
+        stream.on("error", (error) => {
+            reject(error);
+        });
+    });
 }
 
 export function generateKey(labels: Labels): string {

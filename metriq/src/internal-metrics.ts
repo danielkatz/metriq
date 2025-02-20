@@ -2,21 +2,15 @@ import { Counter } from "./instruments/counter";
 import { Gauge, GaugeImpl } from "./instruments/gauge";
 import { RegistryImpl } from "./registry";
 
-export interface AdapterMetrics {
-    readonly scrapeCount?: Counter;
-    readonly scrapeBytesGauge?: Gauge;
-    readonly scrapeDurationGauge?: Gauge;
-
-    onScrape(bytes: number, durationSeconds: number): void;
-}
-
-export interface InternalMetrics extends AdapterMetrics {
+export interface InternalMetrics {
     registerInstruments(): void;
 
     onInstrumentAdded(): void;
     onInstrumentRemoved(): void;
     onTimeseriesAdded(instrumentName: string, componentCount: number): void;
     onTimeseriesRemoved(instrumentName: string, instrumentCount: number, componentCount: number): void;
+
+    onScrape(bytesSent: number, durationSeconds: number): void;
 }
 
 type MetricLabels = {
@@ -88,9 +82,9 @@ export class InternalMetricsImpl implements InternalMetrics {
         this.sampleGauge.decrement({ instrument: instrumentName }, componentCount * instrumentCount);
     }
 
-    public onScrape(bytes: number, durationSeconds: number) {
+    public onScrape(bytesSent: number, durationSeconds: number) {
         this.scrapeCount.increment();
-        this.scrapeBytesGauge.set(bytes);
+        this.scrapeBytesGauge.set(bytesSent);
         this.scrapeDurationGauge.set(durationSeconds);
     }
 }

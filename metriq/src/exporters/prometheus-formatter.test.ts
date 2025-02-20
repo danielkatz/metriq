@@ -1,24 +1,24 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import dedent from "dedent";
 import { MetricsImpl } from "../metrics";
-import { PrometheusExporterImpl } from "./prometheus";
-import { readStreamToString } from "../utils";
+import { PrometheusFormatterImpl } from "./prometheus-formatter";
+import { consumeAsyncStringGenerator } from "../utils";
 
-describe("PrometheusExporter", () => {
+describe("PrometheusFormatter", () => {
     describe("single registry", () => {
         let metrics: MetricsImpl;
-        let exporter: PrometheusExporterImpl;
+        let formatter: PrometheusFormatterImpl;
 
         beforeEach(() => {
             metrics = new MetricsImpl({ enableInternalMetrics: false });
-            exporter = new PrometheusExporterImpl(metrics);
+            formatter = new PrometheusFormatterImpl(metrics);
         });
 
         it("empty state", async () => {
             // Arrange
             // Act
-            const stream = exporter.stream();
-            const result = await readStreamToString(stream);
+            const stream = formatter.writeMetrics();
+            const result = await consumeAsyncStringGenerator(stream);
 
             // Assert
             expect(result).toBe("");
@@ -30,8 +30,8 @@ describe("PrometheusExporter", () => {
                 metrics.createCounter("counter", "description");
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -47,8 +47,8 @@ describe("PrometheusExporter", () => {
                 counter.increment(5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -65,8 +65,8 @@ describe("PrometheusExporter", () => {
                 counter.increment({ key: "value" }, 5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -83,8 +83,8 @@ describe("PrometheusExporter", () => {
                 counter.increment({ key1: "value1", key2: "value2" }, 5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -102,8 +102,8 @@ describe("PrometheusExporter", () => {
                 counter.increment({ key: "value2" }, 7);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -122,8 +122,8 @@ describe("PrometheusExporter", () => {
                 counter.increment({ key1: "value3", key2: "value4" }, 7);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -143,8 +143,8 @@ describe("PrometheusExporter", () => {
                 counter2.increment(7);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -167,8 +167,8 @@ describe("PrometheusExporter", () => {
                 counter2.increment({ key: "value" }, 7);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -191,8 +191,8 @@ describe("PrometheusExporter", () => {
                 counter2.increment({ key: "value2" }, 7);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -214,8 +214,8 @@ describe("PrometheusExporter", () => {
                 instrument.increment(5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -228,15 +228,15 @@ describe("PrometheusExporter", () => {
             it("counter with common labels", async () => {
                 // Arrange
                 const metrics = new MetricsImpl({ commonLabels: { key: "value" }, enableInternalMetrics: false });
-                const exporter = new PrometheusExporterImpl(metrics);
+                const formatter = new PrometheusFormatterImpl(metrics);
 
                 const counter = metrics.createCounter("counter", "description");
 
                 counter.increment(5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -249,15 +249,15 @@ describe("PrometheusExporter", () => {
             it("counter with common labels and instrument labels", async () => {
                 // Arrange
                 const metrics = new MetricsImpl({ commonLabels: { key1: "value1" }, enableInternalMetrics: false });
-                const exporter = new PrometheusExporterImpl(metrics);
+                const formatter = new PrometheusFormatterImpl(metrics);
 
                 const counter = metrics.createCounter("counter", "description");
 
                 counter.increment({ key2: "value2" }, 5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -275,8 +275,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 counter.remove({});
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -293,8 +293,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 counter.remove({ key: "value" });
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -312,8 +312,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 counter.remove({ key: "foo" });
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -332,8 +332,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 counter.removeAll();
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -349,8 +349,8 @@ describe("PrometheusExporter", () => {
                 metrics.createGauge("gauge", "description");
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -366,8 +366,8 @@ describe("PrometheusExporter", () => {
                 gauge.increment(5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -384,8 +384,8 @@ describe("PrometheusExporter", () => {
                 gauge.increment({ key: "value" }, 5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -402,8 +402,8 @@ describe("PrometheusExporter", () => {
                 gauge.increment({ key1: "value1", key2: "value2" }, 5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -421,8 +421,8 @@ describe("PrometheusExporter", () => {
                 gauge.increment({ key: "value2" }, 7);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -441,8 +441,8 @@ describe("PrometheusExporter", () => {
                 gauge.increment({ key1: "value3", key2: "value4" }, 7);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -462,8 +462,8 @@ describe("PrometheusExporter", () => {
                 gauge2.increment(7);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -486,8 +486,8 @@ describe("PrometheusExporter", () => {
                 gauge2.increment({ key: "value" }, 7);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -510,8 +510,8 @@ describe("PrometheusExporter", () => {
                 gauge2.increment({ key: "value2" }, 7);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -533,8 +533,8 @@ describe("PrometheusExporter", () => {
                 instrument.increment(5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -547,15 +547,15 @@ describe("PrometheusExporter", () => {
             it("gauge with common labels", async () => {
                 // Arrange
                 const metrics = new MetricsImpl({ commonLabels: { key: "value" }, enableInternalMetrics: false });
-                const exporter = new PrometheusExporterImpl(metrics);
+                const formatter = new PrometheusFormatterImpl(metrics);
 
                 const gauge = metrics.createGauge("gauge", "description");
 
                 gauge.increment(5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -568,15 +568,15 @@ describe("PrometheusExporter", () => {
             it("gauge with common labels and instrument labels", async () => {
                 // Arrange
                 const metrics = new MetricsImpl({ commonLabels: { key1: "value1" }, enableInternalMetrics: false });
-                const exporter = new PrometheusExporterImpl(metrics);
+                const formatter = new PrometheusFormatterImpl(metrics);
 
                 const gauge = metrics.createGauge("gauge", "description");
 
                 gauge.increment({ key2: "value2" }, 5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -594,8 +594,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 gauge.remove({});
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -612,8 +612,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 gauge.remove({ key: "value" });
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -631,8 +631,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 gauge.remove({ key: "foo" });
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -651,8 +651,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 gauge.removeAll();
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -668,8 +668,8 @@ describe("PrometheusExporter", () => {
                 metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -684,8 +684,8 @@ describe("PrometheusExporter", () => {
                 histogram.observe(1.5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -706,8 +706,8 @@ describe("PrometheusExporter", () => {
                 histogram.observe({ method: "GET" }, 1.5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -730,8 +730,8 @@ describe("PrometheusExporter", () => {
                 histogram.observe(2.5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -753,8 +753,8 @@ describe("PrometheusExporter", () => {
                 histogram.observe({ method: "POST" }, 2.5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -781,8 +781,8 @@ describe("PrometheusExporter", () => {
                 histogram.observe(15);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -800,13 +800,13 @@ describe("PrometheusExporter", () => {
             it("histogram with common labels", async () => {
                 // Arrange
                 const metrics = new MetricsImpl({ commonLabels: { service: "api" }, enableInternalMetrics: false });
-                const exporter = new PrometheusExporterImpl(metrics);
+                const formatter = new PrometheusFormatterImpl(metrics);
                 const histogram = metrics.createHistogram("histogram", "description", { buckets: [1, 2, 3] });
                 histogram.observe({ method: "GET" }, 1.5);
 
                 // Act
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -829,8 +829,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 histogram.remove({});
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -847,8 +847,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 histogram.remove({ key: "value" });
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -866,8 +866,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 histogram.remove({ key: "foo" });
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -891,8 +891,8 @@ describe("PrometheusExporter", () => {
                 // Act
                 histogram.removeAll();
 
-                const stream = exporter.stream();
-                const result = await readStreamToString(stream);
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
 
                 // Assert
                 expect(result).toBe(dedent`
@@ -905,11 +905,11 @@ describe("PrometheusExporter", () => {
 
     describe("async collect", () => {
         let metrics: MetricsImpl;
-        let exporter: PrometheusExporterImpl;
+        let formatter: PrometheusFormatterImpl;
 
         beforeEach(() => {
             metrics = new MetricsImpl({ enableInternalMetrics: false });
-            exporter = new PrometheusExporterImpl(metrics);
+            formatter = new PrometheusFormatterImpl(metrics);
         });
 
         it("sync callback", async () => {
@@ -925,8 +925,8 @@ describe("PrometheusExporter", () => {
             });
 
             // Act
-            const stream = exporter.stream();
-            const result = await readStreamToString(stream);
+            const stream = formatter.writeMetrics();
+            const result = await consumeAsyncStringGenerator(stream);
 
             // Assert
             expect(result).toBe(dedent`
@@ -964,8 +964,8 @@ describe("PrometheusExporter", () => {
             });
 
             // Act
-            const stream = exporter.stream();
-            const result = await readStreamToString(stream);
+            const stream = formatter.writeMetrics();
+            const result = await consumeAsyncStringGenerator(stream);
 
             // Assert
             expect(result).toBe(dedent`
@@ -991,18 +991,18 @@ describe("PrometheusExporter", () => {
 
     describe("internal metrics", () => {
         let metrics: MetricsImpl;
-        let exporter: PrometheusExporterImpl;
+        let formatter: PrometheusFormatterImpl;
 
         beforeEach(() => {
             metrics = new MetricsImpl({ enableInternalMetrics: true });
-            exporter = new PrometheusExporterImpl(metrics);
+            formatter = new PrometheusFormatterImpl(metrics);
         });
 
         it("empty state", async () => {
             // Arrange
             // Act
-            const stream = exporter.stream();
-            const result = await readStreamToString(stream);
+            const stream = formatter.writeMetrics();
+            const result = await consumeAsyncStringGenerator(stream);
 
             // Assert
             expect(result).toBe(dedent`
@@ -1033,8 +1033,8 @@ describe("PrometheusExporter", () => {
             counter.increment(5);
 
             // Act
-            const stream = exporter.stream();
-            const result = await readStreamToString(stream);
+            const stream = formatter.writeMetrics();
+            const result = await consumeAsyncStringGenerator(stream);
 
             // Assert
             expect(result).toBe(dedent`

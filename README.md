@@ -2,25 +2,27 @@
 
 A high-performance TypeScript metrics collection library designed for heavy workloads. Metriq provides a modern, type-safe API for collecting and exposing metrics with exceptional performance characteristics.
 
-> **Note**: The API is not yet stabilized and may change. NPM package will be published once the API is stable.
-
 ## ⚡ Performance
 
 - **7.5x faster** than prom-client when exposing 1M timeseries
-- Entirely non-blocking architecture
-- Memory efficient streaming exports
+- **High Performance**: Optimized for millions of timeseries
+- **Non-blocking**: All operations are non-blocking by design
+- **Memory Efficient**: Streaming metrics prevent memory spikes
 
 ## 🔑 Key Features
 
-- **High Performance**: Optimized for millions of timeseries
-- **Non-blocking**: All operations are non-blocking by design
-- **Memory Efficient**: Streaming exports prevent memory spikes
 - **TTL Support**: Supports removal of least recently used timeseries
 - **Dynamic Labels**: Supports optional labels on the fly
-- **Streaming Writer**: Memory-efficient metrics exposition
 - **Testable Design**: No singletons, simple access to metric values
 
-## 📦 Installation
+## 📚 Packages
+
+- [`metriq`](metriq/README.md) - Core metrics collection library
+- [`@metriq/express`](adapters/express/README.md) - Express adapter
+- [`@metriq/fastify`](adapters/fastify/README.md) - Fastify adapter
+- [`@metriq/nestjs`](adapters/nestjs/README.md) - NestJS adapter
+
+## 📦 Usage
 
 ```bash
 # Core library
@@ -66,13 +68,6 @@ app.listen(3000);
 // Access metric values (great for testing)
 console.log(requests.getDebugValue({ method: "GET", path: "/api/users" }));
 ```
-
-## 📚 Packages
-
-- [`metriq`](metriq/README.md) - Core metrics collection library
-- [`@metriq/express`](adapters/express/README.md) - Express adapter
-- [`@metriq/fastify`](adapters/fastify/README.md) - Fastify adapter
-- [`@metriq/nestjs`](adapters/nestjs/README.md) - NestJS adapter
 
 ## 🛠️ Development
 
