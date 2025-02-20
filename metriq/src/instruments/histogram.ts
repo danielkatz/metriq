@@ -1,6 +1,7 @@
 import { Instrument, InstrumentImpl, InstrumentOptions } from "./instrument";
 import { RegistryImpl } from "../registry";
 import { HasRequiredKeys, Labels, RequiredLabels } from "../types";
+import { getLabelsAndRequiredValue } from "../utils";
 
 export type HistogramOptions = InstrumentOptions & {
     buckets: Readonly<number[]>;
@@ -45,7 +46,7 @@ export class HistogramImpl<T extends Labels = Labels>
     public observe(value: number): void;
     public observe(labels: RequiredLabels<T>, value: number): void;
     public observe(labelsOrValue?: number | RequiredLabels<T>, maybeValue?: number): void {
-        const [labels = {}, value] = this.getLabelsAndValue(labelsOrValue, maybeValue);
+        const [labels = {}, value] = getLabelsAndRequiredValue(labelsOrValue, maybeValue);
 
         this.updateValue(labels, (values) => {
             if (typeof values === "undefined") {
@@ -81,24 +82,5 @@ export class HistogramImpl<T extends Labels = Labels>
             sum: values[this.buckets.length],
             count: values[this.buckets.length + 1],
         };
-    }
-
-    private getLabelsAndValue(
-        labelsOrValue?: number | RequiredLabels<T>,
-        maybeValue?: number,
-    ): [RequiredLabels<T> | undefined, number] {
-        let labels: RequiredLabels<T> | undefined;
-        let value: number;
-
-        if (typeof labelsOrValue === "number") {
-            // Called as func(value)
-            value = labelsOrValue;
-        } else {
-            // Called as func(labels, value)
-            labels = labelsOrValue;
-            value = maybeValue!;
-        }
-
-        return [labels, value];
     }
 }

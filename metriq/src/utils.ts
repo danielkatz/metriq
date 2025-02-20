@@ -62,3 +62,43 @@ export function* batchGenerator<T>(
         yield batch;
     }
 }
+
+export function getLabelsAndOptionalValue(
+    labelsOrValue?: number | Labels,
+    maybeValue?: number,
+): [Labels | undefined, number | undefined] {
+    let labels: Labels | undefined;
+    let value: number | undefined;
+
+    if (typeof labelsOrValue === "number") {
+        // Called as func(value)
+        value = labelsOrValue;
+    } else if (typeof labelsOrValue === "object") {
+        // Called as func(labels) or func(labels, value)
+        labels = labelsOrValue;
+        if (typeof maybeValue === "number") {
+            value = maybeValue;
+        }
+    }
+
+    return [labels, value];
+}
+
+export function getLabelsAndRequiredValue(
+    labelsOrValue?: number | Labels,
+    maybeValue?: number,
+): [Labels | undefined, number] {
+    let labels: Labels | undefined;
+    let value: number;
+
+    if (typeof labelsOrValue === "number") {
+        // Called as func(value)
+        value = labelsOrValue;
+    } else {
+        // Called as func(labels, value)
+        labels = labelsOrValue;
+        value = maybeValue!;
+    }
+
+    return [labels, value];
+}
