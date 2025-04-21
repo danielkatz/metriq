@@ -912,11 +912,12 @@ describe("PrometheusFormatter", () => {
             formatter = new PrometheusFormatterImpl(metrics);
         });
 
-        describe("label values", () => {
+        describe("text values", () => {
             it("should escape double quotes", async () => {
                 // Arrange
-                const counter = metrics.createCounter("counter", "description");
-                counter.increment({ key: 'value"with"double"quotes' }, 5);
+                const specialString = 'value"with"double"quotes';
+                const counter = metrics.createCounter("counter", specialString);
+                counter.increment({ key: specialString }, 5);
 
                 // Act
                 const stream = formatter.writeMetrics();
@@ -924,16 +925,17 @@ describe("PrometheusFormatter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                # HELP counter description
-                # TYPE counter counter
-                counter{key="value\"with\"double\"quotes"} 5\n
-            `);
+                    # HELP counter value\"with\"double\"quotes
+                    # TYPE counter counter
+                    counter{key="value\"with\"double\"quotes"} 5\n
+                `);
             });
 
             it("should escape backslashes", async () => {
                 // Arrange
-                const counter = metrics.createCounter("counter", "description");
-                counter.increment({ key: "value\\with\\backslashes" }, 5);
+                const specialString = "value\\with\\backslashes";
+                const counter = metrics.createCounter("counter", specialString);
+                counter.increment({ key: specialString }, 5);
 
                 // Act
                 const stream = formatter.writeMetrics();
@@ -941,16 +943,17 @@ describe("PrometheusFormatter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                # HELP counter description
-                # TYPE counter counter
-                counter{key="value\\with\\backslashes"} 5\n
-            `);
+                    # HELP counter value\\with\\backslashes
+                    # TYPE counter counter
+                    counter{key="value\\with\\backslashes"} 5\n
+                `);
             });
 
             it("should escape newlines", async () => {
                 // Arrange
-                const counter = metrics.createCounter("counter", "description");
-                counter.increment({ key: "value\nwith\nnewlines" }, 5);
+                const specialString = "value\nwith\nnewlines";
+                const counter = metrics.createCounter("counter", specialString);
+                counter.increment({ key: specialString }, 5);
 
                 // Act
                 const stream = formatter.writeMetrics();
@@ -959,15 +962,16 @@ describe("PrometheusFormatter", () => {
                 // Assert
                 expect(result).toBe(
                     dedent(`
-                # HELP counter description
-                # TYPE counter counter
-                counter{key="value\\nwith\\nnewlines"} 5`) + "\n",
+                    # HELP counter value\\nwith\\nnewlines
+                    # TYPE counter counter
+                    counter{key="value\\nwith\\nnewlines"} 5`) + "\n",
                 );
             });
 
             it("should replace undefined values with empty strings", async () => {
                 // Arrange
-                const counter = metrics.createCounter("counter", "description");
+                // @ts-expect-error - description is undefined
+                const counter = metrics.createCounter("counter", undefined);
                 counter.increment({ key: undefined }, 5);
 
                 // Act
@@ -976,9 +980,10 @@ describe("PrometheusFormatter", () => {
 
                 // Assert
                 expect(result).toBe(dedent`
-                    # HELP counter description
+                    # HELP counter 
                     # TYPE counter counter
-                    counter{key=""} 5\n`);
+                    counter{key=""} 5\n
+                `);
             });
 
             it("should throw error if label value is not a string", async () => {

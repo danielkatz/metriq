@@ -4,7 +4,7 @@ import { HistogramImpl } from "../instruments/histogram";
 import { MetricsImpl } from "../metrics";
 import { Labels } from "../types";
 import { batchGenerator } from "../utils";
-import { encodeMetricValue, escapeLabelValue } from "./prometheus-text-utils";
+import { encodeNumericValue, encodeStringValue } from "./prometheus-text-utils";
 
 const BATCH_SIZE = 40000;
 
@@ -38,35 +38,35 @@ export class PrometheusFormatterImpl {
     }
 
     private *writeCounter(counter: CounterImpl): Generator<string> {
-        yield `# HELP ${counter.name} ${counter.description}\n`;
+        yield `# HELP ${counter.name} ${encodeStringValue(counter.description)}\n`;
         yield `# TYPE ${counter.name} counter\n`;
 
         yield* batchGenerator(
             counter.getInstrumentValues(),
             BATCH_SIZE,
-            (item) => `${counter.name}${this.writeLabels(item.labels)} ${encodeMetricValue(item.value)}\n`,
+            (item) => `${counter.name}${this.writeLabels(item.labels)} ${encodeNumericValue(item.value)}\n`,
         );
     }
 
     private *writeGauge(instrument: GaugeImpl): Generator<string> {
-        yield `# HELP ${instrument.name} ${instrument.description}\n`;
+        yield `# HELP ${instrument.name} ${encodeStringValue(instrument.description)}\n`;
         yield `# TYPE ${instrument.name} gauge\n`;
 
         yield* batchGenerator(
             instrument.getInstrumentValues(),
             BATCH_SIZE,
-            (item) => `${instrument.name}${this.writeLabels(item.labels)} ${encodeMetricValue(item.value)}\n`,
+            (item) => `${instrument.name}${this.writeLabels(item.labels)} ${encodeNumericValue(item.value)}\n`,
         );
     }
 
     private *writeHistogram(histogram: HistogramImpl): Generator<string> {
-        yield `# HELP ${histogram.name} ${histogram.description}\n`;
+        yield `# HELP ${histogram.name} ${encodeStringValue(histogram.description)}\n`;
         yield `# TYPE ${histogram.name} histogram\n`;
 
         yield* batchGenerator(histogram.getInstrumentValues(), BATCH_SIZE, ({ labels, value }) => {
-            const sum = encodeMetricValue(value[value.length - 1]);
-            const count = encodeMetricValue(value[value.length - 2]);
-            const buckets = value.slice(0, value.length - 2).map(encodeMetricValue);
+            const sum = encodeNumericValue(value[value.length - 1]);
+            const count = encodeNumericValue(value[value.length - 2]);
+            const buckets = value.slice(0, value.length - 2).map(encodeNumericValue);
 
             let output = "";
 
@@ -94,7 +94,7 @@ export class PrometheusFormatterImpl {
 
         for (let i = 0; i < len; i++) {
             const key = keys[i];
-            const value = escapeLabelValue(labels[key]);
+            const value = encodeStringValue(labels[key]);
             segments[i] = `${key}="${value}"`;
         }
 

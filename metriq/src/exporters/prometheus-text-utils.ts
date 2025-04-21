@@ -2,13 +2,13 @@ const QUOTE = 34; // '"'  -> 0x22
 const BACKSL = 92; // '\'  -> 0x5c
 const NEWLINE = 10; // '\n' -> 0x0a
 
-export function escapeLabelValue(str: string | undefined): string {
+export function encodeStringValue(str: string | undefined): string {
     if (typeof str !== "string") {
         if (typeof str === "undefined") {
             return "";
         }
 
-        throw new Error("Label value is not a string");
+        throw new Error("Value is not a string");
     }
 
     let out = "";
@@ -33,7 +33,7 @@ export function escapeLabelValue(str: string | undefined): string {
     return out;
 }
 
-export function encodeMetricValue(value: number): string {
+export function encodeNumericValue(value: number): string {
     if (typeof value !== "number") {
         throw new Error("Value is not a number");
     }
