@@ -21,5 +21,4 @@ export { InstrumentOptions } from "./instruments/instrument";
 export { Counter } from "./instruments/counter";
 export { Gauge } from "./instruments/gauge";
 export { Histogram, HistogramOptions, HistogramDebugValue } from "./instruments/histogram";
-export { Summary, SummaryOptions, SummaryDebugValue } from "./instruments/summary";
 export { PrometheusExporter } from "./exporters/prometheus-exporter";

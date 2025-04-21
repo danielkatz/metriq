@@ -6,7 +6,6 @@ import { HistogramImpl, HistogramOptions } from "./instruments/histogram";
 import { InternalMetrics, InternalMetricsImpl, InternalMetricsNoop } from "./internal-metrics";
 import { Labels } from "./types";
 import { InstrumentFactory } from "./instruments/factory";
-import { SummaryImpl, SummaryOptions } from "./instruments/summary";
 
 export type MetricsOptions = {
     defaultTtl?: number;
@@ -87,14 +86,6 @@ export class MetricsImpl implements Metrics {
         options?: Partial<HistogramOptions>,
     ): HistogramImpl<T> {
         return this.defaultRegistry.createHistogram(name, description, options);
-    }
-
-    public createSummary<T extends Labels = Labels>(
-        name: string,
-        description: string,
-        options?: SummaryOptions,
-    ): SummaryImpl<T> {
-        return this.defaultRegistry.createSummary(name, description, options);
     }
 
     public addCollectCallback(callback: CollectCallback): void {
