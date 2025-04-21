@@ -4,6 +4,7 @@ import { HistogramImpl } from "../instruments/histogram";
 import { MetricsImpl } from "../metrics";
 import { Labels } from "../types";
 import { batchGenerator } from "../utils";
+import { encodeMetricValue, escapeLabelValue } from "./prometheus-text-utils";
 
 const BATCH_SIZE = 40000;
 
@@ -43,7 +44,7 @@ export class PrometheusFormatterImpl {
         yield* batchGenerator(
             counter.getInstrumentValues(),
             BATCH_SIZE,
-            (item) => `${counter.name}${this.writeLabels(item.labels)} ${item.value}\n`,
+            (item) => `${counter.name}${this.writeLabels(item.labels)} ${encodeMetricValue(item.value)}\n`,
         );
     }
 
@@ -54,7 +55,7 @@ export class PrometheusFormatterImpl {
         yield* batchGenerator(
             instrument.getInstrumentValues(),
             BATCH_SIZE,
-            (item) => `${instrument.name}${this.writeLabels(item.labels)} ${item.value}\n`,
+            (item) => `${instrument.name}${this.writeLabels(item.labels)} ${encodeMetricValue(item.value)}\n`,
         );
     }
 
@@ -63,9 +64,9 @@ export class PrometheusFormatterImpl {
         yield `# TYPE ${histogram.name} histogram\n`;
 
         yield* batchGenerator(histogram.getInstrumentValues(), BATCH_SIZE, ({ labels, value }) => {
-            const sum = value[value.length - 1];
-            const count = value[value.length - 2];
-            const buckets = value.slice(0, value.length - 2);
+            const sum = encodeMetricValue(value[value.length - 1]);
+            const count = encodeMetricValue(value[value.length - 2]);
+            const buckets = value.slice(0, value.length - 2).map(encodeMetricValue);
 
             let output = "";
 
@@ -93,7 +94,7 @@ export class PrometheusFormatterImpl {
 
         for (let i = 0; i < len; i++) {
             const key = keys[i];
-            const value = labels[key];
+            const value = escapeLabelValue(labels[key]);
             segments[i] = `${key}="${value}"`;
         }
 

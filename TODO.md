@@ -11,7 +11,8 @@
     - [x] collect callback
     - [x] typed labels
     - [x] clear/reset
-    - [ ] validation/escaping
+    - [ ] validation
+    - [x] escaping
 - [x] Support massive amount of metrics
     - [x] Performance
     - [x] Streaming writer

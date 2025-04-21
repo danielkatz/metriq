@@ -1,5 +1,8 @@
 # metriq
 
+[![npm version](https://img.shields.io/npm/v/metriq.svg)](https://www.npmjs.com/package/metriq)
+[![License](https://img.shields.io/npm/l/metriq.svg)](https://www.npmjs.com/package/metriq)
+
 A high-performance TypeScript metrics collection library designed for heavy workloads. Metriq provides a modern, type-safe API for collecting and exposing metrics with exceptional performance characteristics.
 
 ## ⚡ Performance

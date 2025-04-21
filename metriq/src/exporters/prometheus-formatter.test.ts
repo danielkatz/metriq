@@ -903,6 +903,152 @@ describe("PrometheusFormatter", () => {
         });
     });
 
+    describe("encoding", () => {
+        let metrics: MetricsImpl;
+        let formatter: PrometheusFormatterImpl;
+
+        beforeEach(() => {
+            metrics = new MetricsImpl({ enableInternalMetrics: false });
+            formatter = new PrometheusFormatterImpl(metrics);
+        });
+
+        describe("label values", () => {
+            it("should escape double quotes", async () => {
+                // Arrange
+                const counter = metrics.createCounter("counter", "description");
+                counter.increment({ key: 'value"with"double"quotes' }, 5);
+
+                // Act
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                # HELP counter description
+                # TYPE counter counter
+                counter{key="value\"with\"double\"quotes"} 5\n
+            `);
+            });
+
+            it("should escape backslashes", async () => {
+                // Arrange
+                const counter = metrics.createCounter("counter", "description");
+                counter.increment({ key: "value\\with\\backslashes" }, 5);
+
+                // Act
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                # HELP counter description
+                # TYPE counter counter
+                counter{key="value\\with\\backslashes"} 5\n
+            `);
+            });
+
+            it("should escape newlines", async () => {
+                // Arrange
+                const counter = metrics.createCounter("counter", "description");
+                counter.increment({ key: "value\nwith\nnewlines" }, 5);
+
+                // Act
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
+
+                // Assert
+                expect(result).toBe(
+                    dedent(`
+                # HELP counter description
+                # TYPE counter counter
+                counter{key="value\\nwith\\nnewlines"} 5`) + "\n",
+                );
+            });
+
+            it("should replace undefined values with empty strings", async () => {
+                // Arrange
+                const counter = metrics.createCounter("counter", "description");
+                counter.increment({ key: undefined }, 5);
+
+                // Act
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP counter description
+                    # TYPE counter counter
+                    counter{key=""} 5\n`);
+            });
+
+            it("should throw error if label value is not a string", async () => {
+                // Arrange
+                const counter = metrics.createCounter("counter", "description");
+
+                // @ts-expect-error - label value is not a string
+                counter.increment({ key: null }, 5);
+
+                // Act
+                const stream = formatter.writeMetrics();
+
+                // Assert
+                await expect(consumeAsyncStringGenerator(stream)).rejects.toThrow();
+            });
+        });
+
+        describe("metric values", () => {
+            it("should encode NaN", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+                gauge.set(NaN);
+                // Act
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP gauge description
+                    # TYPE gauge gauge
+                    gauge NaN\n
+                `);
+            });
+
+            it("should encode Infinity", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+                gauge.set(Infinity);
+
+                // Act
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP gauge description
+                    # TYPE gauge gauge
+                    gauge +Inf\n
+                `);
+            });
+
+            it("should encode -Infinity", async () => {
+                // Arrange
+                const gauge = metrics.createGauge("gauge", "description");
+                gauge.set(-Infinity);
+
+                // Act
+                const stream = formatter.writeMetrics();
+                const result = await consumeAsyncStringGenerator(stream);
+
+                // Assert
+                expect(result).toBe(dedent`
+                    # HELP gauge description
+                    # TYPE gauge gauge
+                    gauge -Inf\n
+                `);
+            });
+        });
+    });
+
     describe("async collect", () => {
         let metrics: MetricsImpl;
         let formatter: PrometheusFormatterImpl;
