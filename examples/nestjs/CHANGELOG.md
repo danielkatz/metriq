@@ -1,5 +1,17 @@
 # @metriq/examples-nestjs
 
+## 0.4.0
+
+### Minor Changes
+
+- 46e1c0a: Encode help string
+
+### Patch Changes
+
+- Updated dependencies [46e1c0a]
+    - metriq@0.5.0
+    - @metriq/nestjs@0.5.0
+
 ## 0.3.0
 
 ### Minor Changes

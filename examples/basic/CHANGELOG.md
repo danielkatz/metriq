@@ -1,5 +1,18 @@
 # @metriq/examples-basic
 
+## 0.4.0
+
+### Minor Changes
+
+- 46e1c0a: Encode help string
+
+### Patch Changes
+
+- Updated dependencies [46e1c0a]
+    - metriq@0.5.0
+    - @metriq/express@0.5.0
+    - @metriq/fastify@0.5.0
+
 ## 0.3.0
 
 ### Minor Changes
