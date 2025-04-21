@@ -1,6 +1,6 @@
 {
   "name": "@metriq/fastify",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Fastify adapter for Metriq - high-performance TypeScript metrics collection library",
   "author": "Daniel Katz",
   "license": "MIT",
@@ -42,7 +42,7 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
-    "metriq": "^0.3.1"
+    "metriq": "^0.4.0"
   },
   "peerDependencies": {
     "fastify": "^4.0.0 || ^5.0.0"

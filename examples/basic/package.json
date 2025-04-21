@@ -1,6 +1,6 @@
 {
   "name": "@metriq/examples-basic",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Example applications using Metriq",
   "author": "Daniel Katz",
   "private": true,

@@ -1,5 +1,11 @@
 # metriq
 
+## 0.4.0
+
+### Minor Changes
+
+- 9e4d7c9: Properly encode values in prometheus text formatter
+
 ## 0.3.1
 
 ### Patch Changes
