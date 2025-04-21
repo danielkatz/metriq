@@ -1,6 +1,6 @@
 {
   "name": "@metriq/benchmarks",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Performance benchmarks for Metriq - high-performance TypeScript metrics collection library",
   "author": "Daniel Katz",

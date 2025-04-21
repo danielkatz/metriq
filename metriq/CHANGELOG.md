@@ -1,5 +1,11 @@
 # metriq
 
+## 0.5.0
+
+### Minor Changes
+
+- 46e1c0a: Encode help string
+
 ## 0.4.0
 
 ### Minor Changes
