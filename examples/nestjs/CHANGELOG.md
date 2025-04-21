@@ -1,5 +1,17 @@
 # @metriq/examples-nestjs
 
+## 0.3.0
+
+### Minor Changes
+
+- 9e4d7c9: Properly encode values in prometheus text formatter
+
+### Patch Changes
+
+- Updated dependencies [9e4d7c9]
+    - metriq@0.4.0
+    - @metriq/nestjs@0.4.0
+
 ## 0.2.1
 
 ### Patch Changes

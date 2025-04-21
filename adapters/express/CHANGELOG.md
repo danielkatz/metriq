@@ -1,5 +1,16 @@
 # @metriq/express
 
+## 0.4.0
+
+### Minor Changes
+
+- 9e4d7c9: Properly encode values in prometheus text formatter
+
+### Patch Changes
+
+- Updated dependencies [9e4d7c9]
+    - metriq@0.4.0
+
 ## 0.3.1
 
 ### Patch Changes
