@@ -1,6 +1,7 @@
 import { Instrument, InstrumentImpl, InstrumentOptions } from "./instrument";
 import { RegistryImpl } from "../registry";
 import { HasRequiredKeys, Labels, RequiredLabels } from "../types";
+import { getLabelsAndOptionalValue } from "../utils";
 
 interface BaseCounter<T extends Labels> extends Instrument {
     getDebugValue(labels: RequiredLabels<T>): number | undefined;
@@ -34,7 +35,7 @@ export class CounterImpl<T extends Labels = Labels>
     public increment(labels: RequiredLabels<T>): void;
     public increment(labels: RequiredLabels<T>, delta: number): void;
     public increment(labelsOrDelta?: number | RequiredLabels<T>, maybeDelta?: number): void {
-        const [labels = {}, delta = 1] = this.getLabelsAndValue(labelsOrDelta, maybeDelta);
+        const [labels = {}, delta = 1] = getLabelsAndOptionalValue(labelsOrDelta, maybeDelta);
         this.updateValue(labels, (value = 0) => value + delta);
     }
 
@@ -44,26 +45,5 @@ export class CounterImpl<T extends Labels = Labels>
 
     public getDebugValue(labels: RequiredLabels<T>): number | undefined {
         return super.getValue(labels);
-    }
-
-    private getLabelsAndValue(
-        labelsOrValue?: number | RequiredLabels<T>,
-        maybeValue?: number,
-    ): [RequiredLabels<T> | undefined, number | undefined] {
-        let labels: RequiredLabels<T> | undefined;
-        let value: number | undefined;
-
-        if (typeof labelsOrValue === "number") {
-            // Called as func(value)
-            value = labelsOrValue;
-        } else if (typeof labelsOrValue === "object") {
-            // Called as func(labels) or func(labels, value)
-            labels = labelsOrValue;
-            if (typeof maybeValue === "number") {
-                value = maybeValue;
-            }
-        }
-
-        return [labels, value];
     }
 }

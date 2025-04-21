@@ -1,5 +1,8 @@
 # @metriq/express
 
+[![npm version](https://img.shields.io/npm/v/@metriq/express.svg)](https://www.npmjs.com/package/@metriq/express)
+[![License](https://img.shields.io/npm/l/@metriq/express.svg)](https://www.npmjs.com/package/@metriq/express)
+
 Express middleware adapter for Metriq metrics library.
 
 ## 📦 Installation

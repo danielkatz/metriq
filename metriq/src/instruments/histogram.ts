@@ -1,6 +1,7 @@
 import { Instrument, InstrumentImpl, InstrumentOptions } from "./instrument";
 import { RegistryImpl } from "../registry";
 import { HasRequiredKeys, Labels, RequiredLabels } from "../types";
+import { getLabelsAndRequiredValue } from "../utils";
 
 export type HistogramOptions = InstrumentOptions & {
     buckets: Readonly<number[]>;
@@ -31,21 +32,39 @@ export type Histogram<T extends Labels = Labels> =
     HasRequiredKeys<T> extends true ? HistogramWithRequiredLabels<T> : HistogramWithOptionalLabels;
 
 export class HistogramImpl<T extends Labels = Labels>
-    extends InstrumentImpl<number[], HistogramOptions>
+    extends InstrumentImpl<number[]>
     implements HistogramWithOptionalLabels
 {
     public readonly buckets: Readonly<number[]>;
 
-    constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
+    constructor(name: string, description: string, registry: RegistryImpl, options?: Partial<HistogramOptions>) {
         super(name, description, registry, options);
-        this.buckets = this.options.buckets ? Object.freeze(this.options.buckets) : DEFAULT_BUCKETS;
+        this.buckets = DEFAULT_BUCKETS;
+
+        if (options?.buckets) {
+            if (!Array.isArray(options.buckets)) {
+                throw new Error("Buckets must be an array");
+            }
+
+            if (options.buckets.length === 0) {
+                throw new Error("Buckets must be an array of numbers");
+            }
+
+            if (options.buckets.some((b) => typeof b !== "number" || b <= 0)) {
+                throw new Error("Buckets must be an array of positive numbers");
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            this.buckets = [...options.buckets];
+        }
+
         this.componentsCount = this.buckets.length + 2;
     }
 
     public observe(value: number): void;
     public observe(labels: RequiredLabels<T>, value: number): void;
     public observe(labelsOrValue?: number | RequiredLabels<T>, maybeValue?: number): void {
-        const [labels = {}, value] = this.getLabelsAndValue(labelsOrValue, maybeValue);
+        const [labels = {}, value] = getLabelsAndRequiredValue(labelsOrValue, maybeValue);
 
         this.updateValue(labels, (values) => {
             if (typeof values === "undefined") {
@@ -81,24 +100,5 @@ export class HistogramImpl<T extends Labels = Labels>
             sum: values[this.buckets.length],
             count: values[this.buckets.length + 1],
         };
-    }
-
-    private getLabelsAndValue(
-        labelsOrValue?: number | RequiredLabels<T>,
-        maybeValue?: number,
-    ): [RequiredLabels<T> | undefined, number] {
-        let labels: RequiredLabels<T> | undefined;
-        let value: number;
-
-        if (typeof labelsOrValue === "number") {
-            // Called as func(value)
-            value = labelsOrValue;
-        } else {
-            // Called as func(labels, value)
-            labels = labelsOrValue;
-            value = maybeValue!;
-        }
-
-        return [labels, value];
     }
 }

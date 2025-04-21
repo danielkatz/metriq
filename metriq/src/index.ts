@@ -20,5 +20,5 @@ export { Registry, RegistryOptions } from "./registry";
 export { InstrumentOptions } from "./instruments/instrument";
 export { Counter } from "./instruments/counter";
 export { Gauge } from "./instruments/gauge";
-export { Histogram, HistogramOptions } from "./instruments/histogram";
+export { Histogram, HistogramOptions, HistogramDebugValue } from "./instruments/histogram";
 export { PrometheusExporter } from "./exporters/prometheus-exporter";

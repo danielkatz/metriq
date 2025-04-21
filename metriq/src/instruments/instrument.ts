@@ -27,10 +27,8 @@ export interface Instrument {
     removeAll(): void;
 }
 
-export abstract class InstrumentImpl<TValue = unknown, TOptions extends InstrumentOptions = InstrumentOptions>
-    implements Instrument
-{
-    public readonly options: Readonly<TOptions>;
+export abstract class InstrumentImpl<TValue = unknown> implements Instrument {
+    public readonly options: Readonly<InstrumentOptions>;
 
     private readonly values: Map<string, InstrumentValue<TValue>> = new Map();
     private readonly internalMetrics: InternalMetrics;
@@ -40,12 +38,12 @@ export abstract class InstrumentImpl<TValue = unknown, TOptions extends Instrume
         public readonly name: string,
         public readonly description: string,
         public readonly registry: RegistryImpl,
-        options: Partial<TOptions> = {},
+        options?: InstrumentOptions,
     ) {
-        this.options = Object.freeze({
+        this.options = {
             ...DEFAULT_OPTIONS,
             ...options,
-        }) as TOptions;
+        };
 
         this.internalMetrics = registry.owner.internalMetrics;
     }
