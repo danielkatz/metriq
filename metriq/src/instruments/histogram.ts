@@ -32,14 +32,32 @@ export type Histogram<T extends Labels = Labels> =
     HasRequiredKeys<T> extends true ? HistogramWithRequiredLabels<T> : HistogramWithOptionalLabels;
 
 export class HistogramImpl<T extends Labels = Labels>
-    extends InstrumentImpl<number[], HistogramOptions>
+    extends InstrumentImpl<number[]>
     implements HistogramWithOptionalLabels
 {
     public readonly buckets: Readonly<number[]>;
 
-    constructor(name: string, description: string, registry: RegistryImpl, options?: InstrumentOptions) {
+    constructor(name: string, description: string, registry: RegistryImpl, options?: Partial<HistogramOptions>) {
         super(name, description, registry, options);
-        this.buckets = this.options.buckets ? Object.freeze(this.options.buckets) : DEFAULT_BUCKETS;
+        this.buckets = DEFAULT_BUCKETS;
+
+        if (options?.buckets) {
+            if (!Array.isArray(options.buckets)) {
+                throw new Error("Buckets must be an array");
+            }
+
+            if (options.buckets.length === 0) {
+                throw new Error("Buckets must be an array of numbers");
+            }
+
+            if (options.buckets.some((b) => typeof b !== "number" || b <= 0)) {
+                throw new Error("Buckets must be an array of positive numbers");
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            this.buckets = [...options.buckets];
+        }
+
         this.componentsCount = this.buckets.length + 2;
     }
 

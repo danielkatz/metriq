@@ -39,7 +39,10 @@
   "author": "Daniel Katz",
   "license": "MIT",
   "homepage": "https://github.com/danielkatz/metriq",
+  "dependencies": {
+    "tdigest": "^0.1.2"
+  },
   "devDependencies": {
-    "dedent": "^1.5.3"
+    "@types/tdigest": "^0.1.4"
   }
 }
