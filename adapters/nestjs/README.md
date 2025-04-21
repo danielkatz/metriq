@@ -1,5 +1,8 @@
 # @metriq/nestjs
 
+[![npm version](https://img.shields.io/npm/v/@metriq/nestjs.svg)](https://www.npmjs.com/package/@metriq/nestjs)
+[![License](https://img.shields.io/npm/l/@metriq/nestjs.svg)](https://www.npmjs.com/package/@metriq/nestjs)
+
 NestJS adapter for Metriq metrics library.
 
 ## 📦 Installation

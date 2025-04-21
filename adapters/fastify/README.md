@@ -1,5 +1,8 @@
 # @metriq/fastify
 
+[![npm version](https://img.shields.io/npm/v/@metriq/fastify.svg)](https://www.npmjs.com/package/@metriq/fastify)
+[![License](https://img.shields.io/npm/l/@metriq/fastify.svg)](https://www.npmjs.com/package/@metriq/fastify)
+
 Fastify adapter for Metriq metrics library.
 
 ## 📦 Installation
