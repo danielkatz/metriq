@@ -5,6 +5,7 @@ import { GaugeImpl } from "./instruments/gauge";
 import { HistogramImpl, HistogramOptions } from "./instruments/histogram";
 import { Labels } from "./types";
 import { InstrumentFactory } from "./instruments/factory";
+import { SummaryImpl, SummaryOptions } from "./instruments/summary";
 
 export type RegistryOptions = {
     defaultTtl?: number;
@@ -89,6 +90,27 @@ export class RegistryImpl implements Registry {
         const histogram = new HistogramImpl<T>(fullName, description, this, merged);
         this.registerInstrument(histogram);
         return histogram;
+    }
+
+    public createSummary<T extends Labels = Labels>(
+        name: string,
+        description: string,
+        options?: SummaryOptions,
+    ): SummaryImpl<T> {
+        const merged: SummaryOptions = {
+            ttl: this.options.defaultTtl,
+            commonLabels: this.options.commonLabels,
+            ...options,
+        };
+        const fullName = (this.options.commonPrefix ?? "") + name;
+
+        if (this.owner.hasInstrumentName(fullName)) {
+            throw new Error(`Instrument with name "${fullName}" already exists`);
+        }
+
+        const summary = new SummaryImpl<T>(fullName, description, this, merged);
+        this.registerInstrument(summary);
+        return summary;
     }
 
     private registerInstrument(instrument: InstrumentImpl): void {

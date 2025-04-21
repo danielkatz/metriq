@@ -38,5 +38,11 @@
   },
   "author": "Daniel Katz",
   "license": "MIT",
-  "homepage": "https://github.com/danielkatz/metriq"
+  "homepage": "https://github.com/danielkatz/metriq",
+  "dependencies": {
+    "tdigest": "^0.1.2"
+  },
+  "devDependencies": {
+    "@types/tdigest": "^0.1.4"
+  }
 }
