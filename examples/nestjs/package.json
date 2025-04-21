@@ -1,6 +1,6 @@
 {
   "name": "@metriq/examples-nestjs",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Example application using Metriq with NestJS",
   "author": "Daniel Katz",
   "private": true,

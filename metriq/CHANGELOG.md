@@ -1,5 +1,11 @@
 # metriq
 
+## 0.3.1
+
+### Patch Changes
+
+- d963ca7: A bit of refactoring
+
 ## 0.3.0
 
 ### Minor Changes
