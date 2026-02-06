@@ -1,5 +1,12 @@
 # metriq
 
+## 0.6.0
+
+### Minor Changes
+
+- 7068fef: Add OpenMetrics text format exporter with automatic content negotiation. When a scrape client sends `Accept: application/openmetrics-text`, the response uses OpenMetrics format (counter `_total` suffix, `# EOF` terminator). Default remains Prometheus text format. New exports: `MetricsFormatter` interface.
+- 7068fef: Move protocol negotiation (Accept header) into core via `scrapeHandler`. Core is now usable standalone; adapters are thin "last mile" wrappers. New exports: `scrapeHandler(metrics)`, `ScrapeHandler`, `ScrapeResult`.
+
 ## 0.5.0
 
 ### Minor Changes
