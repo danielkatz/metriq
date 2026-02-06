@@ -30,7 +30,7 @@ describe("Fastify adapter", () => {
         `);
     });
 
-    it("forwards Accept header for content negotiation", async () => {
+    it("returns OpenMetrics format when Accept header requests it", async () => {
         const metrics = metriq();
         const app = Fastify();
         app.get("/metrics", prometheus(metrics));
@@ -42,6 +42,7 @@ describe("Fastify adapter", () => {
         });
 
         expect(response.statusCode).toBe(200);
-        expect(response.headers["content-type"]).toBe("text/plain; version=0.0.4; charset=utf-8");
+        expect(response.headers["content-type"]).toBe("application/openmetrics-text; version=1.0.0; charset=utf-8");
+        expect(response.body).toContain("# EOF");
     });
 });

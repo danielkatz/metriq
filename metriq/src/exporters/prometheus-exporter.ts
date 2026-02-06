@@ -2,7 +2,7 @@ import { Readable, Transform, TransformCallback, Writable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { Buffer } from "node:buffer";
 import { MetricsImpl } from "../metrics";
-import { PrometheusFormatterImpl } from "./prometheus-formatter";
+import { MetricsFormatter } from "./metrics-formatter";
 
 export const PROMETHEUS_CONTENT_TYPE = "text/plain; version=0.0.4; charset=utf-8";
 export const OPENMETRICS_CONTENT_TYPE = "application/openmetrics-text; version=1.0.0; charset=utf-8";
@@ -15,13 +15,13 @@ export interface PrometheusExporter {
 
 export class PrometheusExporterImpl implements PrometheusExporter {
     private readonly metrics: MetricsImpl;
-    private readonly formatter: PrometheusFormatterImpl;
+    private readonly formatter: MetricsFormatter;
     public readonly contentType: string;
 
-    constructor(metrics: MetricsImpl, formatter: PrometheusFormatterImpl) {
+    constructor(metrics: MetricsImpl, formatter: MetricsFormatter, contentType: string = PROMETHEUS_CONTENT_TYPE) {
         this.metrics = metrics;
         this.formatter = formatter;
-        this.contentType = PROMETHEUS_CONTENT_TYPE;
+        this.contentType = contentType;
     }
 
     public generateStream(): Readable {

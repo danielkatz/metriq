@@ -9,7 +9,7 @@ import { encodeNumericValue, encodeStringValue } from "./prometheus-text-utils";
 
 const BATCH_SIZE = 40000;
 
-export class PrometheusFormatterImpl implements MetricsFormatter {
+export class OpenMetricsFormatterImpl implements MetricsFormatter {
     private metrics: MetricsImpl;
 
     constructor(metrics: MetricsImpl) {
@@ -36,6 +36,8 @@ export class PrometheusFormatterImpl implements MetricsFormatter {
                 throw new Error(`Unknown instrument type: ${instrument.constructor.name}`);
             }
         }
+
+        yield "# EOF\n";
     }
 
     private *writeCounter(counter: CounterImpl): Generator<string> {
@@ -45,7 +47,7 @@ export class PrometheusFormatterImpl implements MetricsFormatter {
         yield* batchGenerator(
             counter.getInstrumentValues(),
             BATCH_SIZE,
-            (item) => `${counter.name}${this.writeLabels(item.labels)} ${encodeNumericValue(item.value)}\n`,
+            (item) => `${counter.name}_total${this.writeLabels(item.labels)} ${encodeNumericValue(item.value)}\n`,
         );
     }
 

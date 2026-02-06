@@ -17,6 +17,7 @@ A high-performance TypeScript metrics collection library designed for heavy work
 - **TTL Support**: Supports removal of least recently used timeseries
 - **Dynamic Labels**: Supports optional labels on the fly
 - **Testable Design**: No singletons, simple access to metric values
+- **OpenMetrics Support**: Automatic content negotiation between Prometheus and OpenMetrics formats
 
 ## 📚 Packages
 

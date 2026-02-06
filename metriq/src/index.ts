@@ -30,4 +30,5 @@ export { Counter } from "./instruments/counter";
 export { Gauge } from "./instruments/gauge";
 export { Histogram, HistogramOptions, HistogramDebugValue } from "./instruments/histogram";
 export { PrometheusExporter } from "./exporters/prometheus-exporter";
+export { MetricsFormatter } from "./exporters/metrics-formatter";
 export { ScrapeHandler, ScrapeResult } from "./scrape-handler";

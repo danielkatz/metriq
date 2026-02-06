@@ -31,7 +31,7 @@ describe("Express adapter", () => {
         `);
     });
 
-    it("forwards Accept header for content negotiation", async () => {
+    it("returns OpenMetrics format when Accept header requests it", async () => {
         const metrics = metriq();
         const app = express();
         app.get("/metrics", prometheus(metrics));
@@ -41,6 +41,7 @@ describe("Express adapter", () => {
             .set("Accept", "application/openmetrics-text; version=1.0.0");
 
         expect(response.status).toBe(200);
-        expect(response.header["content-type"]).toBe("text/plain; version=0.0.4; charset=utf-8");
+        expect(response.header["content-type"]).toBe("application/openmetrics-text; version=1.0.0; charset=utf-8");
+        expect(response.text).toContain("# EOF");
     });
 });
