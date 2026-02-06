@@ -149,6 +149,28 @@ const metrics = metriq({
 });
 ```
 
+## 🌐 Standalone usage
+
+The core is usable without any adapter. Use `scrapeHandler` for protocol negotiation (Accept header) and streaming:
+
+```typescript
+import { createServer } from "node:http";
+import { metriq, scrapeHandler } from "metriq";
+
+const metrics = metriq();
+const handler = scrapeHandler(metrics);
+
+createServer((req, res) => {
+    const { contentType, stream } = handler.scrape(req.headers.accept);
+    res.setHeader("Content-Type", contentType);
+    stream.pipe(res);
+}).listen(3000);
+```
+
+## 📝 Custom adapters
+
+Adapters only need to pass the request `Accept` header to `scrapeHandler(metrics).scrape(acceptHeader)` and write the returned `{ contentType, stream }` to the framework response. The included adapters (Express, Fastify, NestJS) are convenience wrappers; use the core `scrapeHandler` API to integrate with any server.
+
 ## 📊 Registry
 
 ```typescript
@@ -168,6 +190,8 @@ registry.createCounter("counter", "help text");
 ```
 
 ## 📚 Adapters
+
+Convenience adapters that wire `scrapeHandler` to framework-specific APIs:
 
 - [`@metriq/express`](adapters/express/README.md) - Express
 - [`@metriq/fastify`](adapters/fastify/README.md) - Fastify

@@ -1,21 +1,17 @@
 import { Injectable, StreamableFile } from "@nestjs/common";
-import { Metrics, PrometheusExporter, prometheusExporter } from "metriq";
+import { Metrics, ScrapeHandler, scrapeHandler } from "metriq";
 import { InjectMetriq } from "./decorators";
 
 @Injectable()
 export class MetricsService {
-    private readonly exporter: PrometheusExporter;
+    private readonly handler: ScrapeHandler;
 
     constructor(@InjectMetriq() private readonly metrics: Metrics) {
-        this.exporter = prometheusExporter(this.metrics);
+        this.handler = scrapeHandler(this.metrics);
     }
 
-    getMetrics(): StreamableFile {
-        const stream = this.exporter.generateStream();
-        const streamable = new StreamableFile(stream, {
-            type: this.exporter.contentType,
-        });
-
-        return streamable;
+    getMetrics(acceptHeader?: string): StreamableFile {
+        const { contentType, stream } = this.handler.scrape(acceptHeader);
+        return new StreamableFile(stream, { type: contentType });
     }
 }

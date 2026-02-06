@@ -29,4 +29,19 @@ describe("Fastify adapter", () => {
             test_counter 1\n
         `);
     });
+
+    it("forwards Accept header for content negotiation", async () => {
+        const metrics = metriq();
+        const app = Fastify();
+        app.get("/metrics", prometheus(metrics));
+
+        const response = await app.inject({
+            method: "GET",
+            url: "/metrics",
+            headers: { accept: "application/openmetrics-text; version=1.0.0" },
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["content-type"]).toBe("text/plain; version=0.0.4; charset=utf-8");
+    });
 });

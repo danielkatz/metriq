@@ -1,6 +1,7 @@
 import { PrometheusExporter, PrometheusExporterImpl } from "./exporters/prometheus-exporter";
 import { PrometheusFormatterImpl } from "./exporters/prometheus-formatter";
 import { Metrics, MetricsImpl, MetricsOptions } from "./metrics";
+import { ScrapeHandler, ScrapeHandlerImpl } from "./scrape-handler";
 
 export const metriq = (options?: Partial<MetricsOptions>): Metrics => {
     return new MetricsImpl(options);
@@ -14,6 +15,13 @@ export const prometheusExporter = (metrics: Metrics): PrometheusExporter => {
     return new PrometheusExporterImpl(metrics, formatter);
 };
 
+export const scrapeHandler = (metrics: Metrics): ScrapeHandler => {
+    if (!(metrics instanceof MetricsImpl)) {
+        throw new Error("Metrics must be an instance of MetricsImpl");
+    }
+    return new ScrapeHandlerImpl(metrics);
+};
+
 export { Labels, RequiredLabels } from "./types";
 export { Metrics, MetricsOptions } from "./metrics";
 export { Registry, RegistryOptions } from "./registry";
@@ -22,3 +30,4 @@ export { Counter } from "./instruments/counter";
 export { Gauge } from "./instruments/gauge";
 export { Histogram, HistogramOptions, HistogramDebugValue } from "./instruments/histogram";
 export { PrometheusExporter } from "./exporters/prometheus-exporter";
+export { ScrapeHandler, ScrapeResult } from "./scrape-handler";

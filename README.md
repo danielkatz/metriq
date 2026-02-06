@@ -31,7 +31,7 @@ A high-performance TypeScript metrics collection library designed for heavy work
 # Core library
 npm install metriq
 
-# Express middleware (optional)
+# Optional: convenience adapters for Express, Fastify, NestJS
 npm install @metriq/express
 ```
 
