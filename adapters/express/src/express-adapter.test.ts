@@ -30,4 +30,18 @@ describe("Express adapter", () => {
             test_counter 1\n
         `);
     });
+
+    it("returns OpenMetrics format when Accept header requests it", async () => {
+        const metrics = metriq();
+        const app = express();
+        app.get("/metrics", prometheus(metrics));
+
+        const response = await request(app)
+            .get("/metrics")
+            .set("Accept", "application/openmetrics-text; version=1.0.0");
+
+        expect(response.status).toBe(200);
+        expect(response.header["content-type"]).toBe("application/openmetrics-text; version=1.0.0; charset=utf-8");
+        expect(response.text).toContain("# EOF");
+    });
 });

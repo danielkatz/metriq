@@ -1,16 +1,12 @@
+import { pipeline } from "node:stream/promises";
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { Metrics, prometheusExporter } from "metriq";
+import { Metrics, scrapeHandler } from "metriq";
 
 export const prometheus = (metrics: Metrics): RequestHandler => {
-    const exporter = prometheusExporter(metrics);
+    const handler = scrapeHandler(metrics);
     return (req: Request, res: Response, next: NextFunction) => {
-        res.setHeader("Content-Type", exporter.contentType);
-
-        exporter
-            .writeToStream(res)
-            .then(() => {
-                res.end();
-            })
-            .catch(next);
+        const { contentType, stream } = handler.scrape(req.headers.accept);
+        res.setHeader("Content-Type", contentType);
+        pipeline(stream, res).catch(next);
     };
 };

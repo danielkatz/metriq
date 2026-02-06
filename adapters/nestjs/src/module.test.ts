@@ -51,6 +51,16 @@ describe("NestJS adapter", () => {
                 test_counter 1\n
             `);
         });
+
+        it("returns OpenMetrics format when Accept header requests it", async () => {
+            const response = await request(server)
+                .get("/metrics")
+                .set("Accept", "application/openmetrics-text; version=1.0.0");
+
+            expect(response.status).toBe(200);
+            expect(response.header["content-type"]).toBe("application/openmetrics-text; version=1.0.0; charset=utf-8");
+            expect(response.text).toContain("# EOF");
+        });
     });
 
     describe("with custom path", () => {
